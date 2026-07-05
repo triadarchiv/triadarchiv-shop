@@ -1991,6 +1991,13 @@
         body: JSON.stringify({ email })
       })
         .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(data => {
+          note.className = 'newsletter-note success';
+          note.textContent = (data && data.doi)
+            ? 'Fast geschafft! Bitte bestätige deine Anmeldung über den Link in der E-Mail, die wir dir gerade geschickt haben. ✉'
+            : 'Danke! Du bist dabei – wir melden uns bei neuen Drops. ✓';
+          form.reset();
+        })
         .catch(() => {
           // Fallback ohne Server: lokal merken, damit nichts verloren geht
           try{
@@ -1998,12 +2005,12 @@
             list.push({ email, date:new Date().toISOString() });
             localStorage.setItem('triadNewsletter', JSON.stringify(list));
           }catch(err){}
-        })
-        .finally(() => {
-          form.reset();
-          btn.disabled = false;
           note.className = 'newsletter-note success';
           note.textContent = 'Danke! Du bist dabei – wir melden uns bei neuen Drops. ✓';
+          form.reset();
+        })
+        .finally(() => {
+          btn.disabled = false;
         });
     });
   })();
