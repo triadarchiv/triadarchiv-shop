@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRIAD ARCHIV — Vintage Adidas</title>
+<meta name="description" content="Kuratiertes Vintage-Adidas-Archiv. Handverlesene Y2K- & Retro-Raritäten — jedes Teil ein Unikat.">
+<meta name="theme-color" content="#0e0e0e">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<!-- Social-Vorschau (Open Graph / Twitter) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TRIAD ARCHIV">
+<meta property="og:title" content="TRIAD ARCHIV — Vintage Adidas">
+<meta property="og:description" content="Kuratiertes Vintage-Adidas-Archiv. Handverlesene Y2K- & Retro-Raritäten — jedes Teil ein Unikat.">
+<meta property="og:url" content="https://triadarchiv.netlify.app/shop.html">
+<meta property="og:image" content="https://triadarchiv.netlify.app/deko-vest.png">
+<meta property="og:locale" content="de_DE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TRIAD ARCHIV — Vintage Adidas">
+<meta name="twitter:description" content="Kuratiertes Vintage-Adidas-Archiv. Handverlesene Y2K- & Retro-Raritäten — jedes Teil ein Unikat.">
+<meta name="twitter:image" content="https://triadarchiv.netlify.app/deko-vest.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -704,6 +720,34 @@
     font-size:13px;
     letter-spacing:1px;
     text-transform:uppercase;
+  }
+
+  /* Leerer Shop (noch keine Produkte) — edler „bald geht's los“-Zustand */
+  .shop-empty{
+    grid-column:1/-1;
+    text-align:center;
+    padding:88px 24px 104px;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.035), transparent 62%),
+      var(--surface);
+  }
+  .shop-empty .eyebrow{ display:block; margin-bottom:var(--s2); color:var(--accent); }
+  .shop-empty h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(22px, 4vw, 34px);
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:var(--s2);
+  }
+  .shop-empty h2 .highlight{ color:var(--accent); }
+  .shop-empty p{
+    max-width:460px;
+    margin:0 auto;
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
   }
 
   /* ---------- condition info box ---------- */
@@ -1532,7 +1576,14 @@
         </article>`;
     }).join('');
 
-    grid.innerHTML = cardsHtml + '<p class="empty-state" id="emptyState" hidden>Keine Treffer — versuch einen anderen Filter oder Suchbegriff.</p>';
+    const comingSoon = data.length === 0
+      ? `<div class="shop-empty">
+           <span class="eyebrow">Bald verfügbar</span>
+           <h2>Die Kollektion wird <span class="highlight">kuratiert</span></h2>
+           <p>Neue handverlesene Vintage-Adidas-Stücke landen in Kürze im Archiv. Schau bald wieder vorbei — es lohnt sich.</p>
+         </div>`
+      : '';
+    grid.innerHTML = comingSoon + cardsHtml + '<p class="empty-state" id="emptyState" hidden>Keine Treffer — versuch einen anderen Filter oder Suchbegriff.</p>';
   }
 
   renderProductGrid();
@@ -1594,8 +1645,8 @@
       p.style.display = show ? 'flex' : 'none';
       if(show) visibleCount++;
     });
-    emptyState.hidden = visibleCount > 0;
-    if(resultCount) resultCount.textContent = visibleCount + (visibleCount === 1 ? ' Produkt' : ' Produkte');
+    emptyState.hidden = visibleCount > 0 || products.length === 0;
+    if(resultCount) resultCount.textContent = products.length === 0 ? 'Bald verfügbar' : visibleCount + (visibleCount === 1 ? ' Produkt' : ' Produkte');
     updateFilterCount();
     // Kategorie gewählt (≠ „Alle“) -> große Banner ausblenden, nur Artikel zeigen
     document.body.classList.toggle('category-view', activeFilter !== 'all');
