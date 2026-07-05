@@ -9,6 +9,12 @@
   # Node-Funktionen werden automatisch gebündelt
   node_bundler = "esbuild"
 
+# Startseite: "/" soll den Shop zeigen (Netlify sucht sonst index.html -> 404).
+[[redirects]]
+  from = "/"
+  to = "/shop.html"
+  status = 200
+
 # Die alten /api/... Adressen aus server.ps1 auf die neuen Netlify-Funktionen umleiten,
 # damit im Frontend (cart.html, success.html, admin.html) nichts umgeschrieben werden muss.
 [[redirects]]
