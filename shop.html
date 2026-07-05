@@ -732,7 +732,36 @@
       radial-gradient(ellipse at top, rgba(255,255,255,0.035), transparent 62%),
       var(--surface);
   }
-  .shop-empty .eyebrow{ display:block; margin-bottom:var(--s2); color:var(--accent); }
+  .shop-empty .soon-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    margin-bottom:var(--s3);
+    padding:9px 18px;
+    border-radius:999px;
+    background:var(--accent);
+    color:#0e0e0e;
+    font-family:var(--font-mono);
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    box-shadow:0 0 0 6px var(--accent-soft);
+  }
+  .shop-empty .soon-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#0e0e0e;
+    animation:soon-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes soon-pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.3; transform:scale(0.6); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .shop-empty .soon-dot{ animation:none; }
+  }
   .shop-empty h2{
     font-family:var(--font-display);
     font-weight:600;
@@ -1578,9 +1607,9 @@
 
     const comingSoon = data.length === 0
       ? `<div class="shop-empty">
-           <span class="eyebrow">Bald verfügbar</span>
-           <h2>Die Kollektion wird <span class="highlight">kuratiert</span></h2>
-           <p>Neue handverlesene Vintage-Adidas-Stücke landen in Kürze im Archiv. Schau bald wieder vorbei — es lohnt sich.</p>
+           <span class="soon-badge"><span class="soon-dot"></span>Bald im Archiv</span>
+           <h2>Die ersten Stücke kommen <span class="highlight">bald</span></h2>
+           <p>Handverlesene Vintage-Adidas-Stücke sind auf dem Weg. Schau bald wieder vorbei — es lohnt sich.</p>
          </div>`
       : '';
     grid.innerHTML = comingSoon + cardsHtml + '<p class="empty-state" id="emptyState" hidden>Keine Treffer — versuch einen anderen Filter oder Suchbegriff.</p>';
@@ -1646,7 +1675,7 @@
       if(show) visibleCount++;
     });
     emptyState.hidden = visibleCount > 0 || products.length === 0;
-    if(resultCount) resultCount.textContent = products.length === 0 ? 'Bald verfügbar' : visibleCount + (visibleCount === 1 ? ' Produkt' : ' Produkte');
+    if(resultCount) resultCount.textContent = products.length === 0 ? 'Bald im Archiv' : visibleCount + (visibleCount === 1 ? ' Produkt' : ' Produkte');
     updateFilterCount();
     // Kategorie gewählt (≠ „Alle“) -> große Banner ausblenden, nur Artikel zeigen
     document.body.classList.toggle('category-view', activeFilter !== 'all');
