@@ -49,3 +49,8 @@
   from = "/api/newsletter"
   to = "/.netlify/functions/newsletter"
   status = 200
+
+[[redirects]]
+  from = "/api/newsletter-list"
+  to = "/.netlify/functions/newsletter-list"
+  status = 200

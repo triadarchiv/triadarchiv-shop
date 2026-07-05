@@ -442,6 +442,7 @@
   </a>
   <div class="header-icons">
     <a href="#bestellungen" id="ordersLink">Bestellungen</a>
+    <a href="#anmeldungen" id="subsLink">Anmeldungen</a>
     <a href="shop.html">Zum Shop</a>
     <a href="cart.html">Warenkorb</a>
   </div>
@@ -580,6 +581,18 @@
       <button class="btn" id="ordersReload"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
     </div>
     <div id="ordersList"></div>
+  </div>
+</div>
+
+<div class="wrap" id="anmeldungen">
+  <div class="panel" style="grid-column:1 / -1;">
+    <h2>Newsletter-Anmeldungen <span class="badge-count" id="subsCount"></span></h2>
+    <div class="toolbar">
+      <button class="btn" id="subsReload"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
+      <button class="btn" id="subsCopy"><i class="fa-solid fa-copy"></i> Alle kopieren</button>
+      <button class="btn" id="subsExport"><i class="fa-solid fa-download"></i> Export (CSV)</button>
+    </div>
+    <div id="subsList"></div>
   </div>
 </div>
 
@@ -1058,6 +1071,74 @@
   document.getElementById('ordersReload').addEventListener('click', loadOrders);
   document.getElementById('ordersLink').addEventListener('click', () => {
     setTimeout(loadOrders, 50);   // beim Klick auf "Bestellungen" gleich laden
+  });
+
+  /* ---------- Newsletter-Anmeldungen (nur online) ---------- */
+  const subsList = document.getElementById('subsList');
+  const subsCount = document.getElementById('subsCount');
+  let subsData = [];
+
+  function renderSubs(subs){
+    subsData = Array.isArray(subs) ? subs : [];
+    if(subsData.length === 0){
+      subsCount.textContent = '0';
+      subsList.innerHTML = '<p class="empty-state">Noch keine Anmeldungen.</p>';
+      return;
+    }
+    subsCount.textContent = subsData.length;
+    const sorted = subsData.slice().reverse();   // neueste zuerst
+    subsList.innerHTML = sorted.map(s => {
+      const d = s.date ? new Date(s.date).toLocaleString('de-DE') : '';
+      return `
+        <div class="order-card">
+          <div class="order-head">
+            <span class="order-amount">${escapeHtml(s.email || '')}</span>
+            <span class="order-date">${escapeHtml(d)}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function loadSubs(){
+    subsList.innerHTML = '<p class="empty-state">Lade Anmeldungen …</p>';
+    try{
+      const res = await fetch('/api/newsletter-list', { headers: { 'x-admin-key': getAdminKey() } });
+      if(res.status === 401){
+        sessionStorage.removeItem('triadAdminKey');
+        subsList.innerHTML = '<p class="empty-state">Falsches Admin-Passwort. Bitte Seite neu laden und erneut versuchen.</p>';
+        return;
+      }
+      if(!res.ok){ subsList.innerHTML = '<p class="empty-state">Anmeldungen konnten nicht geladen werden.</p>'; return; }
+      renderSubs(await res.json());
+    }catch(e){
+      subsList.innerHTML = '<p class="empty-state">Anmeldungen gibt es nur im echten Online-Shop (triadarchiv.netlify.app/admin.html), nicht in der lokalen Datei.</p>';
+    }
+  }
+
+  document.getElementById('subsReload').addEventListener('click', loadSubs);
+  document.getElementById('subsLink').addEventListener('click', () => {
+    setTimeout(loadSubs, 50);   // beim Klick auf "Anmeldungen" gleich laden
+  });
+
+  document.getElementById('subsCopy').addEventListener('click', () => {
+    if(subsData.length === 0){ showToast('Keine Anmeldungen zum Kopieren'); return; }
+    const text = subsData.map(s => s.email).filter(Boolean).join(', ');
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('E-Mails kopiert'))
+      .catch(() => showToast('Kopieren nicht möglich'));
+  });
+
+  document.getElementById('subsExport').addEventListener('click', () => {
+    if(subsData.length === 0){ showToast('Keine Anmeldungen zum Export'); return; }
+    const rows = [['email','datum']].concat(subsData.map(s => [s.email || '', s.date || '']));
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'triad-newsletter.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   });
 
   updateImgPreview();
