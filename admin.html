@@ -72,6 +72,38 @@
   .header-icons a{ color:var(--grey); text-decoration:none; transition:color .15s ease; }
   .header-icons a:hover{ color:var(--off-white); }
 
+  /* ---------- Bestellungen ---------- */
+  .order-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    background:var(--card);
+  }
+  .order-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .order-date{ font-size:12px; color:var(--grey); }
+  .order-amount{ font-weight:700; color:var(--off-white); font-size:15px; }
+  .order-items{ font-size:14px; color:var(--off-white); margin-bottom:10px; }
+  .order-addr{
+    font-size:13px;
+    line-height:1.5;
+    color:var(--off-white);
+    background:rgba(255,255,255,0.03);
+    border-left:2px solid var(--pink);
+    padding:8px 12px;
+    border-radius:4px;
+    margin-bottom:8px;
+  }
+  .order-addr strong{ color:var(--grey); font-weight:600; text-transform:uppercase; font-size:11px; letter-spacing:0.5px; }
+  .order-email{ font-size:12px; color:var(--grey); }
+  .order-muted{ color:var(--grey); }
+
   .header-titel{
     text-align:center;
     font-family:'Oswald', sans-serif;
@@ -409,6 +441,7 @@
     TRIAD <span class="archive">ARCHIV</span>
   </a>
   <div class="header-icons">
+    <a href="#bestellungen" id="ordersLink">Bestellungen</a>
     <a href="shop.html">Zum Shop</a>
     <a href="cart.html">Warenkorb</a>
   </div>
@@ -538,6 +571,16 @@
     <p class="empty-state" id="emptyState" hidden>Noch keine Produkte — leg links dein erstes an.</p>
   </div>
 
+</div>
+
+<div class="wrap" id="bestellungen">
+  <div class="panel" style="grid-column:1 / -1;">
+    <h2>Bestellungen <span class="badge-count" id="ordersCount"></span></h2>
+    <div class="toolbar">
+      <button class="btn" id="ordersReload"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
+    </div>
+    <div id="ordersList"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -950,6 +993,71 @@
     };
     reader.readAsText(file);
     importFile.value = '';
+  });
+
+  /* ---------- Bestellungen (nur online) ---------- */
+  const ordersList = document.getElementById('ordersList');
+  const ordersCount = document.getElementById('ordersCount');
+
+  function renderOrders(orders){
+    if(!orders || orders.length === 0){
+      ordersCount.textContent = '0';
+      ordersList.innerHTML = '<p class="empty-state">Noch keine Bestellungen.</p>';
+      return;
+    }
+    ordersCount.textContent = orders.length;
+    const sorted = orders.slice().reverse();   // neueste zuerst
+    ordersList.innerHTML = sorted.map(o => {
+      const names = (o.productIds || '').split(',').map(id => {
+        const p = products.find(pp => String(pp.id) === id.trim());
+        return p ? p.name : id.trim();
+      }).filter(Boolean).join(', ');
+      const ship = o.shipping || o.customer || {};
+      const addr = (ship && ship.address) || {};
+      const adrLines = [
+        ship.name || '',
+        addr.line1 || '',
+        addr.line2 || '',
+        [addr.postal_code, addr.city].filter(Boolean).join(' '),
+        addr.country || ''
+      ].filter(s => s && String(s).trim()).map(escapeHtml).join('<br>');
+      const d = o.date ? new Date(o.date).toLocaleString('de-DE') : '';
+      const betrag = o.amount ? (String(o.amount).replace('.', ',') + ' ' + (o.currency || 'EUR')) : '';
+      return `
+        <div class="order-card">
+          <div class="order-head">
+            <span class="order-date">${escapeHtml(d)}</span>
+            <span class="order-amount">${escapeHtml(betrag)}</span>
+          </div>
+          <div class="order-items">${escapeHtml(names || '—')}</div>
+          <div class="order-addr">
+            <strong>Lieferadresse</strong><br>
+            ${adrLines || '<span class="order-muted">keine Adresse hinterlegt</span>'}
+          </div>
+          <div class="order-email">${escapeHtml(o.email || '')}</div>
+        </div>`;
+    }).join('');
+  }
+
+  async function loadOrders(){
+    ordersList.innerHTML = '<p class="empty-state">Lade Bestellungen …</p>';
+    try{
+      const res = await fetch('/api/orders', { headers: { 'x-admin-key': getAdminKey() } });
+      if(res.status === 401){
+        sessionStorage.removeItem('triadAdminKey');
+        ordersList.innerHTML = '<p class="empty-state">Falsches Admin-Passwort. Bitte Seite neu laden und erneut versuchen.</p>';
+        return;
+      }
+      if(!res.ok){ ordersList.innerHTML = '<p class="empty-state">Bestellungen konnten nicht geladen werden.</p>'; return; }
+      renderOrders(await res.json());
+    }catch(e){
+      ordersList.innerHTML = '<p class="empty-state">Bestellungen gibt es nur im echten Online-Shop (triadarchiv.netlify.app/admin.html), nicht in der lokalen Datei.</p>';
+    }
+  }
+
+  document.getElementById('ordersReload').addEventListener('click', loadOrders);
+  document.getElementById('ordersLink').addEventListener('click', () => {
+    setTimeout(loadOrders, 50);   // beim Klick auf "Bestellungen" gleich laden
   });
 
   updateImgPreview();

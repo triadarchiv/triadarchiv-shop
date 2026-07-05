@@ -32,6 +32,11 @@
   to = "/.netlify/functions/products"
   status = 200
 
+[[redirects]]
+  from = "/api/orders"
+  to = "/.netlify/functions/orders"
+  status = 200
+
 # Der Shop lädt Produkte über products.json -> auf die Funktion umleiten,
 # damit immer der aktuelle Online-Stand (Blobs) kommt. force=true überschreibt die Datei.
 [[redirects]]
