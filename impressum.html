@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impressum — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121212;
+    --panel: #1a1a1a;
+    --card: #1c1c1c;
+    --line: rgba(255,255,255,0.09);
+    --off-white: #f2f0ea;
+    --grey: #8a8a86;
+    --pink: #ff3d78;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ background:var(--bg); }
+
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--bg);
+    color:var(--off-white);
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  /* ---------- utility ---------- */
+  .stripes{
+    display:inline-flex;
+    gap:3px;
+    transform:skewX(-12deg);
+  }
+  .stripes span{
+    width:4px;
+    height:16px;
+    background:var(--off-white);
+  }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
+    background:rgba(18,18,18,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    letter-spacing:0.5px;
+    font-size:16px;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:inherit;
+  }
+  .logo .archive{ color:var(--pink); }
+
+  /* ---------- page title ---------- */
+  .header-titel{
+    text-align:center;
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size:clamp(28px, 5vw, 44px);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--off-white);
+    margin:36px 20px 16px;
+  }
+  .header-titel .archive{ color:var(--pink); }
+
+  /* ---------- legal content ---------- */
+  .legal{
+    max-width:800px;
+    margin:0 auto;
+    padding:0 20px 60px;
+  }
+  .legal h2{
+    font-family:'Oswald', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--off-white);
+    margin:32px 0 10px;
+  }
+  .legal h2:first-child{ margin-top:0; }
+  .legal p{
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    line-height:1.7;
+    color:var(--grey);
+  }
+  .legal a{
+    color:var(--pink);
+    text-decoration:none;
+  }
+  .legal a:hover{ text-decoration:underline; }
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:40px;
+    border-top:1px solid var(--line);
+    padding:28px 20px 40px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 28px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  footer .foot-logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Oswald', sans-serif;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--grey);
+  }
+  .foot-links{
+    display:flex;
+    gap:22px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .foot-links a{
+    color:var(--grey);
+    text-decoration:none;
+  }
+  .foot-links a:hover{ color:var(--off-white); }
+
+  :focus-visible{
+    outline:2px solid var(--pink);
+    outline-offset:2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+</header>
+
+<h1 class="header-titel">Impressum</h1>
+
+<div class="legal">
+  <h2>Angaben gemäß § 5 TMG</h2>
+  <p>
+    Fabian Müller<br>
+    Schubertstraße 11<br>
+    71277 Rutesheim<br>
+    Deutschland
+  </p>
+
+  <h2>Kontakt</h2>
+  <p>E-Mail: <a href="mailto:Triadarchiv@web.de">Triadarchiv@web.de</a></p>
+
+  <h2>Hinweis zur Umsatzsteuer</h2>
+  <p>Kleinunternehmer gemäß § 19 UStG (keine Umsatzsteuer).</p>
+
+  <h2>EU-Streitschlichtung</h2>
+  <p>
+    Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>
+  </p>
+</div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Zurück zum Shop</a>
+  </div>
+</footer>
+
+</body>
+</html>

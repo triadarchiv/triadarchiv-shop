@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bestellung bestätigt — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0e0e0e;
+    --card: #151515;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --off-white: #f5f3ee;
+    --grey: #a7a7a1;
+    --pink: #ff3d78;
+    --font-sans:'Inter', -apple-system, Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--bg); }
+  body{
+    background:var(--bg);
+    color:var(--off-white);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
+  .stripes span{ width:4px; height:16px; background:var(--off-white); }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+
+  .card{
+    max-width:480px;
+    width:100%;
+    text-align:center;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:44px 32px;
+  }
+  .check{
+    width:56px;
+    height:56px;
+    margin:0 auto 24px;
+    border-radius:50%;
+    border:1.5px solid var(--pink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--pink);
+    font-size:26px;
+  }
+  h1{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  p{
+    color:var(--grey);
+    font-size:15px;
+    line-height:1.7;
+    margin-bottom:28px;
+  }
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background:var(--off-white);
+    border:1px solid var(--off-white);
+    color:var(--bg);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:14px 26px;
+    border-radius:4px;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .back-btn:hover{ background:transparent; color:var(--off-white); border-color:var(--off-white); }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-weight:700;
+    letter-spacing:1px;
+    font-size:14px;
+    text-transform:uppercase;
+    margin-bottom:28px;
+    color:var(--off-white);
+  }
+  .logo .archive{ color:var(--pink); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <span class="stripes"><span></span><span></span><span></span></span>
+      TRIAD <span class="archive">ARCHIV</span>
+    </div>
+    <div class="check">✓</div>
+    <h1>Danke für deine Bestellung!</h1>
+    <p>Deine Zahlung ist eingegangen. Du erhältst in Kürze eine Bestätigung per E-Mail. Wir kümmern uns um den Versand.</p>
+    <a class="back-btn" href="shop.html">Weiter einkaufen</a>
+  </div>
+
+  <script>
+    // Warenkorb nach erfolgreicher Zahlung leeren
+    localStorage.removeItem('triadCart');
+
+    // Bestellung serverseitig verifizieren -> Artikel als verkauft markieren, Bestellung protokollieren
+    (function(){
+      const params = new URLSearchParams(location.search);
+      const sessionId = params.get('session_id');
+      if(sessionId){
+        fetch('/api/order-complete?session_id=' + encodeURIComponent(sessionId))
+          .catch(() => { /* stiller Fehler: Bestellung ist trotzdem bezahlt */ });
+      }
+    })();
+  </script>
+</body>
+</html>

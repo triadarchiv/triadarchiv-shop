@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGB — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121212;
+    --panel: #1a1a1a;
+    --card: #1c1c1c;
+    --line: rgba(255,255,255,0.09);
+    --off-white: #f2f0ea;
+    --grey: #8a8a86;
+    --pink: #ff3d78;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--bg); }
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--bg);
+    color:var(--off-white);
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
+  .stripes span{ width:4px; height:16px; background:var(--off-white); }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+    background:rgba(18,18,18,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Oswald', sans-serif; font-weight:700;
+    letter-spacing:0.5px; font-size:16px; text-transform:uppercase;
+    text-decoration:none; color:inherit;
+  }
+  .logo .archive{ color:var(--pink); }
+  .header-titel{
+    text-align:center; font-family:'Oswald', sans-serif; font-weight:700;
+    font-size:clamp(28px, 5vw, 44px); letter-spacing:2px;
+    text-transform:uppercase; color:var(--off-white); margin:36px 20px 16px;
+  }
+  .header-titel .archive{ color:var(--pink); }
+  .legal{ max-width:800px; margin:0 auto; padding:0 20px 60px; }
+  .legal h2{
+    font-family:'Oswald', sans-serif; font-weight:600; font-size:15px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--off-white);
+    margin:32px 0 10px;
+  }
+  .legal h2:first-child{ margin-top:0; }
+  .legal p, .legal li{
+    font-family:'Inter', sans-serif; font-size:15px; line-height:1.7; color:var(--grey);
+  }
+  .legal ul{ margin:8px 0 8px 20px; }
+  .legal a{ color:var(--pink); text-decoration:none; }
+  .legal a:hover{ text-decoration:underline; }
+  footer{
+    margin-top:40px; border-top:1px solid var(--line);
+    padding:28px 20px 40px; display:flex; flex-wrap:wrap;
+    gap:14px 28px; align-items:center; justify-content:space-between;
+  }
+  footer .foot-logo{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Oswald', sans-serif; font-size:12px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--grey);
+  }
+  .foot-links{
+    display:flex; flex-wrap:wrap; gap:22px;
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .foot-links a{ color:var(--grey); text-decoration:none; }
+  .foot-links a:hover{ color:var(--off-white); }
+  :focus-visible{ outline:2px solid var(--pink); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+</header>
+
+<h1 class="header-titel">AGB</h1>
+
+<div class="legal">
+  <h2>§ 1 Geltungsbereich &amp; Anbieter</h2>
+  <p>
+    Für alle Bestellungen über diesen Online-Shop gelten die nachfolgenden Allgemeinen Geschäftsbedingungen.
+    Anbieter ist Fabian Müller, Schubertstraße 11, 71277 Rutesheim, E-Mail:
+    <a href="mailto:Triadarchiv@web.de">Triadarchiv@web.de</a> (nachfolgend „Verkäufer").
+  </p>
+
+  <h2>§ 2 Vertragsgegenstand</h2>
+  <p>
+    Gegenstand des Vertrags ist der Verkauf von gebrauchten und neuwertigen Vintage-Bekleidungsstücken.
+    Da es sich überwiegend um Unikate aus zweiter Hand handelt, können geringfügige Gebrauchsspuren
+    vorhanden sein. Der jeweilige Zustand wird in der Produktbeschreibung und auf den Produktfotos so genau
+    wie möglich angegeben.
+  </p>
+
+  <h2>§ 3 Vertragsschluss</h2>
+  <p>
+    Die Darstellung der Produkte im Online-Shop stellt kein rechtlich bindendes Angebot, sondern eine
+    Aufforderung zur Bestellung dar. Mit dem Absenden der Bestellung über den Button „Kaufen" bzw. den
+    Abschluss des Bezahlvorgangs geben Sie ein verbindliches Angebot zum Kauf ab. Der Kaufvertrag kommt
+    zustande, wenn wir Ihre Bestellung durch eine Bestellbestätigung oder durch Auslieferung der Ware annehmen.
+  </p>
+
+  <h2>§ 4 Preise &amp; Versandkosten</h2>
+  <p>
+    Alle angegebenen Preise sind Endpreise. Gemäß § 19 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer
+    berechnet. Zuzüglich zu den angegebenen Preisen können Versandkosten anfallen. Die Versandkosten werden
+    Ihnen im Warenkorb und im Bestellvorgang deutlich mitgeteilt. Einzelheiten finden Sie unter
+    <a href="versand.html">Versand &amp; Zahlung</a>.
+  </p>
+
+  <h2>§ 5 Zahlung</h2>
+  <p>
+    Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Die verfügbaren Zahlungsarten werden Ihnen im
+    Bestellvorgang angezeigt. Der Kaufpreis ist mit Vertragsschluss sofort zur Zahlung fällig.
+  </p>
+
+  <h2>§ 6 Lieferung</h2>
+  <p>
+    Die Lieferung erfolgt an die von Ihnen angegebene Lieferadresse. Der Versand erfolgt nach Zahlungseingang.
+    Angaben zu Lieferzeiten und Versandkosten finden Sie unter <a href="versand.html">Versand &amp; Zahlung</a>.
+  </p>
+
+  <h2>§ 7 Widerrufsrecht</h2>
+  <p>
+    Verbrauchern steht ein gesetzliches Widerrufsrecht zu. Einzelheiten entnehmen Sie bitte unserer
+    <a href="widerruf.html">Widerrufsbelehrung</a>.
+  </p>
+
+  <h2>§ 8 Gewährleistung</h2>
+  <p>
+    Es gelten die gesetzlichen Gewährleistungsrechte. Bei gebrauchten Waren, deren Zustand in der
+    Artikelbeschreibung angegeben ist, stellen die dort beschriebenen und abgebildeten Gebrauchsspuren keinen
+    Mangel dar.
+  </p>
+
+  <h2>§ 9 Eigentumsvorbehalt</h2>
+  <p>Die gelieferte Ware bleibt bis zur vollständigen Bezahlung unser Eigentum.</p>
+
+  <h2>§ 10 Streitbeilegung</h2>
+  <p>
+    Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung bereit:
+    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a>.
+    Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht
+    verpflichtet und grundsätzlich nicht bereit.
+  </p>
+
+  <h2>§ 11 Schlussbestimmungen</h2>
+  <p>
+    Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts. Sollten einzelne
+    Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.
+  </p>
+
+  <p style="margin-top:32px; font-size:13px;">Stand: Juli 2026</p>
+</div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Zurück zum Shop</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="widerruf.html">Widerruf</a>
+  </div>
+</footer>
+
+</body>
+</html>

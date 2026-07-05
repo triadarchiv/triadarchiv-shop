@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutzerklärung — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121212;
+    --panel: #1a1a1a;
+    --card: #1c1c1c;
+    --line: rgba(255,255,255,0.09);
+    --off-white: #f2f0ea;
+    --grey: #8a8a86;
+    --pink: #ff3d78;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--bg); }
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--bg);
+    color:var(--off-white);
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
+  .stripes span{ width:4px; height:16px; background:var(--off-white); }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+    background:rgba(18,18,18,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Oswald', sans-serif; font-weight:700;
+    letter-spacing:0.5px; font-size:16px; text-transform:uppercase;
+    text-decoration:none; color:inherit;
+  }
+  .logo .archive{ color:var(--pink); }
+  .header-titel{
+    text-align:center; font-family:'Oswald', sans-serif; font-weight:700;
+    font-size:clamp(28px, 5vw, 44px); letter-spacing:2px;
+    text-transform:uppercase; color:var(--off-white); margin:36px 20px 16px;
+  }
+  .header-titel .archive{ color:var(--pink); }
+  .legal{ max-width:800px; margin:0 auto; padding:0 20px 60px; }
+  .legal h2{
+    font-family:'Oswald', sans-serif; font-weight:600; font-size:15px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--off-white);
+    margin:32px 0 10px;
+  }
+  .legal h2:first-child{ margin-top:0; }
+  .legal p, .legal li{
+    font-family:'Inter', sans-serif; font-size:15px; line-height:1.7; color:var(--grey);
+  }
+  .legal ul{ margin:8px 0 8px 20px; }
+  .legal a{ color:var(--pink); text-decoration:none; }
+  .legal a:hover{ text-decoration:underline; }
+  footer{
+    margin-top:40px; border-top:1px solid var(--line);
+    padding:28px 20px 40px; display:flex; flex-wrap:wrap;
+    gap:14px 28px; align-items:center; justify-content:space-between;
+  }
+  footer .foot-logo{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Oswald', sans-serif; font-size:12px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--grey);
+  }
+  .foot-links{
+    display:flex; flex-wrap:wrap; gap:22px;
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .foot-links a{ color:var(--grey); text-decoration:none; }
+  .foot-links a:hover{ color:var(--off-white); }
+  :focus-visible{ outline:2px solid var(--pink); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+</header>
+
+<h1 class="header-titel">Datenschutz</h1>
+
+<div class="legal">
+  <h2>1. Verantwortlicher</h2>
+  <p>
+    Fabian Müller<br>
+    Schubertstraße 11<br>
+    71277 Rutesheim<br>
+    Deutschland<br>
+    E-Mail: <a href="mailto:Triadarchiv@web.de">Triadarchiv@web.de</a>
+  </p>
+
+  <h2>2. Allgemeines zur Datenverarbeitung</h2>
+  <p>
+    Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur Bereitstellung
+    einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich ist. Die Verarbeitung
+    erfolgt auf Grundlage der Datenschutz-Grundverordnung (DSGVO).
+  </p>
+
+  <h2>3. Bestellabwicklung</h2>
+  <p>
+    Wenn Sie eine Bestellung aufgeben, erheben wir die zur Vertragsabwicklung erforderlichen Daten (Name,
+    Liefer- und Rechnungsadresse, E-Mail-Adresse). Die Verarbeitung erfolgt zur Erfüllung des Kaufvertrags
+    gemäß Art. 6 Abs. 1 lit. b DSGVO. Die Daten werden nur zur Abwicklung und, soweit gesetzlich vorgeschrieben
+    (z. B. steuerrechtliche Aufbewahrungspflichten), gespeichert.
+  </p>
+
+  <h2>4. Zahlungsabwicklung (Stripe)</h2>
+  <p>
+    Zur Abwicklung von Zahlungen nutzen wir den Zahlungsdienstleister Stripe Payments Europe, Ltd.,
+    1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland. Beim Bezahlvorgang werden Ihre
+    Zahlungsdaten (z. B. Name, Kartendaten, Rechnungsadresse) direkt an Stripe übermittelt und dort
+    verarbeitet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung). Weitere Informationen
+    finden Sie in der Datenschutzerklärung von Stripe:
+    <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener">https://stripe.com/de/privacy</a>.
+  </p>
+
+  <h2>5. Newsletter</h2>
+  <p>
+    Wenn Sie sich für unseren Newsletter anmelden, verwenden wir Ihre E-Mail-Adresse ausschließlich zum Versand
+    von Informationen über neue Artikel und Angebote. Die Anmeldung erfolgt auf Grundlage Ihrer Einwilligung
+    (Art. 6 Abs. 1 lit. a DSGVO). Sie können Ihre Einwilligung jederzeit widerrufen, z. B. durch eine
+    formlose Nachricht an <a href="mailto:Triadarchiv@web.de">Triadarchiv@web.de</a>.
+  </p>
+
+  <h2>6. Kontaktaufnahme</h2>
+  <p>
+    Bei einer Kontaktaufnahme per E-Mail werden Ihre Angaben zur Bearbeitung der Anfrage gespeichert
+    (Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO).
+  </p>
+
+  <h2>7. Ihre Rechte</h2>
+  <p>Sie haben nach der DSGVO folgende Rechte:</p>
+  <ul>
+    <li>Recht auf Auskunft (Art. 15 DSGVO)</li>
+    <li>Recht auf Berichtigung (Art. 16 DSGVO)</li>
+    <li>Recht auf Löschung (Art. 17 DSGVO)</li>
+    <li>Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+    <li>Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</li>
+    <li>Widerspruchsrecht (Art. 21 DSGVO)</li>
+    <li>Recht auf Beschwerde bei einer Aufsichtsbehörde (Art. 77 DSGVO)</li>
+  </ul>
+
+  <h2>8. Speicherdauer</h2>
+  <p>
+    Personenbezogene Daten werden gelöscht, sobald der Zweck der Speicherung entfällt und keine gesetzlichen
+    Aufbewahrungsfristen (z. B. handels- und steuerrechtliche Fristen) entgegenstehen.
+  </p>
+
+  <p style="margin-top:32px; font-size:13px;">Stand: Juli 2026</p>
+</div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Zurück zum Shop</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="widerruf.html">Widerruf</a>
+    <a href="agb.html">AGB</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produkt — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ----- palette (shared with shop.html) ----- */
+    --bg: #0e0e0e;
+    --surface: #151515;
+    --surface-2: #1a1a1a;
+    --tile: #141414;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --text: #f5f3ee;
+    --muted: #a7a7a1;
+    --faint: #7a7a74;
+    --accent: #ff3d78;
+    --accent-soft: rgba(255,61,120,0.10);
+
+    /* ----- type (unified minimalist sans-serif) ----- */
+    --font-display:'Inter', -apple-system, Arial, sans-serif;
+    --font-sans:'Inter', -apple-system, Arial, sans-serif;
+    --font-mono:'Inter', -apple-system, Arial, sans-serif;
+
+    /* ----- spacing scale ----- */
+    --s1: 8px;
+    --s2: 16px;
+    --s3: 24px;
+    --s4: 32px;
+    --s5: 48px;
+    --s6: 72px;
+    --s7: 112px;
+
+    /* ----- layout ----- */
+    --container: 1240px;
+    --pad-x: clamp(20px, 5vw, 64px);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ background:var(--bg); -webkit-text-size-adjust:100%; }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-sans);
+    font-size:16px;
+    line-height:1.6;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+
+  img{ display:block; max-width:100%; }
+  button{ font-family:inherit; }
+
+  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
+  .stripes span{ width:4px; height:16px; background:var(--text); }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px 32px;
+    padding:22px var(--pad-x);
+    background:rgba(14,14,14,0.85);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-family:var(--font-display);
+    font-weight:700;
+    letter-spacing:2px;
+    font-size:17px;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:inherit;
+    white-space:nowrap;
+  }
+  .logo .archive{ color:var(--accent); }
+  .header-icons{
+    display:flex;
+    gap:28px;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    font-family:var(--font-mono);
+    white-space:nowrap;
+  }
+  .header-icons a{ color:var(--muted); text-decoration:none; transition:color .2s ease; }
+  .header-icons a:hover{ color:var(--text); }
+
+  /* ---------- breadcrumb ---------- */
+  .breadcrumb{
+    max-width:var(--container);
+    margin:0 auto;
+    padding:var(--s4) var(--pad-x) 0;
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .breadcrumb a{ color:var(--faint); text-decoration:none; transition:color .2s ease; }
+  .breadcrumb a:hover{ color:var(--text); }
+
+  /* ---------- product detail layout ---------- */
+  .product-detail{
+    max-width:var(--container);
+    margin:var(--s4) auto var(--s6);
+    padding:0 var(--pad-x);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:var(--s5);
+    align-items:start;
+  }
+  @media(min-width:900px){
+    .product-detail{
+      grid-template-columns:1fr 1fr;
+      gap:clamp(40px, 5vw, 80px);
+    }
+  }
+
+  /* ---------- gallery ---------- */
+  .gallery-main{
+    position:relative;
+    aspect-ratio:3/4;
+    background:var(--tile);
+    border:1px solid var(--line);
+    border-radius:2px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:var(--faint);
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.5px;
+    line-height:1.6;
+    text-transform:uppercase;
+    padding:16px;
+    overflow:hidden;
+  }
+  .gallery-main img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
+  .gallery-main.zoomable{ cursor:zoom-in; }
+
+  .gallery-badge{
+    position:absolute;
+    top:14px;
+    left:14px;
+    z-index:2;
+    background:var(--accent);
+    color:#0e0e0e;
+    font-family:var(--font-mono);
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    padding:5px 9px;
+  }
+  .gallery-badge.sold{
+    background:rgba(14,14,14,0.82);
+    color:var(--text);
+    border:1px solid var(--line-strong);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+  }
+
+  /* ---------- hover-zoom loupe (desktop only) ---------- */
+  .zoom-lens{
+    position:fixed;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    border:1px solid var(--line-strong);
+    box-shadow:0 2px 10px rgba(0,0,0,0.45), 0 22px 50px rgba(0,0,0,0.55);
+    overflow:hidden;
+    pointer-events:none;
+    z-index:9999;
+    display:none;
+    background:var(--tile);
+  }
+  .zoom-lens::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.45);
+    pointer-events:none;
+  }
+  .zoom-lens.visible{ display:block; }
+  .zoom-lens img{
+    position:absolute;
+    top:0;
+    left:0;
+    max-width:none;
+    object-fit:cover;
+  }
+  /* touch / no-hover devices: never show the loupe */
+  @media (hover:none), (pointer:coarse){
+    .zoom-lens{ display:none !important; }
+    .gallery-main.zoomable{ cursor:default; }
+  }
+
+  .gallery-thumbs{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .gallery-thumb{
+    width:62px;
+    height:82px;
+    flex:0 0 auto;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:var(--tile);
+    overflow:hidden;
+    cursor:pointer;
+    padding:0;
+    opacity:0.55;
+    transition:opacity .25s ease, border-color .25s ease, transform .25s ease;
+  }
+  .gallery-thumb img{ width:100%; height:100%; object-fit:cover; object-position:center; }
+  .gallery-thumb:hover{ opacity:1; transform:translateY(-2px); }
+  .gallery-thumb.active{ opacity:1; border-color:var(--text); }
+
+  /* ---------- info column ---------- */
+  .detail-info{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .detail-cat{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .detail-name{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(26px, 3.4vw, 38px);
+    line-height:1.12;
+    letter-spacing:-0.3px;
+    color:var(--text);
+  }
+
+  .detail-sections{
+    border:1px solid var(--line);
+    border-radius:2px;
+  }
+  .detail-section{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding:18px 20px;
+    border-bottom:1px solid var(--line);
+    transition:background .2s ease;
+  }
+  .detail-section:last-child{ border-bottom:none; }
+  .detail-section:hover{ background:var(--surface); }
+  .section-icon{
+    flex:0 0 auto;
+    width:18px;
+    height:18px;
+    margin-top:2px;
+    color:var(--muted);
+  }
+  .section-icon svg{ width:100%; height:100%; display:block; }
+  .section-body{ flex:1; min-width:0; }
+  .detail-section h2{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--faint);
+    margin-bottom:5px;
+  }
+  .detail-section p{
+    margin:0;
+    font-family:var(--font-sans);
+    font-size:15px;
+    font-weight:500;
+    line-height:1.6;
+    color:var(--text);
+  }
+
+  .detail-story{
+    padding:2px 0 2px 20px;
+    border-left:1px solid var(--line-strong);
+  }
+  .detail-story h2{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--faint);
+    margin-bottom:10px;
+  }
+  .detail-story p{
+    margin:0;
+    font-family:var(--font-sans);
+    font-size:15px;
+    font-weight:300;
+    line-height:1.9;
+    color:var(--muted);
+  }
+
+  /* ---------- purchase ---------- */
+  .purchase-area{
+    margin-top:4px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .detail-price{
+    font-family:var(--font-sans);
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    color:var(--text);
+  }
+  .detail-price .now{ color:var(--text); font-weight:600; }
+  .detail-price:has(.old) .now{ color:var(--accent); }
+  .detail-price .old{
+    color:var(--faint);
+    text-decoration:line-through;
+    margin-right:10px;
+    font-size:16px;
+    font-weight:400;
+  }
+
+  .add-btn{
+    width:100%;
+    background:var(--text);
+    border:1px solid var(--text);
+    border-radius:2px;
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    padding:16px 18px;
+    cursor:pointer;
+    transition:background .3s ease, color .3s ease, border-color .3s ease, transform .1s ease;
+  }
+  .add-btn:hover{ background:transparent; color:var(--text); border-color:var(--text); }
+  .add-btn:active{ transform:translateY(1px); }
+  .add-btn.added{ background:var(--text); color:var(--bg); border-color:var(--text); }
+  .add-btn:disabled{ background:var(--surface-2); color:var(--faint); border-color:var(--line); cursor:not-allowed; }
+  .add-btn:disabled:hover{ background:var(--surface-2); color:var(--faint); border-color:var(--line); }
+
+  /* ---------- Fly-to-Cart Animation ---------- */
+  .fly-clone{
+    position:fixed;
+    z-index:9999;
+    pointer-events:none;
+    border-radius:2px;
+    overflow:hidden;
+    box-shadow:0 12px 30px rgba(0,0,0,0.5);
+    will-change:transform, opacity;
+  }
+  .fly-clone img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  @keyframes cart-bump{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.35); }
+    100%{ transform:scale(1); }
+  }
+  #cartLink.cart-bump{ display:inline-block; animation:cart-bump .4s ease; }
+
+  @media (prefers-reduced-motion: reduce){
+    .fly-clone{ display:none !important; }
+    #cartLink.cart-bump{ animation:none; }
+  }
+
+  .stock-line{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .stock-line.low{ color:var(--muted); }
+  .stock-line.out{ color:var(--accent); }
+
+  /* ---------- Mengenauswahl ---------- */
+  .qty-selector{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  .qty-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .qty-stepper{
+    display:inline-flex;
+    align-items:center;
+    border:1px solid var(--line-strong);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .qty-stepper button{
+    width:42px;
+    height:42px;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-family:var(--font-sans);
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  .qty-stepper button:hover:not(:disabled){ background:var(--surface); color:var(--accent); }
+  .qty-stepper button:disabled{ color:var(--faint); cursor:not-allowed; }
+  .qty-stepper #qtyValue{
+    min-width:46px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-sans);
+    font-size:15px;
+    font-weight:600;
+    color:var(--text);
+    font-variant-numeric:tabular-nums;
+    border-left:1px solid var(--line);
+    border-right:1px solid var(--line);
+  }
+
+  /* ---------- not found ---------- */
+  .not-found{
+    max-width:600px;
+    margin:var(--s6) auto;
+    padding:var(--s5) var(--pad-x);
+    text-align:center;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .not-found a{ color:var(--accent); text-decoration:none; }
+  .not-found a:hover{ text-decoration:underline; }
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:var(--s7);
+    border-top:1px solid var(--line);
+    padding:var(--s5) var(--pad-x);
+    display:flex;
+    flex-wrap:wrap;
+    gap:24px 40px;
+    align-items:center;
+    justify-content:space-between;
+    max-width:var(--container);
+    margin-inline:auto;
+  }
+  footer .foot-logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-family:var(--font-display);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--muted);
+  }
+  .foot-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:32px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+  }
+  .foot-links a{ color:var(--muted); text-decoration:none; transition:color .2s ease; }
+  .foot-links a:hover{ color:var(--text); }
+
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
+  .server-warning{
+    display:none;
+    background:#4a1b0c;
+    color:#f5c4b3;
+    font-family:var(--font-mono);
+    font-size:12px;
+    line-height:1.7;
+    letter-spacing:0.3px;
+    padding:14px 20px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.15);
+  }
+  .server-warning a{ color:#fff; text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<div class="server-warning" id="serverWarning">
+  ⚠ Diese Seite läuft gerade nicht über den lokalen Server — du siehst möglicherweise nicht den aktuellen Produktstand.
+  Bitte stattdessen über <a href="http://localhost:5510/shop.html">http://localhost:5510/shop.html</a> navigieren (per Doppelklick auf „Shop starten.bat“).
+</div>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+  <div class="header-icons">
+    <a href="shop.html">Zurück zum Shop</a>
+    <a href="cart.html" id="cartLink">Warenkorb (<span id="cartCount">0</span>)</a>
+  </div>
+</header>
+
+<div class="breadcrumb"><a href="shop.html">← Zurück zur Übersicht</a></div>
+
+<div id="detailWrap"></div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Shop</a>
+    <a href="impressum.html">Impressum</a>
+  </div>
+</footer>
+
+<script>
+  if(location.protocol === 'file:'){
+    document.getElementById('serverWarning').style.display = 'block';
+  }
+
+  const PRODUCTS_KEY = 'triadProducts';
+
+  function loadProductData(){
+    try{
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', 'products.json', false);
+      xhr.send(null);
+      if(xhr.status === 200){
+        const data = JSON.parse(xhr.responseText);
+        if(Array.isArray(data)) return data;
+      }
+    }catch(e){}
+
+    const raw = localStorage.getItem(PRODUCTS_KEY);
+    try{
+      const parsed = JSON.parse(raw || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  const detailWrap = document.getElementById('detailWrap');
+  const productId = new URLSearchParams(window.location.search).get('id');
+  const products = loadProductData();
+  const product = products.find(p => p.id === productId);
+
+  if(!product){
+    detailWrap.innerHTML = `
+      <div class="not-found">
+        Produkt nicht gefunden.<br>
+        <a href="shop.html">Zurück zum Shop →</a>
+      </div>`;
+  } else {
+    const images = [product.image, ...(product.images || [])].filter(Boolean);
+
+    // Bestand: nur "getrackt", wenn stock eine Zahl ist. 0 => ausverkauft.
+    const stockTracked = typeof product.stock === 'number';
+    const stockN = stockTracked ? product.stock : null;
+    const soldOut = stockTracked && stockN <= 0;
+
+    const badge = soldOut
+      ? `<div class="gallery-badge sold">Ausverkauft</div>`
+      : product.oldPrice ? `<div class="gallery-badge">-${Math.round((1 - product.price / product.oldPrice) * 100)}%</div>` : '';
+    const mainImgHtml = images.length
+      ? `<img id="mainImg" src="${images[0]}" alt="${escapeHtml(product.name)}">`
+      : `Adidas Produkt<br>${escapeHtml(product.name)}`;
+    const thumbsHtml = images.length > 1
+      ? `<div class="gallery-thumbs" id="galleryThumbs">${images.map((src, i) => `
+          <button type="button" class="gallery-thumb${i === 0 ? ' active' : ''}" data-src="${src}"><img src="${src}" alt=""></button>
+        `).join('')}</div>`
+      : '';
+    const priceHtml = product.oldPrice
+      ? `<span class="old">${product.oldPrice}€</span><span class="now">${product.price}€</span>`
+      : `<span class="now">${product.price}€</span>`;
+
+    const stockLineHtml = stockTracked
+      ? `<div class="stock-line ${soldOut ? 'out' : (stockN === 1 ? 'low' : '')}">${
+          soldOut ? 'Derzeit ausverkauft'
+          : stockN === 1 ? 'Nur noch 1 Stück verfügbar'
+          : stockN + ' Stück verfügbar'
+        }</div>`
+      : '';
+
+    // Mengenauswahl: max = verfügbarer Bestand (bei nicht getracktem Bestand großzügiges Limit)
+    const maxQty = stockTracked ? stockN : 99;
+    const qtySelectorHtml = (!soldOut && maxQty > 1)
+      ? `<div class="qty-selector">
+          <span class="qty-label">Menge</span>
+          <div class="qty-stepper">
+            <button type="button" id="qtyMinus" aria-label="Menge verringern">–</button>
+            <span id="qtyValue">1</span>
+            <button type="button" id="qtyPlus" aria-label="Menge erhöhen">+</button>
+          </div>
+        </div>`
+      : '';
+
+    const ICONS = {
+      size: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8v3M10 8v3M14 8v3M18 8v3"/></svg>',
+      condition: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>'
+    };
+
+    const sections = [];
+    if(product.size) sections.push({ icon:ICONS.size, label:'Größe', text:escapeHtml(product.size) });
+    if(product.condition) sections.push({ icon:ICONS.condition, label:'Zustand', text:escapeHtml(product.condition) });
+    const sectionsHtml = sections.length
+      ? `<div class="detail-sections">${sections.map(s => `
+          <div class="detail-section">
+            <div class="section-icon">${s.icon}</div>
+            <div class="section-body">
+              <h2>${s.label}</h2>
+              <p>${s.text}</p>
+            </div>
+          </div>`).join('')}</div>`
+      : '';
+
+    const storyHtml = product.desc
+      ? `<div class="detail-story"><h2>Beschreibung</h2><p>${escapeHtml(product.desc)}</p></div>`
+      : '';
+
+    detailWrap.innerHTML = `
+      <div class="product-detail">
+        <div>
+          <div class="gallery-main">
+            ${badge}
+            ${mainImgHtml}
+          </div>
+          ${thumbsHtml}
+        </div>
+        <div class="detail-info">
+          <div class="detail-cat">${product.cats.map(escapeHtml).join(', ')}</div>
+          <div class="detail-name">${escapeHtml(product.name)}</div>
+          ${sectionsHtml}
+          ${storyHtml}
+          <div class="purchase-area">
+            <div class="detail-price">${priceHtml}</div>
+            ${stockLineHtml}
+            ${qtySelectorHtml}
+            <button class="add-btn" id="addBtn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Ausverkauft' : 'In den Warenkorb'}</button>
+          </div>
+        </div>
+      </div>`;
+
+    const galleryThumbs = document.getElementById('galleryThumbs');
+    if(galleryThumbs){
+      galleryThumbs.addEventListener('click', (e) => {
+        const btn = e.target.closest('.gallery-thumb');
+        if(!btn) return;
+        document.getElementById('mainImg').src = btn.dataset.src;
+        galleryThumbs.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    }
+
+    /* ---------- hover-zoom loupe (desktop only) ---------- */
+    (function initZoomLens(){
+      const mainImg = document.getElementById('mainImg');
+      if(!mainImg) return; // only when a real image exists (not the placeholder)
+
+      // desktop only: needs a mouse (hover + fine pointer)
+      if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+      const galleryMain = mainImg.closest('.gallery-main');
+      const ZOOM = 2.4;   // magnification factor
+      const LENS = 240;   // loupe diameter in px (matches CSS)
+
+      const lens = document.createElement('div');
+      lens.className = 'zoom-lens';
+      const lensImg = document.createElement('img');
+      lens.appendChild(lensImg);
+      document.body.appendChild(lens);
+      galleryMain.classList.add('zoomable');
+
+      function hide(){ lens.classList.remove('visible'); }
+
+      function move(e){
+        const rect = galleryMain.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        if(cx < 0 || cy < 0 || cx > rect.width || cy > rect.height){ hide(); return; }
+
+        // keep the loupe image in sync with the current main image (thumbnails can swap it)
+        if(lensImg.src !== mainImg.src) lensImg.src = mainImg.src;
+
+        // scaled image matches the main image aspect (object-fit: cover), just larger
+        lensImg.style.width  = (rect.width  * ZOOM) + 'px';
+        lensImg.style.height = (rect.height * ZOOM) + 'px';
+        // centre the point under the cursor inside the loupe
+        lensImg.style.left = (LENS / 2 - cx * ZOOM) + 'px';
+        lensImg.style.top  = (LENS / 2 - cy * ZOOM) + 'px';
+
+        // place the loupe centred on the cursor
+        lens.style.left = (e.clientX - LENS / 2) + 'px';
+        lens.style.top  = (e.clientY - LENS / 2) + 'px';
+        lens.classList.add('visible');
+      }
+
+      galleryMain.addEventListener('mouseenter', () => { lensImg.src = mainImg.src; });
+      galleryMain.addEventListener('mousemove', move);
+      galleryMain.addEventListener('mouseleave', hide);
+    })();
+
+    if(!soldOut){
+      // ----- Mengenauswahl (Stepper), begrenzt auf den Bestand -----
+      const maxQtyBuy = stockTracked ? stockN : 99;
+      const qtyValueEl = document.getElementById('qtyValue');
+      const qtyMinus = document.getElementById('qtyMinus');
+      const qtyPlus = document.getElementById('qtyPlus');
+      function getQty(){
+        const n = qtyValueEl ? parseInt(qtyValueEl.textContent, 10) : 1;
+        return Math.min(maxQtyBuy, Math.max(1, n || 1));
+      }
+      function setQty(n){
+        n = Math.min(maxQtyBuy, Math.max(1, n));
+        if(qtyValueEl) qtyValueEl.textContent = n;
+        if(qtyMinus) qtyMinus.disabled = n <= 1;
+        if(qtyPlus) qtyPlus.disabled = n >= maxQtyBuy;
+      }
+      if(qtyMinus && qtyPlus){
+        setQty(1);
+        qtyMinus.addEventListener('click', () => setQty(getQty() - 1));
+        qtyPlus.addEventListener('click', () => setQty(getQty() + 1));
+      }
+
+      document.getElementById('addBtn').addEventListener('click', () => {
+        const qty = getQty();
+        const thumb = images.length ? `<img src="${images[0]}" alt="">` : `Adidas Produkt<br>${escapeHtml(product.name)}`;
+        flyToCart(document.querySelector('.gallery-main'));
+        addToCart(product.id, product.name, product.price, 'Onesize', thumb, qty);
+        setQty(1);
+        const btn = document.getElementById('addBtn');
+        const original = btn.textContent;
+        btn.textContent = 'Hinzugefügt ✓';
+        btn.classList.add('added');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('added');
+        }, 1200);
+      });
+    }
+  }
+
+  /* ---------- cart ---------- */
+  const cartCount = document.getElementById('cartCount');
+
+  function loadCart(){
+    return JSON.parse(localStorage.getItem('triadCart') || '[]');
+  }
+  function saveCart(cart){
+    localStorage.setItem('triadCart', JSON.stringify(cart));
+  }
+  function updateCartCount(){
+    const cart = loadCart();
+    cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+  }
+  function addToCart(id, name, price, size, thumb, qty){
+    qty = Math.max(1, parseInt(qty, 10) || 1);
+    const cart = loadCart();
+    const existing = cart.find(item => item.id === id && item.size === (size || 'Onesize'));
+    if(existing){
+      existing.qty += qty;
+    } else {
+      cart.push({ id, name, price, qty, size: size || 'Onesize', thumb: thumb || '' });
+    }
+    saveCart(cart);
+    updateCartCount();
+  }
+
+  /* ---------- Fly-to-Cart Animation ---------- */
+  function bumpCart(cartLink){
+    cartLink.classList.remove('cart-bump');
+    void cartLink.offsetWidth;                       // Reflow → Animation neu starten
+    cartLink.classList.add('cart-bump');
+    cartLink.addEventListener('animationend',
+      () => cartLink.classList.remove('cart-bump'), { once:true });
+  }
+
+  function flyToCart(sourceEl){
+    const cartLink = document.getElementById('cartLink');
+    if(!sourceEl || !cartLink) return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ bumpCart(cartLink); return; }
+
+    const start = sourceEl.getBoundingClientRect();
+    const end   = cartLink.getBoundingClientRect();   // Icon-Position dynamisch ermitteln
+
+    // Klon aufbauen: Hauptbild (#mainImg) bevorzugt, sonst neutrale Kachel als Platzhalter
+    const clone = document.createElement('div');
+    clone.className = 'fly-clone';
+    const img = sourceEl.querySelector('img');
+    if(img){
+      clone.innerHTML = `<img src="${img.src}" alt="">`;
+    } else {
+      clone.style.background = 'var(--tile)';
+      clone.style.border = '1px solid var(--line-strong)';
+    }
+    clone.style.left   = start.left + 'px';
+    clone.style.top    = start.top + 'px';
+    clone.style.width  = start.width + 'px';
+    clone.style.height = start.height + 'px';
+    document.body.appendChild(clone);
+
+    // Distanz von Bild-Mitte zur Icon-Mitte
+    const dx = (end.left + end.width / 2) - (start.left + start.width / 2);
+    const dy = (end.top + end.height / 2) - (start.top + start.height / 2);
+
+    requestAnimationFrame(() => {
+      clone.style.transition = 'transform .8s cubic-bezier(.55,-0.15,.35,1), opacity .8s ease';
+      clone.style.transform  = `translate(${dx}px, ${dy}px) scale(0.08)`;
+      clone.style.opacity    = '0.2';
+    });
+
+    let done = false;
+    const cleanup = () => {
+      if(done) return;
+      done = true;
+      clone.remove();
+      bumpCart(cartLink);
+    };
+    clone.addEventListener('transitionend', cleanup, { once:true });
+    setTimeout(cleanup, 900);                          // Fallback, falls transitionend ausbleibt
+  }
+
+  updateCartCount();
+</script>
+
+</body>
+</html>

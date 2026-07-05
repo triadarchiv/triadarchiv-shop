@@ -1,0 +1,9 @@
+{
+  "name": "triad-archiv-shop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TRIAD ARCHIV – Vintage Adidas Shop (Netlify)",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

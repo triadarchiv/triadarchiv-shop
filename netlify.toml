@@ -1,0 +1,40 @@
+# Netlify-Konfiguration für TRIAD ARCHIV
+# Sagt Netlify: welche Dateien öffentlich sind und wo die Server-Funktionen liegen.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  # Node-Funktionen werden automatisch gebündelt
+  node_bundler = "esbuild"
+
+# Die alten /api/... Adressen aus server.ps1 auf die neuen Netlify-Funktionen umleiten,
+# damit im Frontend (cart.html, success.html, admin.html) nichts umgeschrieben werden muss.
+[[redirects]]
+  from = "/api/checkout"
+  to = "/.netlify/functions/checkout"
+  status = 200
+
+[[redirects]]
+  from = "/api/order-complete"
+  to = "/.netlify/functions/order-complete"
+  status = 200
+
+[[redirects]]
+  from = "/api/products"
+  to = "/.netlify/functions/products"
+  status = 200
+
+# Der Shop lädt Produkte über products.json -> auf die Funktion umleiten,
+# damit immer der aktuelle Online-Stand (Blobs) kommt. force=true überschreibt die Datei.
+[[redirects]]
+  from = "/products.json"
+  to = "/.netlify/functions/products"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/newsletter"
+  to = "/.netlify/functions/newsletter"
+  status = 200

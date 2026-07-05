@@ -1,0 +1,16 @@
+# WICHTIG: Diese Dateien dürfen NIE öffentlich hochgeladen werden!
+
+# Geheimer Stripe-Schlüssel (liegt online in Netlifys geschützten Einstellungen)
+stripe-secret.txt
+
+# Lokaler PowerShell-Server & Starter (werden online nicht gebraucht)
+server.ps1
+Shop starten.bat
+
+# Lokale Daten aus dem Testbetrieb
+orders.txt
+newsletter.txt
+
+# Werkzeug-/Systemordner
+.claude/
+node_modules/

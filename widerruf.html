@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Widerrufsbelehrung — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #121212;
+    --panel: #1a1a1a;
+    --card: #1c1c1c;
+    --line: rgba(255,255,255,0.09);
+    --off-white: #f2f0ea;
+    --grey: #8a8a86;
+    --pink: #ff3d78;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ background:var(--bg); }
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--bg);
+    color:var(--off-white);
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
+  .stripes span{ width:4px; height:16px; background:var(--off-white); }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  header{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+    background:rgba(18,18,18,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Oswald', sans-serif; font-weight:700;
+    letter-spacing:0.5px; font-size:16px; text-transform:uppercase;
+    text-decoration:none; color:inherit;
+  }
+  .logo .archive{ color:var(--pink); }
+  .header-titel{
+    text-align:center; font-family:'Oswald', sans-serif; font-weight:700;
+    font-size:clamp(28px, 5vw, 44px); letter-spacing:2px;
+    text-transform:uppercase; color:var(--off-white); margin:36px 20px 16px;
+  }
+  .header-titel .archive{ color:var(--pink); }
+  .legal{ max-width:800px; margin:0 auto; padding:0 20px 60px; }
+  .legal h2{
+    font-family:'Oswald', sans-serif; font-weight:600; font-size:15px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--off-white);
+    margin:32px 0 10px;
+  }
+  .legal h2:first-child{ margin-top:0; }
+  .legal p, .legal li{
+    font-family:'Inter', sans-serif; font-size:15px; line-height:1.7; color:var(--grey);
+  }
+  .legal ul{ margin:8px 0 8px 20px; }
+  .legal a{ color:var(--pink); text-decoration:none; }
+  .legal a:hover{ text-decoration:underline; }
+  .box{
+    border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; margin-top:16px; background:var(--panel);
+  }
+  footer{
+    margin-top:40px; border-top:1px solid var(--line);
+    padding:28px 20px 40px; display:flex; flex-wrap:wrap;
+    gap:14px 28px; align-items:center; justify-content:space-between;
+  }
+  footer .foot-logo{
+    display:flex; align-items:center; gap:8px;
+    font-family:'Oswald', sans-serif; font-size:12px;
+    text-transform:uppercase; letter-spacing:1px; color:var(--grey);
+  }
+  .foot-links{
+    display:flex; flex-wrap:wrap; gap:22px;
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .foot-links a{ color:var(--grey); text-decoration:none; }
+  .foot-links a:hover{ color:var(--off-white); }
+  :focus-visible{ outline:2px solid var(--pink); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+</header>
+
+<h1 class="header-titel">Widerruf</h1>
+
+<div class="legal">
+  <h2>Widerrufsrecht</h2>
+  <p>
+    Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
+    Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter,
+    der nicht der Beförderer ist, die Waren in Besitz genommen haben bzw. hat.
+  </p>
+  <p>
+    Um Ihr Widerrufsrecht auszuüben, müssen Sie uns
+  </p>
+  <p>
+    Fabian Müller, Schubertstraße 11, 71277 Rutesheim,
+    E-Mail: <a href="mailto:Triadarchiv@web.de">Triadarchiv@web.de</a>
+  </p>
+  <p>
+    mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren
+    Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das unten stehende Muster-
+    Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.
+  </p>
+  <p>
+    Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts
+    vor Ablauf der Widerrufsfrist absenden.
+  </p>
+
+  <h2>Folgen des Widerrufs</h2>
+  <p>
+    Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben,
+    einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie
+    eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben),
+    unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über
+    Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe
+    Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde
+    ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
+  </p>
+  <p>
+    Wir können die Rückzahlung verweigern, bis wir die Waren wieder zurückerhalten haben oder bis Sie den
+    Nachweis erbracht haben, dass Sie die Waren zurückgesandt haben, je nachdem, welches der frühere Zeitpunkt ist.
+  </p>
+  <p>
+    Sie haben die Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem Sie
+    uns über den Widerruf dieses Vertrags unterrichten, an uns zurückzusenden oder zu übergeben. Die Frist ist
+    gewahrt, wenn Sie die Waren vor Ablauf der Frist von vierzehn Tagen absenden. Sie tragen die unmittelbaren
+    Kosten der Rücksendung der Waren.
+  </p>
+  <p>
+    Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur
+    Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen
+    zurückzuführen ist.
+  </p>
+
+  <h2>Muster-Widerrufsformular</h2>
+  <p>(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)</p>
+  <div class="box">
+    <p>
+      An: Fabian Müller, Schubertstraße 11, 71277 Rutesheim, Triadarchiv@web.de<br><br>
+      Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der folgenden
+      Waren (*):<br><br>
+      _______________________________________________<br><br>
+      Bestellt am (*) / erhalten am (*): _____________________<br><br>
+      Name des/der Verbraucher(s): _____________________<br><br>
+      Anschrift des/der Verbraucher(s): _____________________<br><br>
+      Datum: _____________________<br><br>
+      Unterschrift (nur bei Mitteilung auf Papier): _____________________<br><br>
+      (*) Unzutreffendes streichen.
+    </p>
+  </div>
+
+  <p style="margin-top:32px; font-size:13px;">Stand: Juli 2026</p>
+</div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Zurück zum Shop</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warenkorb — TRIAD ARCHIV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ----- palette (shared with shop.html) ----- */
+    --bg: #0e0e0e;
+    --panel: #151515;
+    --card: #151515;
+    --tile: #141414;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --off-white: #f5f3ee;
+    --grey: #a7a7a1;
+    --faint: #7a7a74;
+    --pink: #ff3d78;
+
+    /* ----- type (unified minimalist sans-serif) ----- */
+    --font-display:'Inter', -apple-system, Arial, sans-serif;
+    --font-sans:'Inter', -apple-system, Arial, sans-serif;
+    --font-mono:'Inter', -apple-system, Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ background:var(--bg); }
+
+  body{
+    background:var(--bg);
+    color:var(--off-white);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+  }
+
+  .stripes{
+    display:inline-flex;
+    gap:3px;
+    transform:skewX(-12deg);
+  }
+  .stripes span{
+    width:4px;
+    height:16px;
+    background:var(--off-white);
+  }
+  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
+
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
+    background:rgba(18,18,18,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:700;
+    letter-spacing:0.5px;
+    font-size:16px;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:inherit;
+  }
+  .logo .archive{ color:var(--pink); }
+
+  .header-icons{
+    display:flex;
+    gap:18px;
+    font-size:13px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    font-family:var(--font-mono);
+  }
+  .header-icons a{
+    cursor:pointer;
+    color:var(--grey);
+    text-decoration:none;
+    transition:color .15s ease;
+  }
+  .header-icons a:hover{ color:var(--off-white); }
+
+  .header-titel{
+    text-align:center;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(28px, 5vw, 44px);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--off-white);
+    margin:36px 20px 16px;
+  }
+
+  .cart-wrap{
+    max-width:800px;
+    margin:0 auto;
+    padding:0 20px 60px;
+  }
+
+  .cart-empty{
+    text-align:center;
+    padding:40px 20px;
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--grey);
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    line-height:1.7;
+  }
+  .cart-empty a{
+    color:var(--pink);
+    text-decoration:none;
+  }
+  .cart-empty a:hover{ text-decoration:underline; }
+
+  .cart-list{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+
+  .cart-item{
+    background:var(--card);
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 16px;
+  }
+  .cart-item-thumb{
+    position:relative;
+    flex:0 0 auto;
+    width:60px;
+    height:80px;               /* 3:4 wie die Produktbilder → weniger Leerraum */
+    border-radius:6px;
+    overflow:hidden;
+    background:var(--tile);
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:var(--grey);
+    font-family:var(--font-mono);
+    font-size:8px;
+    letter-spacing:0.3px;
+    line-height:1.3;
+    text-transform:uppercase;
+    padding:4px;
+  }
+  /* Bild-Fix: ganzes Bild einpassen statt beschneiden/verzerren */
+  .cart-item-thumb img{
+    width:100%;
+    height:100%;
+    object-fit:contain;        /* komplettes Bild sichtbar, kein Zoom-Crop */
+    object-position:center;
+    display:block;
+  }
+  /* evtl. aus der Shop-Kachel mitkopiertes Rabatt-Badge im Thumbnail ausblenden */
+  .cart-item-thumb .badge{ display:none; }
+  .cart-item-info{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+  }
+  .cart-item-info .name{
+    font-family:var(--font-display);
+    font-size:13px;
+    font-weight:500;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+  }
+  .cart-item-info .size{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.3px;
+    text-transform:uppercase;
+    color:var(--grey);
+  }
+  .cart-item-side{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+  }
+  .cart-item-side .price{
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:600;
+    color:var(--off-white);
+    font-variant-numeric:tabular-nums;   /* Ziffern gleich breit → Preise fluchten */
+  }
+  .cart-item .qty-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--grey);
+  }
+  .qty-controls button{
+    width:24px;
+    height:24px;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--off-white);
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:13px;
+    line-height:1;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .qty-controls button:hover{ border-color:var(--pink); color:var(--pink); }
+  .remove-btn{
+    flex:0 0 auto;
+    align-self:flex-start;
+    background:none;
+    border:none;
+    color:var(--grey);
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:16px;
+    line-height:1;
+    padding:0 0 0 4px;
+    transition:color .15s ease;
+  }
+  .remove-btn:hover{ color:var(--pink); }
+
+  .cart-summary{
+    margin-top:14px;
+    padding:4px 4px 0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .summary-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--grey);
+    font-variant-numeric:tabular-nums;
+  }
+  .cart-total{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:6px;
+    padding:16px 4px;
+    border-top:1px solid var(--line-strong);   /* Summe klar von Positionen abgesetzt */
+    font-family:var(--font-mono);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--grey);
+  }
+  .cart-total .amount{
+    color:var(--off-white);
+    font-weight:700;
+    font-size:20px;                            /* Endsumme als visueller Anker */
+    letter-spacing:0.5px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* Button-Gruppe unter dem Warenkorb */
+  .cart-cta{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin:22px 0 14px;
+  }
+  .checkout-btn,
+  .continue-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:15px 20px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease, border-color .25s ease, transform .1s ease;
+  }
+  /* primäre CTA: Zur Kasse / bezahlen */
+  .checkout-btn{
+    background:var(--off-white);
+    border:1px solid var(--off-white);
+    color:var(--bg);
+  }
+  .checkout-btn:hover{ background:transparent; color:var(--off-white); border-color:var(--off-white); }
+  .checkout-btn:disabled{ opacity:.6; cursor:default; }
+  /* sekundär: weiter einkaufen */
+  .continue-btn{
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--off-white);
+  }
+  .continue-btn:hover{ border-color:var(--off-white); }
+  .checkout-btn:active,
+  .continue-btn:active{ transform:translateY(1px); }
+
+  .cart-actions{
+    display:flex;
+    justify-content:flex-end;
+    padding:0 4px;
+  }
+  .clear-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--grey);
+    font-family:var(--font-mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    padding:8px 12px;
+    cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .clear-btn:hover{ border-color:var(--pink); color:var(--pink); }
+
+  footer{
+    margin-top:40px;
+    border-top:1px solid var(--line);
+    padding:28px 20px 40px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 28px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  footer .foot-logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-display);
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--grey);
+  }
+  .foot-links{
+    display:flex;
+    gap:22px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .foot-links a{
+    color:var(--grey);
+    text-decoration:none;
+  }
+  .foot-links a:hover{ color:var(--off-white); }
+
+  :focus-visible{
+    outline:2px solid var(--pink);
+    outline-offset:2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="shop.html">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    TRIAD <span class="archive">ARCHIV</span>
+  </a>
+  <div class="header-icons">
+    <a href="shop.html">Zurück zum Shop</a>
+  </div>
+</header>
+
+<h1 class="header-titel">Warenkorb</h1>
+
+<div class="cart-wrap" id="cartWrap"></div>
+
+<footer>
+  <div class="foot-logo">
+    <span class="stripes"><span></span><span></span><span></span></span>
+    Triad Archiv
+  </div>
+  <div class="foot-links">
+    <a href="shop.html">Shop</a>
+    <a href="impressum.html">Impressum</a>
+  </div>
+</footer>
+
+<script>
+  const cartWrap = document.getElementById('cartWrap');
+
+  // Versandkosten (muss mit server.ps1 und versand.html übereinstimmen)
+  const SHIPPING = 4.95;
+  const FREE_FROM = 80;
+
+  function fmt(n){ return n.toFixed(2).replace('.', ',') + '€'; }
+
+  function loadCart(){
+    return JSON.parse(localStorage.getItem('triadCart') || '[]');
+  }
+  function saveCart(cart){
+    localStorage.setItem('triadCart', JSON.stringify(cart));
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function startCheckout(){
+    const cart = loadCart();
+    if(cart.length === 0) return;
+    const btn = document.getElementById('checkoutBtn');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Weiterleitung zu Stripe …';
+    fetch('/api/checkout', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(cart)
+    })
+      .then(r => r.json())
+      .then(data => {
+        if(data.url){ window.location.href = data.url; }   // Stripe-Bezahlseite
+        else { throw new Error(data.error || 'Unbekannter Fehler'); }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.textContent = original;
+        alert('Zahlung konnte nicht gestartet werden:\n' + err.message);
+      });
+  }
+
+  function renderCart(){
+    const cart = loadCart();
+
+    if(cart.length === 0){
+      cartWrap.innerHTML = `
+        <div class="cart-empty">
+          Dein Warenkorb ist noch leer.<br>
+          <a href="shop.html">Jetzt stöbern →</a>
+        </div>`;
+      return;
+    }
+
+    const itemsHtml = cart.map((item, i) => `
+      <div class="cart-item">
+        <div class="cart-item-thumb">${item.thumb || 'Adidas<br>Produkt'}</div>
+        <div class="cart-item-info">
+          <div class="name">${escapeHtml(item.name)}</div>
+          <div class="size">Größe: ${escapeHtml(item.size || 'Onesize')}</div>
+        </div>
+        <div class="cart-item-side">
+          <div class="price">${fmt(item.price * item.qty)}</div>
+          <div class="qty-controls">
+            <button data-action="dec" data-index="${i}" aria-label="Menge verringern">–</button>
+            <span>${item.qty}</span>
+            <button data-action="inc" data-index="${i}" aria-label="Menge erhöhen">+</button>
+          </div>
+        </div>
+        <button class="remove-btn" data-action="remove" data-index="${i}" aria-label="Artikel entfernen">✕</button>
+      </div>`).join('');
+
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const shipping = subtotal >= FREE_FROM ? 0 : SHIPPING;
+    const total = subtotal + shipping;
+    const shippingLabel = shipping === 0
+      ? '<span style="color:var(--pink)">Kostenlos</span>'
+      : fmt(shipping);
+
+    cartWrap.innerHTML = `
+      <div class="cart-list">${itemsHtml}</div>
+      <div class="cart-summary">
+        <div class="summary-row"><span>Zwischensumme</span><span>${fmt(subtotal)}</span></div>
+        <div class="summary-row"><span>Versand${shipping === 0 ? '' : ` (gratis ab ${FREE_FROM}€)`}</span><span>${shippingLabel}</span></div>
+      </div>
+      <div class="cart-total">
+        <span>Gesamt</span>
+        <span class="amount">${fmt(total)}</span>
+      </div>
+      <div class="cart-cta">
+        <button class="checkout-btn" id="checkoutBtn">Zur Kasse · ${fmt(total)} bezahlen</button>
+        <a class="continue-btn" href="shop.html">← Weiter einkaufen</a>
+      </div>
+      <div class="cart-actions">
+        <button class="clear-btn" id="clearCart">Warenkorb leeren</button>
+      </div>`;
+  }
+
+  cartWrap.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if(!btn) return;
+
+    if(btn.id === 'checkoutBtn'){
+      startCheckout();
+      return;
+    }
+
+    if(btn.id === 'clearCart'){
+      saveCart([]);
+      renderCart();
+      return;
+    }
+
+    const action = btn.dataset.action;
+    if(!action) return;
+    const index = Number(btn.dataset.index);
+    const cart = loadCart();
+    const item = cart[index];
+    if(!item) return;
+
+    if(action === 'inc') item.qty += 1;
+    if(action === 'dec') item.qty = Math.max(1, item.qty - 1);
+    if(action === 'remove') cart.splice(index, 1);
+
+    saveCart(cart);
+    renderCart();
+  });
+
+  renderCart();
+</script>
+
+</body>
+</html>
