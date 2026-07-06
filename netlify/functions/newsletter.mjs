@@ -1,10 +1,12 @@
-// Netlify-Funktion (v2): Newsletter-Anmeldung.
-// 1) Speichert die E-Mail IMMER in Netlify Blobs (Roh-Log für die Admin-Ansicht).
-// 2) Ist Brevo konfiguriert (Env-Vars gesetzt), wird zusätzlich ein Double-Opt-In-
-//    Kontakt bei Brevo angelegt -> Brevo schickt die Bestätigungsmail (DSGVO-konform).
-//    Ohne Env-Vars passiert nur (1) -> nichts bricht, solange Brevo noch nicht eingerichtet ist.
+// Netlify-Funktion (v2): Newsletter-Anmeldung mit eigenem Double-Opt-In.
+// 1) E-Mail wird IMMER in Netlify Blobs geloggt (Admin-Ansicht "Anmeldungen").
+// 2) Ist Brevo konfiguriert (BREVO_API_KEY + BREVO_LIST_ID), verschickt der Shop selbst
+//    eine Bestätigungsmail über Brevos normalen Transaktions-Versand (kein DOI-Template nötig).
+//    Der Bestätigungslink zeigt auf /api/newsletter-confirm?token=… -> erst NACH dem Klick
+//    wird der Kontakt in die Brevo-Liste eingetragen (echtes Double-Opt-In, DSGVO-konform).
 
 import { getStore } from "@netlify/blobs";
+import { randomUUID } from "node:crypto";
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -23,29 +25,47 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: "Ungültige E-Mail" }), { status: 400 });
   }
 
-  // (1) Roh-Log in Blobs (Admin-Ansicht) – idempotent
   const store = getStore("shop");
+
+  // (1) Roh-Log in Blobs (Admin-Ansicht) – idempotent
   const list = (await store.get("newsletter", { type: "json" })) || [];
   if (!list.some((e) => e.email === email)) {
     list.push({ email, date: new Date().toISOString() });
     await store.setJSON("newsletter", list);
   }
 
-  // (2) Brevo Double-Opt-In (nur wenn vollständig konfiguriert)
+  // (2) Eigenes Double-Opt-In über Brevo-Transaktionsmail
   const apiKey = process.env.BREVO_API_KEY;
   const listId = parseInt(process.env.BREVO_LIST_ID, 10);
-  // TEMP: erlaubt ?tid=N zum Durchprobieren der DOI-Template-ID
-  let tidOverride = null;
-  try { tidOverride = new URL(req.url).searchParams.get("tid"); } catch (e) {}
-  const templateId = tidOverride ? parseInt(tidOverride, 10) : parseInt(process.env.BREVO_DOI_TEMPLATE_ID, 10);
-  const origin = `${req.headers.get("x-forwarded-proto") || "https"}://${req.headers.get("host")}`;
-  const redirectionUrl = process.env.BREVO_REDIRECT_URL || `${origin}/newsletter-bestaetigt.html`;
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  const origin = `${proto}://${req.headers.get("host")}`;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "triadarchiv@web.de";
 
   let doiSent = false;
-  const dbg = { hasApiKey: !!apiKey, listId, templateId, redirectionUrl, brevoStatus: null, brevoBody: null };
-  if (apiKey && listId && templateId) {
+  let confirmUrlDbg = null;
+  if (apiKey && listId) {
+    const token = randomUUID();
+
+    // Pending-Anmeldung merken (bis zum Bestätigungsklick)
+    const pending = (await store.get("newsletter_pending", { type: "json" })) || [];
+    const filtered = pending.filter((p) => p.email !== email);
+    filtered.push({ email, token, listId, date: new Date().toISOString() });
+    await store.setJSON("newsletter_pending", filtered);
+
+    const confirmUrl = `${origin}/api/newsletter-confirm?token=${token}`;
+    confirmUrlDbg = confirmUrl;
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#1a1a1a;line-height:1.6;">
+        <p style="font-size:18px;font-weight:bold;margin:0 0 8px;">Fast geschafft!</p>
+        <p>Danke für deine Anmeldung beim <strong>TRIAD ARCHIV</strong> Newsletter. Bitte bestätige sie mit einem Klick – danach bist du dabei und erfährst als Erste:r von neuen Drops.</p>
+        <p style="margin:24px 0;">
+          <a href="${confirmUrl}" style="display:inline-block;background:#111111;color:#ffffff;padding:13px 26px;border-radius:6px;text-decoration:none;font-weight:bold;">Anmeldung bestätigen</a>
+        </p>
+        <p style="color:#888;font-size:12px;">Wenn du dich nicht angemeldet hast, ignoriere diese E-Mail einfach – es passiert dann nichts.</p>
+      </div>`;
+
     try {
-      const resp = await fetch("https://api.brevo.com/v3/contacts/doubleOptinConfirmation", {
+      const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
           "api-key": apiKey,
@@ -53,39 +73,21 @@ export default async (req) => {
           "Accept": "application/json",
         },
         body: JSON.stringify({
-          email,
-          includeListIds: [listId],
-          templateId,
-          redirectionUrl,
+          sender: { email: senderEmail, name: "TRIAD ARCHIV" },
+          to: [{ email }],
+          subject: "Bitte bestätige deine Anmeldung – TRIAD ARCHIV",
+          htmlContent: html,
         }),
       });
-      dbg.brevoStatus = resp.status;
-      // 201 = Bestätigungsmail verschickt.
-      // 400 = Kontakt existiert schon / ist bereits in der Liste -> kein Fehler für uns.
-      if (resp.status === 201) {
+      if (resp.ok) {
         doiSent = true;
       } else {
-        dbg.brevoBody = (await resp.text()).slice(0, 400);
-        if (resp.status !== 400) console.error("Brevo DOI Fehler:", resp.status, dbg.brevoBody);
+        console.error("Brevo send Fehler:", resp.status, await resp.text());
       }
     } catch (err) {
-      dbg.brevoBody = "EXC: " + (err && err.message);
-      console.error("Brevo DOI Ausnahme:", err && err.message);
+      console.error("Brevo send Ausnahme:", err && err.message);
     }
   }
 
-  // TEMP: Brevo-Vorlagen auflisten, um die DOI-Template-ID zu finden
-  if (apiKey) {
-    try {
-      const tr = await fetch("https://api.brevo.com/v3/smtp/templates?limit=100&sort=desc", {
-        headers: { "api-key": apiKey, "Accept": "application/json" },
-      });
-      const tj = await tr.json();
-      dbg.templates = (tj.templates || []).map((t) => ({ id: t.id, name: t.name, isActive: t.isActive, doi: t.doiTemplate }));
-    } catch (e) {
-      dbg.templatesErr = e && e.message;
-    }
-  }
-
-  return new Response(JSON.stringify({ ok: true, doi: doiSent, debug: dbg }), { status: 200 });
+  return new Response(JSON.stringify({ ok: true, doi: doiSent, debug: { confirmUrl: confirmUrlDbg } }), { status: 200 });
 };
