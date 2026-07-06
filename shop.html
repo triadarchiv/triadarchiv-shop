@@ -535,41 +535,41 @@
   }
   .newsletter-form{
     display:flex;
-    gap:0;
+    gap:10px;
     max-width:520px;
-    border-bottom:1px solid var(--line-strong);
-    transition:border-color .2s ease;
+    flex-wrap:wrap;
   }
-  .newsletter-form:focus-within{ border-color:var(--text); }
   .newsletter-form input{
     flex:1;
-    min-width:0;
-    background:transparent;
-    border:none;
+    min-width:220px;
+    background:var(--surface);
+    border:1px solid var(--line-strong);
     color:var(--text);
     font-family:var(--font-mono);
     font-size:13px;
     letter-spacing:0.5px;
-    padding:16px 2px;
+    padding:16px 18px;
     outline:none;
+    transition:border-color .2s ease, background .2s ease;
   }
   .newsletter-form input::placeholder{ color:var(--faint); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; }
+  .newsletter-form input:focus{ border-color:var(--text); background:var(--surface-2); }
   .newsletter-form button{
     flex:0 0 auto;
-    background:transparent;
-    border:none;
-    color:var(--text);
-    font-family:var(--font-mono);
-    font-size:11px;
-    font-weight:500;
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:600;
     letter-spacing:2px;
     text-transform:uppercase;
-    padding:16px 2px 16px 20px;
+    padding:16px 28px;
     cursor:pointer;
-    transition:color .25s ease;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
   }
-  .newsletter-form button:hover{ color:var(--muted); }
-  .newsletter-form button:disabled{ color:var(--faint); cursor:wait; }
+  .newsletter-form button:hover{ background:transparent; color:var(--text); }
+  .newsletter-form button:disabled{ opacity:.6; cursor:wait; }
   .newsletter-note{
     min-height:18px;
     margin-top:14px;
@@ -620,8 +620,8 @@
       <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
       <p class="hero-statement">Handverlesene Unikate aus drei Jahrzehnten adidas — Firebird, Adibreak, Velours &amp; Designerstücke. <b>Jedes Teil ein Einzelstück. Kein Restock.</b></p>
       <div class="hero-ctas">
-        <a class="btn-solid" href="#grid">Bestand ansehen</a>
-        <a class="link-quiet brand-editorial__cta" href="#grid">Ausgewählte Kollektion</a>
+        <a class="btn-solid" href="#grid">Ganzen Bestand ansehen</a>
+        <a class="link-quiet brand-editorial__cta" href="#grid">Nur Designerstücke</a>
       </div>
     </div>
     <figure class="hero-piece">
@@ -701,9 +701,9 @@
 
 <section class="newsletter" aria-label="Newsletter">
   <div>
-    <span class="eyebrow">Drops &amp; Neuzugänge</span>
-    <h2>Verpasse keinen Neuzugang</h2>
-    <p class="nl-text">Trag dich ein und erfahre als Erste:r von neuen Vintage-Stücken und exklusiven Designerstücken im Archiv.</p>
+    <span class="eyebrow">Neuzugänge</span>
+    <h2>Neue Stücke zuerst sehen</h2>
+    <p class="nl-text">Trag dich ein und erfahre als Erste:r, wenn neue handverlesene Vintage-Stücke ins Archiv kommen.</p>
   </div>
   <div>
     <form class="newsletter-form" id="newsletterForm" novalidate>
