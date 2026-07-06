@@ -6,25 +6,24 @@
 <title>Produkte verwalten — TRIAD ARCHIV</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #121212;
-    --panel: #1a1a1a;
-    --card: #1c1c1c;
-    --line: rgba(255,255,255,0.09);
-    --off-white: #f2f0ea;
-    --grey: #8a8a86;
+    --bg: #121110;
+    --panel: #1c1a18;
+    --card: #171614;
+    --line: rgba(244,241,234,0.09);
+    --off-white: #f4f1ea;
+    --grey: #a8a49b;
     --pink: #ff3d78;
+    --font-display:'Anton', 'Arial Narrow', Impact, sans-serif;
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
   html{ background:var(--bg); }
   body{
-    background:
-      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
-      var(--bg);
+    background:var(--bg);
     color:var(--off-white);
     font-family:'Inter', -apple-system, Arial, sans-serif;
     -webkit-font-smoothing:antialiased;
@@ -53,15 +52,15 @@
     display:flex;
     align-items:center;
     gap:10px;
-    font-family:'Oswald', sans-serif;
-    font-weight:700;
-    letter-spacing:0.5px;
+    font-family:var(--font-display);
+    font-weight:400;
+    letter-spacing:2px;
     font-size:16px;
     text-transform:uppercase;
     text-decoration:none;
     color:inherit;
   }
-  .logo .archive{ color:var(--pink); }
+  .logo .archive{ color:var(--grey); }
   .header-icons{
     display:flex;
     gap:18px;
@@ -107,15 +106,16 @@
 
   .header-titel{
     text-align:center;
-    font-family:'Oswald', sans-serif;
-    font-weight:700;
-    font-size:clamp(24px, 4vw, 36px);
-    letter-spacing:2px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(28px, 5vw, 48px);
+    letter-spacing:1px;
+    line-height:0.95;
     text-transform:uppercase;
     color:var(--off-white);
-    margin:32px 20px 6px;
+    margin:40px 20px 8px;
   }
-  .header-titel .archive{ color:var(--pink); }
+  .header-titel .archive{ color:var(--grey); }
   .subtitle{
     text-align:center;
     color:var(--grey);
@@ -143,9 +143,9 @@
     padding:22px;
   }
   .panel h2{
-    font-family:'Oswald', sans-serif;
-    font-weight:600;
-    font-size:15px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:16px;
     text-transform:uppercase;
     letter-spacing:1px;
     margin-bottom:18px;
@@ -290,12 +290,12 @@
   }
   .btn:hover{ border-color:var(--pink); color:var(--pink); }
   .btn-primary{
-    background:var(--pink);
-    border-color:var(--pink);
-    color:#121212;
+    background:var(--off-white);
+    border-color:var(--off-white);
+    color:#121110;
     font-weight:700;
   }
-  .btn-primary:hover{ opacity:0.9; color:#121212; }
+  .btn-primary:hover{ opacity:0.9; color:#121110; }
   .btn-danger:hover{ border-color:#ff5555; color:#ff5555; }
   .btn-small{ padding:6px 10px; font-size:10px; }
   .btn-block{ width:100%; }
@@ -352,9 +352,9 @@
   .row-thumb img{ width:100%; height:100%; object-fit:cover; object-position:center; }
   .row-info{ flex:1; min-width:0; }
   .row-info .name{
-    font-family:'Oswald', sans-serif;
+    font-family:'Inter', sans-serif;
     font-size:13px;
-    font-weight:500;
+    font-weight:600;
     text-transform:uppercase;
     letter-spacing:0.3px;
     white-space:nowrap;
@@ -397,8 +397,8 @@
     bottom:24px;
     left:50%;
     transform:translateX(-50%) translateY(20px);
-    background:var(--pink);
-    color:#121212;
+    background:var(--off-white);
+    color:#121110;
     font-family:'JetBrains Mono', monospace;
     font-size:12px;
     font-weight:700;
@@ -564,8 +564,8 @@
     <h2>Deine Produkte <span class="badge-count" id="productCount">0 Produkte</span></h2>
 
     <div class="toolbar">
-      <button class="btn" id="exportBtn"><i class="fa-solid fa-download"></i> Export (JSON)</button>
-      <button class="btn" id="importBtn"><i class="fa-solid fa-upload"></i> Import (JSON)</button>
+      <button class="btn" id="exportBtn">↓ Export (JSON)</button>
+      <button class="btn" id="importBtn">↑ Import (JSON)</button>
       <input type="file" id="importFile" accept="application/json">
     </div>
 
@@ -579,7 +579,7 @@
   <div class="panel" style="grid-column:1 / -1;">
     <h2>Bestellungen <span class="badge-count" id="ordersCount"></span></h2>
     <div class="toolbar">
-      <button class="btn" id="ordersReload"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
+      <button class="btn" id="ordersReload">⟳ Aktualisieren</button>
     </div>
     <div id="ordersList"></div>
   </div>
@@ -589,9 +589,9 @@
   <div class="panel" style="grid-column:1 / -1;">
     <h2>Newsletter-Anmeldungen <span class="badge-count" id="subsCount"></span></h2>
     <div class="toolbar">
-      <button class="btn" id="subsReload"><i class="fa-solid fa-rotate"></i> Aktualisieren</button>
-      <button class="btn" id="subsCopy"><i class="fa-solid fa-copy"></i> Alle kopieren</button>
-      <button class="btn" id="subsExport"><i class="fa-solid fa-download"></i> Export (CSV)</button>
+      <button class="btn" id="subsReload">⟳ Aktualisieren</button>
+      <button class="btn" id="subsCopy">Alle kopieren</button>
+      <button class="btn" id="subsExport">↓ Export (CSV)</button>
     </div>
     <div id="subsList"></div>
   </div>
@@ -949,10 +949,10 @@
             </div>
           </div>
           <div class="row-actions">
-            <button class="btn btn-small" data-action="up" data-id="${p.id}" ${i === 0 ? 'disabled' : ''} title="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
-            <button class="btn btn-small" data-action="down" data-id="${p.id}" ${i === products.length - 1 ? 'disabled' : ''} title="Nach unten"><i class="fa-solid fa-arrow-down"></i></button>
-            <button class="btn btn-small" data-action="edit" data-id="${p.id}" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-small btn-danger" data-action="delete" data-id="${p.id}" title="Löschen"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-small" data-action="up" data-id="${p.id}" ${i === 0 ? 'disabled' : ''} title="Nach oben" aria-label="Nach oben">↑</button>
+            <button class="btn btn-small" data-action="down" data-id="${p.id}" ${i === products.length - 1 ? 'disabled' : ''} title="Nach unten" aria-label="Nach unten">↓</button>
+            <button class="btn btn-small" data-action="edit" data-id="${p.id}" title="Bearbeiten" aria-label="Bearbeiten">✎</button>
+            <button class="btn btn-small btn-danger" data-action="delete" data-id="${p.id}" title="Löschen" aria-label="Löschen">✕</button>
           </div>
         </div>`;
     }).join('');

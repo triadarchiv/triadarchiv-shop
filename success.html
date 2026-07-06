@@ -4,116 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bestellung bestätigt — TRIAD ARCHIV</title>
+<meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-  :root{
-    --bg: #0e0e0e;
-    --card: #151515;
-    --line: rgba(255,255,255,0.07);
-    --line-strong: rgba(255,255,255,0.14);
-    --off-white: #f5f3ee;
-    --grey: #a7a7a1;
-    --pink: #ff3d78;
-    --font-sans:'Inter', -apple-system, Arial, sans-serif;
-  }
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  html{ background:var(--bg); }
   body{
-    background:var(--bg);
-    color:var(--off-white);
-    font-family:var(--font-sans);
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
     display:flex;
     align-items:center;
     justify-content:center;
     padding:24px;
   }
-  .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
-  .stripes span{ width:4px; height:16px; background:var(--off-white); }
-  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
-
   .card{
-    max-width:480px;
+    max-width:520px;
     width:100%;
     text-align:center;
-    background:var(--card);
+    background:var(--surface);
     border:1px solid var(--line);
-    border-radius:6px;
-    padding:44px 32px;
+    padding:56px 36px;
   }
-  .check{
-    width:56px;
-    height:56px;
-    margin:0 auto 24px;
-    border-radius:50%;
-    border:1.5px solid var(--pink);
-    display:flex;
-    align-items:center;
+  .card .logo{
     justify-content:center;
-    color:var(--pink);
-    font-size:26px;
+    margin-bottom:32px;
+    font-size:14px;
+  }
+  .order-no{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--faint);
+    margin-bottom:18px;
   }
   h1{
-    font-size:22px;
-    font-weight:700;
-    letter-spacing:1px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(28px, 6vw, 44px);
+    letter-spacing:0.01em;
+    line-height:0.95;
     text-transform:uppercase;
-    margin-bottom:12px;
+    margin-bottom:18px;
   }
-  p{
-    color:var(--grey);
+  .card p{
+    color:var(--muted);
     font-size:15px;
-    line-height:1.7;
-    margin-bottom:28px;
+    font-weight:300;
+    line-height:1.8;
+    margin-bottom:32px;
   }
-  .back-btn{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    background:var(--off-white);
-    border:1px solid var(--off-white);
-    color:var(--bg);
-    font-size:13px;
-    font-weight:600;
-    letter-spacing:1.6px;
-    text-transform:uppercase;
-    text-decoration:none;
-    padding:14px 26px;
-    border-radius:4px;
-    transition:background .25s ease, color .25s ease, border-color .25s ease;
-  }
-  .back-btn:hover{ background:transparent; color:var(--off-white); border-color:var(--off-white); }
-
-  .logo{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    font-weight:700;
-    letter-spacing:1px;
-    font-size:14px;
-    text-transform:uppercase;
-    margin-bottom:28px;
-    color:var(--off-white);
-  }
-  .logo .archive{ color:var(--pink); }
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="logo">
+    <a class="logo" href="shop.html">
       <span class="stripes"><span></span><span></span><span></span></span>
       TRIAD <span class="archive">ARCHIV</span>
-    </div>
-    <div class="check">✓</div>
-    <h1>Danke für deine Bestellung!</h1>
+    </a>
+    <div class="order-no">Bestellung eingegangen</div>
+    <h1>Danke für deine Bestellung</h1>
     <p>Deine Zahlung ist eingegangen. Du erhältst in Kürze eine Bestätigung per E-Mail. Wir kümmern uns um den Versand.</p>
-    <a class="back-btn" href="shop.html">Weiter einkaufen</a>
+    <a class="btn-solid" href="shop.html">Zurück zum Archiv</a>
   </div>
 
   <script>

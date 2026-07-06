@@ -4,154 +4,65 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Warenkorb — TRIAD ARCHIV</title>
-<meta name="theme-color" content="#0e0e0e">
+<meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-  :root{
-    /* ----- palette (shared with shop.html) ----- */
-    --bg: #0e0e0e;
-    --panel: #151515;
-    --card: #151515;
-    --tile: #141414;
-    --line: rgba(255,255,255,0.07);
-    --line-strong: rgba(255,255,255,0.14);
-    --off-white: #f5f3ee;
-    --grey: #a7a7a1;
-    --faint: #7a7a74;
-    --pink: #ff3d78;
-
-    /* ----- type (unified minimalist sans-serif) ----- */
-    --font-display:'Inter', -apple-system, Arial, sans-serif;
-    --font-sans:'Inter', -apple-system, Arial, sans-serif;
-    --font-mono:'Inter', -apple-system, Arial, sans-serif;
-  }
-
-  *{ box-sizing:border-box; margin:0; padding:0; }
-
-  html{ background:var(--bg); }
-
-  body{
-    background:var(--bg);
-    color:var(--off-white);
-    font-family:var(--font-sans);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    text-rendering:optimizeLegibility;
-    min-height:100vh;
-  }
-
-  .stripes{
-    display:inline-flex;
-    gap:3px;
-    transform:skewX(-12deg);
-  }
-  .stripes span{
-    width:4px;
-    height:16px;
-    background:var(--off-white);
-  }
-  .stripes span:nth-child(2){ height:20px; margin-top:-2px; }
-
-  header{
-    position:sticky;
-    top:0;
-    z-index:50;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:16px 20px;
-    background:rgba(18,18,18,0.92);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--line);
-  }
-
-  .logo{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-family:var(--font-display);
-    font-weight:700;
-    letter-spacing:0.5px;
-    font-size:16px;
-    text-transform:uppercase;
-    text-decoration:none;
-    color:inherit;
-  }
-  .logo .archive{ color:var(--pink); }
-
-  .header-icons{
-    display:flex;
-    gap:18px;
-    font-size:13px;
-    letter-spacing:0.5px;
-    text-transform:uppercase;
-    font-family:var(--font-mono);
-  }
-  .header-icons a{
-    cursor:pointer;
-    color:var(--grey);
-    text-decoration:none;
-    transition:color .15s ease;
-  }
-  .header-icons a:hover{ color:var(--off-white); }
-
-  .header-titel{
-    text-align:center;
-    font-family:var(--font-display);
-    font-weight:700;
-    font-size:clamp(28px, 5vw, 44px);
-    letter-spacing:2px;
-    text-transform:uppercase;
-    color:var(--off-white);
-    margin:36px 20px 16px;
-  }
+  /* ================= Seiten-spezifisch: Warenkorb ================= */
 
   .cart-wrap{
-    max-width:800px;
+    max-width:860px;
     margin:0 auto;
-    padding:0 20px 60px;
+    padding:0 var(--pad-x) var(--s6);
   }
 
   .cart-empty{
     text-align:center;
-    padding:40px 20px;
-    background:var(--card);
+    padding:72px 24px;
+    background:var(--surface);
     border:1px solid var(--line);
-    color:var(--grey);
-    font-family:'Inter', sans-serif;
+    color:var(--muted);
     font-size:15px;
-    line-height:1.7;
+    font-weight:300;
+    line-height:1.8;
   }
   .cart-empty a{
-    color:var(--pink);
+    display:inline-block;
+    margin-top:14px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text);
     text-decoration:none;
+    border-bottom:1px solid var(--line-strong);
+    padding-bottom:4px;
+    transition:border-color .2s ease;
   }
-  .cart-empty a:hover{ text-decoration:underline; }
+  .cart-empty a:hover{ border-color:var(--text); }
 
+  /* Positionen wie Katalogzeilen */
   .cart-list{
     display:flex;
     flex-direction:column;
-    gap:1px;
-    background:var(--line);
-    border:1px solid var(--line);
+    border-top:1px solid var(--line-strong);
   }
 
   .cart-item{
-    background:var(--card);
     display:flex;
     align-items:center;
-    gap:14px;
-    padding:14px 16px;
+    gap:18px;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
   }
   .cart-item-thumb{
     position:relative;
     flex:0 0 auto;
-    width:60px;
-    height:80px;               /* 3:4 wie die Produktbilder → weniger Leerraum */
-    border-radius:6px;
+    width:64px;
+    height:80px;               /* 4:5 wie die Produktbilder */
     overflow:hidden;
     background:var(--tile);
     border:1px solid var(--line);
@@ -159,7 +70,7 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    color:var(--grey);
+    color:var(--faint);
     font-family:var(--font-mono);
     font-size:8px;
     letter-spacing:0.3px;
@@ -167,120 +78,134 @@
     text-transform:uppercase;
     padding:4px;
   }
-  /* Bild-Fix: ganzes Bild einpassen statt beschneiden/verzerren */
+  /* ganzes Bild einpassen statt beschneiden/verzerren */
   .cart-item-thumb img{
     width:100%;
     height:100%;
-    object-fit:contain;        /* komplettes Bild sichtbar, kein Zoom-Crop */
+    object-fit:contain;
     object-position:center;
     display:block;
   }
-  /* evtl. aus der Shop-Kachel mitkopiertes Rabatt-Badge im Thumbnail ausblenden */
-  .cart-item-thumb .badge{ display:none; }
+  /* aus der Shop-Kachel mitkopierte Tags im Thumbnail ausblenden */
+  .cart-item-thumb .badge,
+  .cart-item-thumb .stamp{ display:none; }
+  /* Archiv-Platzhalter (fehlendes Bild) kompakt darstellen */
+  .cart-item-thumb .img-placeholder{
+    padding:4px;
+    gap:4px;
+    font-size:7px;
+    letter-spacing:0.5px;
+    line-height:1.5;
+  }
+  .cart-item-thumb .img-placeholder .stripes{ display:none; }
   .cart-item-info{
     flex:1;
     min-width:0;
     display:flex;
     flex-direction:column;
-    gap:5px;
+    gap:6px;
   }
   .cart-item-info .name{
-    font-family:var(--font-display);
-    font-size:13px;
+    font-family:var(--font-sans);
+    font-size:14px;
     font-weight:500;
-    text-transform:uppercase;
-    letter-spacing:0.3px;
+    letter-spacing:0.2px;
+    color:var(--text);
   }
   .cart-item-info .size{
     font-family:var(--font-mono);
-    font-size:11px;
-    letter-spacing:0.3px;
+    font-size:10px;
+    letter-spacing:1.5px;
     text-transform:uppercase;
-    color:var(--grey);
+    color:var(--faint);
   }
   .cart-item-side{
     flex:0 0 auto;
     display:flex;
     flex-direction:column;
     align-items:flex-end;
-    gap:8px;
+    gap:10px;
   }
   .cart-item-side .price{
     font-family:var(--font-mono);
-    font-size:13px;
-    font-weight:600;
-    color:var(--off-white);
+    font-size:14px;
+    font-weight:500;
+    color:var(--text);
     font-variant-numeric:tabular-nums;   /* Ziffern gleich breit → Preise fluchten */
   }
   .cart-item .qty-controls{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
     font-family:var(--font-mono);
     font-size:12px;
-    color:var(--grey);
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
   }
   .qty-controls button{
-    width:24px;
-    height:24px;
+    width:26px;
+    height:26px;
     background:none;
-    border:1px solid var(--line);
-    color:var(--off-white);
+    border:1px solid var(--line-strong);
+    color:var(--text);
     cursor:pointer;
-    font-family:var(--font-mono);
-    font-size:13px;
+    font-family:var(--font-sans);
+    font-size:14px;
     line-height:1;
-    transition:border-color .15s ease, color .15s ease;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
   }
-  .qty-controls button:hover{ border-color:var(--pink); color:var(--pink); }
+  .qty-controls button:hover{ background:var(--text); border-color:var(--text); color:var(--bg); }
   .remove-btn{
     flex:0 0 auto;
     align-self:flex-start;
     background:none;
     border:none;
-    color:var(--grey);
+    color:var(--faint);
     cursor:pointer;
-    font-family:var(--font-mono);
+    font-family:var(--font-sans);
     font-size:16px;
     line-height:1;
-    padding:0 0 0 4px;
+    padding:0 0 0 6px;
     transition:color .15s ease;
   }
-  .remove-btn:hover{ color:var(--pink); }
+  .remove-btn:hover{ color:var(--text); }
 
+  /* Summenblock wie ein Beleg */
   .cart-summary{
-    margin-top:14px;
-    padding:4px 4px 0;
+    margin-top:18px;
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:10px;
   }
   .summary-row{
     display:flex;
     justify-content:space-between;
     align-items:baseline;
     font-family:var(--font-mono);
-    font-size:13px;
-    color:var(--grey);
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
     font-variant-numeric:tabular-nums;
   }
+  .summary-row .free{ color:var(--text); }
   .cart-total{
     display:flex;
     justify-content:space-between;
     align-items:baseline;
-    margin-top:6px;
-    padding:16px 4px;
+    margin-top:8px;
+    padding:18px 0;
     border-top:1px solid var(--line-strong);   /* Summe klar von Positionen abgesetzt */
     font-family:var(--font-mono);
-    font-size:13px;
+    font-size:12px;
     text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--grey);
+    letter-spacing:2px;
+    color:var(--muted);
   }
   .cart-total .amount{
-    color:var(--off-white);
-    font-weight:700;
-    font-size:20px;                            /* Endsumme als visueller Anker */
+    color:var(--text);
+    font-weight:500;
+    font-size:22px;                            /* Endsumme als visueller Anker */
     letter-spacing:0.5px;
     font-variant-numeric:tabular-nums;
   }
@@ -290,7 +215,7 @@
     display:flex;
     flex-direction:column;
     gap:10px;
-    margin:22px 0 14px;
+    margin:24px 0 14px;
   }
   .checkout-btn,
   .continue-btn{
@@ -302,89 +227,50 @@
     font-family:var(--font-sans);
     font-size:13px;
     font-weight:600;
-    letter-spacing:1.6px;
+    letter-spacing:2px;
     text-transform:uppercase;
     text-decoration:none;
-    padding:15px 20px;
-    border-radius:4px;
+    padding:17px 20px;
+    border-radius:0;
     cursor:pointer;
     transition:background .25s ease, color .25s ease, border-color .25s ease, transform .1s ease;
   }
   /* primäre CTA: Zur Kasse / bezahlen */
   .checkout-btn{
-    background:var(--off-white);
-    border:1px solid var(--off-white);
+    background:var(--text);
+    border:1px solid var(--text);
     color:var(--bg);
   }
-  .checkout-btn:hover{ background:transparent; color:var(--off-white); border-color:var(--off-white); }
+  .checkout-btn:hover{ background:transparent; color:var(--text); border-color:var(--text); }
   .checkout-btn:disabled{ opacity:.6; cursor:default; }
   /* sekundär: weiter einkaufen */
   .continue-btn{
     background:transparent;
     border:1px solid var(--line-strong);
-    color:var(--off-white);
+    color:var(--text);
   }
-  .continue-btn:hover{ border-color:var(--off-white); }
+  .continue-btn:hover{ border-color:var(--text); }
   .checkout-btn:active,
   .continue-btn:active{ transform:translateY(1px); }
 
   .cart-actions{
     display:flex;
     justify-content:flex-end;
-    padding:0 4px;
   }
   .clear-btn{
     background:none;
-    border:1px solid var(--line);
-    color:var(--grey);
+    border:none;
+    color:var(--faint);
     font-family:var(--font-mono);
-    font-size:11px;
+    font-size:10px;
     text-transform:uppercase;
-    letter-spacing:0.5px;
-    padding:8px 12px;
+    letter-spacing:2px;
+    padding:8px 0;
     cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
+    border-bottom:1px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
   }
-  .clear-btn:hover{ border-color:var(--pink); color:var(--pink); }
-
-  footer{
-    margin-top:40px;
-    border-top:1px solid var(--line);
-    padding:28px 20px 40px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:14px 28px;
-    align-items:center;
-    justify-content:space-between;
-  }
-  footer .foot-logo{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-family:var(--font-display);
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--grey);
-  }
-  .foot-links{
-    display:flex;
-    gap:22px;
-    font-family:var(--font-mono);
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-  }
-  .foot-links a{
-    color:var(--grey);
-    text-decoration:none;
-  }
-  .foot-links a:hover{ color:var(--off-white); }
-
-  :focus-visible{
-    outline:2px solid var(--pink);
-    outline-offset:2px;
-  }
+  .clear-btn:hover{ color:var(--text); border-color:var(--line-strong); }
 </style>
 </head>
 <body>
@@ -395,29 +281,37 @@
     TRIAD <span class="archive">ARCHIV</span>
   </a>
   <div class="header-icons">
-    <a href="shop.html">Zurück zum Shop</a>
+    <a href="shop.html">Zurück zum Archiv</a>
   </div>
 </header>
 
-<h1 class="header-titel">Warenkorb</h1>
+<h1 class="page-title">Warenkorb</h1>
+<p class="page-title-sub">Deine Auswahl aus dem Archiv</p>
 
 <div class="cart-wrap" id="cartWrap"></div>
 
 <footer>
-  <div class="foot-logo">
-    <span class="stripes"><span></span><span></span><span></span></span>
-    Triad Archiv
+  <div class="foot-inner">
+    <div class="foot-logo">
+      <span class="stripes"><span></span><span></span><span></span></span>
+      Triad Archiv
+    </div>
+    <div class="foot-links">
+      <a href="shop.html">Archiv</a>
+      <a href="versand.html">Versand</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="widerruf.html">Widerruf</a>
+      <a href="agb.html">AGB</a>
+    </div>
   </div>
-  <div class="foot-links">
-    <a href="shop.html">Shop</a>
-    <a href="impressum.html">Impressum</a>
-  </div>
+  <div class="foot-copy">© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.</div>
 </footer>
 
 <script>
   const cartWrap = document.getElementById('cartWrap');
 
-  // Versandkosten (muss mit server.ps1 und versand.html übereinstimmen)
+  // Versandkosten (muss mit checkout.js und versand.html übereinstimmen)
   const SHIPPING = 6.19;
   const FREE_FROM = 80;
 
@@ -431,7 +325,7 @@
   }
 
   function escapeHtml(str){
-    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
   function startCheckout(){
@@ -465,7 +359,7 @@
       cartWrap.innerHTML = `
         <div class="cart-empty">
           Dein Warenkorb ist noch leer.<br>
-          <a href="shop.html">Jetzt stöbern →</a>
+          <a href="shop.html">Zum Archiv →</a>
         </div>`;
       return;
     }
@@ -492,7 +386,7 @@
     const shipping = subtotal >= FREE_FROM ? 0 : SHIPPING;
     const total = subtotal + shipping;
     const shippingLabel = shipping === 0
-      ? '<span style="color:var(--pink)">Kostenlos</span>'
+      ? '<span class="free">Kostenlos</span>'
       : fmt(shipping);
 
     cartWrap.innerHTML = `
@@ -507,7 +401,7 @@
       </div>
       <div class="cart-cta">
         <button class="checkout-btn" id="checkoutBtn">Zur Kasse · ${fmt(total)} bezahlen</button>
-        <a class="continue-btn" href="shop.html">← Weiter einkaufen</a>
+        <a class="continue-btn" href="shop.html">← Weiter stöbern</a>
       </div>
       <div class="cart-actions">
         <button class="clear-btn" id="clearCart">Warenkorb leeren</button>

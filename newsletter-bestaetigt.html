@@ -5,73 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anmeldung bestätigt — TRIAD ARCHIV</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0e0e0e">
+<meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-  :root{
-    --bg:#0e0e0e; --surface:#151515; --line:rgba(255,255,255,0.08);
-    --text:#f5f3ee; --muted:#a7a7a1; --accent:#ff3d78; --accent-soft:rgba(255,61,120,0.10);
-  }
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  html,body{ height:100%; }
+  html, body{ height:100%; }
   body{
-    background:
-      radial-gradient(ellipse at top, rgba(255,255,255,0.035), transparent 62%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Inter', -apple-system, Arial, sans-serif;
-    -webkit-font-smoothing:antialiased;
-    display:flex; align-items:center; justify-content:center;
-    min-height:100vh; padding:24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px;
   }
   .card{
-    max-width:520px; width:100%; text-align:center;
-    background:var(--surface); border:1px solid var(--line);
-    border-radius:14px; padding:52px 32px;
+    max-width:520px;
+    width:100%;
+    text-align:center;
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:56px 36px;
   }
-  .logo{
-    font-family:'Oswald', sans-serif; font-weight:700; letter-spacing:1px;
-    text-transform:uppercase; font-size:15px; color:var(--text);
-    margin-bottom:28px; display:inline-flex; align-items:center; gap:9px;
+  .card .logo{
+    justify-content:center;
+    margin-bottom:32px;
+    font-size:14px;
   }
-  .logo .stripes{ display:inline-flex; gap:3px; transform:skewX(-12deg); }
-  .logo .stripes span{ width:4px; height:15px; background:var(--text); }
-  .logo .stripes span:nth-child(2){ height:19px; margin-top:-2px; }
-  .logo .archive{ color:var(--accent); }
-  .check{
-    width:64px; height:64px; margin:0 auto 24px; border-radius:50%;
-    background:var(--accent-soft); border:1px solid var(--accent);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--accent); font-size:30px; line-height:1;
+  .confirm-tag{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--faint);
+    margin-bottom:18px;
   }
   h1{
-    font-family:'Oswald', sans-serif; font-weight:600; text-transform:uppercase;
-    letter-spacing:1px; font-size:clamp(22px,4vw,30px); margin-bottom:14px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(28px, 6vw, 44px);
+    letter-spacing:0.01em;
+    line-height:0.95;
+    text-transform:uppercase;
+    margin-bottom:18px;
   }
-  h1 .archive{ color:var(--accent); }
-  p{ color:var(--muted); font-size:15px; line-height:1.7; margin-bottom:28px; }
-  .btn{
-    display:inline-block; text-decoration:none;
-    background:var(--text); color:#0e0e0e; font-weight:600;
-    padding:13px 26px; border-radius:999px; font-size:14px;
-    letter-spacing:0.3px; transition:opacity .15s ease;
+  .card p{
+    color:var(--muted);
+    font-size:15px;
+    font-weight:300;
+    line-height:1.8;
+    margin-bottom:32px;
   }
-  .btn:hover{ opacity:0.88; }
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="logo">
+    <a class="logo" href="shop.html">
       <span class="stripes"><span></span><span></span><span></span></span>
       TRIAD <span class="archive">ARCHIV</span>
-    </div>
-    <div class="check">✓</div>
-    <h1>Anmeldung <span class="archive">bestätigt</span></h1>
+    </a>
+    <div class="confirm-tag">Newsletter</div>
+    <h1>Anmeldung bestätigt</h1>
     <p>Willkommen im Archiv. Du bekommst ab jetzt als Erste:r Bescheid, wenn neue handverlesene Vintage-Adidas-Stücke reinkommen.</p>
-    <a class="btn" href="shop.html">Zum Shop →</a>
+    <a class="btn-solid" href="shop.html">Zum Archiv</a>
   </div>
 </body>
 </html>
