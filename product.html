@@ -817,6 +817,44 @@
         }, 1200);
       });
     }
+
+    /* ---------- SEO: Titel/Meta pro Produkt + strukturierte Daten (JSON-LD) ---------- */
+    (function seo(){
+      const title = `${product.name} — TRIAD ARCHIV`;
+      document.title = title;
+      const desc = (product.desc || `${product.name} — handverlesenes Vintage-Adidas-Unikat im TRIAD ARCHIV.`).slice(0, 300);
+      const absImages = images.map(src => { try { return new URL(src, location.href).href; } catch(e){ return src; } });
+      const setMeta = (sel, val) => { const el = document.querySelector(sel); if(el && val) el.setAttribute('content', val); };
+      setMeta('meta[name="description"]', desc);
+      setMeta('meta[property="og:type"]', 'product');
+      setMeta('meta[property="og:title"]', title);
+      setMeta('meta[property="og:description"]', desc);
+      setMeta('meta[property="og:url"]', location.href);
+      if(absImages.length) setMeta('meta[property="og:image"]', absImages[0]);
+
+      const ld = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product.name,
+        "description": desc,
+        "brand": { "@type": "Brand", "name": "adidas" },
+        "itemCondition": "https://schema.org/UsedCondition",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "EUR",
+          "price": String(product.price),
+          "availability": soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/UsedCondition",
+          "url": location.href
+        }
+      };
+      if(absImages.length) ld.image = absImages;
+      if(product.id) ld.sku = String(product.id);
+      const s = document.createElement('script');
+      s.type = 'application/ld+json';
+      s.textContent = JSON.stringify(ld);
+      document.head.appendChild(s);
+    })();
   }
 
   /* ---------- cart ---------- */
