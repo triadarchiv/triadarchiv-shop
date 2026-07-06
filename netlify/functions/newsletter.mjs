@@ -71,5 +71,18 @@ export default async (req) => {
     }
   }
 
+  // TEMP: Brevo-Vorlagen auflisten, um die DOI-Template-ID zu finden
+  if (apiKey) {
+    try {
+      const tr = await fetch("https://api.brevo.com/v3/smtp/templates?limit=100&sort=desc", {
+        headers: { "api-key": apiKey, "Accept": "application/json" },
+      });
+      const tj = await tr.json();
+      dbg.templates = (tj.templates || []).map((t) => ({ id: t.id, name: t.name, isActive: t.isActive, doi: t.doiTemplate }));
+    } catch (e) {
+      dbg.templatesErr = e && e.message;
+    }
+  }
+
   return new Response(JSON.stringify({ ok: true, doi: doiSent, debug: dbg }), { status: 200 });
 };
