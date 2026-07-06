@@ -54,8 +54,8 @@ exports.handler = async (event) => {
     params.append(`line_items[${i}][quantity]`, String(qty));
   });
 
-  // Versandkosten: 4,95 EUR, gratis ab 80 EUR (muss mit cart.html/versand.html übereinstimmen)
-  let shippingCents = 495;
+  // Versandkosten: 6,19 EUR, gratis ab 80 EUR (muss mit cart.html/versand.html übereinstimmen)
+  let shippingCents = 619;
   if (subtotal >= 80) shippingCents = 0;
   const shipName = shippingCents === 0 ? 'Kostenloser Versand' : 'Versand (DHL)';
   params.append('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
