@@ -34,7 +34,10 @@ export default async (req) => {
   // (2) Brevo Double-Opt-In (nur wenn vollständig konfiguriert)
   const apiKey = process.env.BREVO_API_KEY;
   const listId = parseInt(process.env.BREVO_LIST_ID, 10);
-  const templateId = parseInt(process.env.BREVO_DOI_TEMPLATE_ID, 10);
+  // TEMP: erlaubt ?tid=N zum Durchprobieren der DOI-Template-ID
+  let tidOverride = null;
+  try { tidOverride = new URL(req.url).searchParams.get("tid"); } catch (e) {}
+  const templateId = tidOverride ? parseInt(tidOverride, 10) : parseInt(process.env.BREVO_DOI_TEMPLATE_ID, 10);
   const origin = `${req.headers.get("x-forwarded-proto") || "https"}://${req.headers.get("host")}`;
   const redirectionUrl = process.env.BREVO_REDIRECT_URL || `${origin}/newsletter-bestaetigt.html`;
 
