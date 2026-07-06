@@ -39,6 +39,7 @@ export default async (req) => {
   const redirectionUrl = process.env.BREVO_REDIRECT_URL || `${origin}/newsletter-bestaetigt.html`;
 
   let doiSent = false;
+  const dbg = { hasApiKey: !!apiKey, listId, templateId, redirectionUrl, brevoStatus: null, brevoBody: null };
   if (apiKey && listId && templateId) {
     try {
       const resp = await fetch("https://api.brevo.com/v3/contacts/doubleOptinConfirmation", {
@@ -55,17 +56,20 @@ export default async (req) => {
           redirectionUrl,
         }),
       });
+      dbg.brevoStatus = resp.status;
       // 201 = Bestätigungsmail verschickt.
       // 400 = Kontakt existiert schon / ist bereits in der Liste -> kein Fehler für uns.
       if (resp.status === 201) {
         doiSent = true;
-      } else if (resp.status !== 400) {
-        console.error("Brevo DOI Fehler:", resp.status, await resp.text());
+      } else {
+        dbg.brevoBody = (await resp.text()).slice(0, 400);
+        if (resp.status !== 400) console.error("Brevo DOI Fehler:", resp.status, dbg.brevoBody);
       }
     } catch (err) {
+      dbg.brevoBody = "EXC: " + (err && err.message);
       console.error("Brevo DOI Ausnahme:", err && err.message);
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, doi: doiSent }), { status: 200 });
+  return new Response(JSON.stringify({ ok: true, doi: doiSent, debug: dbg }), { status: 200 });
 };
