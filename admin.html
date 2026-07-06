@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Produkte verwalten — TRIAD ARCHIV</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -1021,10 +1022,17 @@
     ordersCount.textContent = orders.length;
     const sorted = orders.slice().reverse();   // neueste zuerst
     ordersList.innerHTML = sorted.map(o => {
-      const names = (o.productIds || '').split(',').map(id => {
-        const p = products.find(pp => String(pp.id) === id.trim());
-        return p ? p.name : id.trim();
-      }).filter(Boolean).join(', ');
+      // Fest gespeicherte Artikelnamen bevorzugen (neue Bestellungen);
+      // ältere Bestellungen ohne items fallen auf das ID->Name-Mapping zurück.
+      let names;
+      if(Array.isArray(o.items) && o.items.length){
+        names = o.items.map(it => it.qty > 1 ? `${it.name} ×${it.qty}` : it.name).join(', ');
+      } else {
+        names = (o.productIds || '').split(',').map(id => {
+          const p = products.find(pp => String(pp.id) === id.trim());
+          return p ? p.name : id.trim();
+        }).filter(Boolean).join(', ');
+      }
       const ship = o.shipping || o.customer || {};
       const addr = (ship && ship.address) || {};
       const adrLines = [

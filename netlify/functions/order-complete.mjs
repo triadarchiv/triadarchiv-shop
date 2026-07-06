@@ -13,8 +13,9 @@ export default async (req) => {
   }
 
   try {
-    // Bestellung bei Stripe abfragen
-    const resp = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    // Bestellung bei Stripe abfragen (line_items mitladen, um die Artikelnamen
+    // fest zu speichern – unabhängig davon, ob das Produkt später gelöscht/umbenannt wird)
+    const resp = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=line_items`, {
       headers: { Authorization: `Bearer ${stripeKey}` },
     });
     const session = await resp.json();
@@ -47,6 +48,14 @@ export default async (req) => {
       await store.setJSON("products", products);
     }
 
+    // Gekaufte Artikel (Name/Menge/Preis) fest aus den Stripe-Line-Items übernehmen,
+    // damit die Bestellung ihre Artikelnamen behält, auch wenn das Produkt später weg ist.
+    const items = ((session.line_items && session.line_items.data) || []).map((li) => ({
+      name: (li.description || (li.price && li.price.product_data && li.price.product_data.name) || "Artikel"),
+      qty: li.quantity || 1,
+      amount: typeof li.amount_total === "number" ? (li.amount_total / 100).toFixed(2) : "",
+    }));
+
     // Bestellung protokollieren (inkl. Lieferadresse fürs Versandlabel)
     orders.push({
       date: new Date().toISOString(),
@@ -54,6 +63,7 @@ export default async (req) => {
       email: (session.customer_details && session.customer_details.email) || "",
       amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : "",
       currency: (session.currency || "eur").toUpperCase(),
+      items,
       productIds: idsRaw,
       shipping: session.shipping_details || null,
       customer: session.customer_details || null,
