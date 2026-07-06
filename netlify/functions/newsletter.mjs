@@ -42,7 +42,6 @@ export default async (req) => {
   const senderEmail = process.env.BREVO_SENDER_EMAIL || "triadarchiv@web.de";
 
   let doiSent = false;
-  let confirmUrlDbg = null;
   if (apiKey && listId) {
     const token = randomUUID();
 
@@ -53,7 +52,6 @@ export default async (req) => {
     await store.setJSON("newsletter_pending", filtered);
 
     const confirmUrl = `${origin}/api/newsletter-confirm?token=${token}`;
-    confirmUrlDbg = confirmUrl;
     const html = `
       <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#1a1a1a;line-height:1.6;">
         <p style="font-size:18px;font-weight:bold;margin:0 0 8px;">Fast geschafft!</p>
@@ -89,5 +87,5 @@ export default async (req) => {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, doi: doiSent, debug: { confirmUrl: confirmUrlDbg } }), { status: 200 });
+  return new Response(JSON.stringify({ ok: true, doi: doiSent }), { status: 200 });
 };

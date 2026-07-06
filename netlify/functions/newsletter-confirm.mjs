@@ -23,10 +23,9 @@ export default async (req) => {
   const apiKey = process.env.BREVO_API_KEY;
   const listId = entry.listId || parseInt(process.env.BREVO_LIST_ID, 10);
 
-  let brevoStatus = null;
   if (apiKey && listId) {
     try {
-      const resp = await fetch("https://api.brevo.com/v3/contacts", {
+      await fetch("https://api.brevo.com/v3/contacts", {
         method: "POST",
         headers: {
           "api-key": apiKey,
@@ -35,16 +34,10 @@ export default async (req) => {
         },
         body: JSON.stringify({ email: entry.email, listIds: [listId], updateEnabled: true }),
       });
-      brevoStatus = resp.status;
       // 201 = neu angelegt, 204 = aktualisiert, 400 = existiert schon -> updateEnabled deckt das ab
     } catch (err) {
       console.error("Brevo contacts Ausnahme:", err && err.message);
     }
-  }
-
-  // TEMP: Test-Modus gibt JSON statt Weiterleitung zurück
-  if (url.searchParams.get("debug")) {
-    return new Response(JSON.stringify({ ok: true, email: entry.email, brevoStatus }), { status: 200 });
   }
 
   // Token verbrauchen + als bestätigt vermerken
