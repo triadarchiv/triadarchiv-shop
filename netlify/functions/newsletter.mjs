@@ -39,7 +39,10 @@ export default async (req) => {
   const listId = parseInt(process.env.BREVO_LIST_ID, 10);
   const proto = req.headers.get("x-forwarded-proto") || "https";
   const origin = `${proto}://${req.headers.get("host")}`;
-  const senderEmail = process.env.BREVO_SENDER_EMAIL || "triadarchiv@web.de";
+  // Absender läuft über die in Brevo authentifizierte Domain triadarchiv.de (DKIM) -> beste Zustellbarkeit.
+  // Antworten gehen an das echte web.de-Postfach, da newsletter@triadarchiv.de kein Postfach hat.
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "newsletter@triadarchiv.de";
+  const replyToEmail = process.env.BREVO_REPLYTO_EMAIL || "triadarchiv@web.de";
 
   let doiSent = false;
   if (apiKey && listId) {
@@ -72,6 +75,7 @@ export default async (req) => {
         },
         body: JSON.stringify({
           sender: { email: senderEmail, name: "TRIAD ARCHIV" },
+          replyTo: { email: replyToEmail, name: "TRIAD ARCHIV" },
           to: [{ email }],
           subject: "Bitte bestätige deine Anmeldung – TRIAD ARCHIV",
           htmlContent: html,
