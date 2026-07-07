@@ -579,6 +579,154 @@
   }
   .newsletter-note.success{ color:var(--muted); }
   .newsletter-note.error{ color:var(--accent); }
+
+  /* ---------- Vertrauen / Assurance (prominent) ---------- */
+  .assurance{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-top:var(--s7);
+  }
+  .assurance-inner{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  @media(min-width:720px){
+    .assurance-inner{ grid-template-columns:repeat(3, 1fr); }
+  }
+  .assure-item{
+    padding:var(--s5) 0;
+    border-bottom:1px solid var(--line);
+  }
+  @media(min-width:720px){
+    .assure-item{
+      padding:var(--s5) clamp(20px, 3vw, 48px);
+      border-bottom:none;
+      border-left:1px solid var(--line);
+    }
+    .assure-item:first-child{ border-left:none; padding-left:0; }
+  }
+  .assure-key{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(44px, 6vw, 76px);
+    line-height:0.9;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+  }
+  .assure-key .assure-star{ color:var(--accent); font-size:0.5em; }
+  .assure-val{
+    margin-top:var(--s2);
+    font-family:var(--font-sans);
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    color:var(--text);
+  }
+  .assure-sub{
+    margin-top:8px;
+    font-family:var(--font-sans);
+    font-size:14px;
+    font-weight:300;
+    line-height:1.6;
+    color:var(--muted);
+  }
+
+  /* ---------- Kundenstimmen (rotierend, Vinted) ---------- */
+  .testimonials{ margin-top:var(--s7); }
+  .testimonials-head{ max-width:760px; }
+  .testimonials-head .eyebrow{ display:block; margin-bottom:var(--s2); }
+  .testimonials-head h2{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(30px, 5vw, 60px);
+    line-height:0.95;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .testimonials-head h2 .tstar{ color:var(--accent); }
+  .testimonials-head p{
+    margin-top:var(--s3);
+    font-size:15px;
+    font-weight:300;
+    line-height:1.7;
+    color:var(--muted);
+    max-width:54ch;
+  }
+  .testimonial-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(215px, 1fr));
+    gap:16px;
+    margin-top:var(--s5);
+    transition:opacity .45s ease;
+  }
+  .testimonial-grid.is-fading{ opacity:0; }
+  @media (prefers-reduced-motion: reduce){ .testimonial-grid{ transition:none; } }
+  .testimonial{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    padding:24px 20px;
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .testimonial:hover{ border-color:var(--line-strong); transform:translateY(-4px); }
+  .testimonial .stars{
+    color:var(--text);
+    font-size:13px;
+    letter-spacing:3px;
+    line-height:1;
+  }
+  .testimonial .t-quote{
+    font-family:var(--font-sans);
+    font-size:14px;
+    font-weight:400;
+    line-height:1.65;
+    color:var(--text);
+    flex:1;
+    margin:0;
+  }
+  .testimonial .t-author{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .testimonial .t-avatar{
+    flex:0 0 auto;
+    width:32px;
+    height:32px;
+    border:1px solid var(--line-strong);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-mono);
+    font-size:12px;
+    font-weight:500;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .testimonial .t-meta{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .testimonial .t-name{
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    letter-spacing:0.2px;
+  }
+  .testimonial .t-verified{
+    font-family:var(--font-mono);
+    font-size:9px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
 </style>
 </head>
 <body>
@@ -699,6 +847,35 @@
   </div>
 </div>
 
+<section class="assurance" aria-label="Warum TRIAD ARCHIV">
+  <div class="assurance-inner container">
+    <div class="assure-item">
+      <div class="assure-key">100%</div>
+      <div class="assure-val">Geprüfte Originalware</div>
+      <p class="assure-sub">Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.</p>
+    </div>
+    <div class="assure-item">
+      <div class="assure-key">5,0<span class="assure-star">★</span></div>
+      <div class="assure-val">600+ Verkäufe auf Vinted</div>
+      <p class="assure-sub">Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.</p>
+    </div>
+    <div class="assure-item">
+      <div class="assure-key">1–3 T.</div>
+      <div class="assure-val">Versand aus Deutschland</div>
+      <p class="assure-sub">Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.</p>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials container" aria-label="Kundenstimmen">
+  <div class="testimonials-head">
+    <span class="eyebrow">Bewertungen · Vinted</span>
+    <h2>5,0<span class="tstar">★</span> aus 600+ Verkäufen</h2>
+    <p>Echte Käuferstimmen aus über 600 abgeschlossenen Verkäufen auf Vinted — durchweg 5 Sterne.</p>
+  </div>
+  <div class="testimonial-grid" id="testimonialGrid"></div>
+</section>
+
 <section class="newsletter" aria-label="Newsletter">
   <div>
     <span class="eyebrow">Neuzugänge</span>
@@ -713,12 +890,6 @@
     <p class="newsletter-note" id="newsletterNote" role="status" aria-live="polite"></p>
   </div>
 </section>
-
-<div class="provenance" aria-label="Über den Shop">
-  <span><b>600+</b> Verkäufe · 5,0 / 5 auf Vinted</span>
-  <span>Jedes Teil geprüfte Originalware</span>
-  <span>Versand aus Deutschland</span>
-</div>
 
 <footer>
   <div class="foot-inner">
@@ -1133,6 +1304,84 @@
       window.location.href = 'product.html?id=' + encodeURIComponent(productEl.dataset.id);
     });
   });
+
+  /* ---------- Kundenstimmen: echte Vinted-Bewertungen, rotierend ----------
+     Namen/Texte kannst du hier frei ergänzen, ändern oder löschen — es werden
+     immer 5 gleichzeitig gezeigt und regelmäßig durchgewechselt. */
+  const REVIEWS = [
+    { name:'Sunny',    text:'Alles prima. Sehr lieber Kontakt und sehr schöne Jacke. Vielen lieben Dank. Gerne wieder!' },
+    { name:'Lena B.',  text:'Ware wie beschrieben, sehr schöne Jacke, passt perfekt. Netter Kontakt – gerne wieder.' },
+    { name:'Leonie',   text:'Artikel wie beschrieben, schneller Versand, unkomplizierte Abwicklung. Gerne wieder.' },
+    { name:'Clara M.', text:'Super schneller Versand und 1a Zustand! Danke.' },
+    { name:'Marjohns', text:'Super lieb und unkompliziert.' },
+    { name:'Mona',     text:'Netter Kontakt und schnelle unkomplizierte Kaufabwicklung. Gerne wieder.' },
+    { name:'Isabella', text:'Schnelle Lieferung, alles einwandfrei!' },
+    { name:'Annett M.',text:'Alles supi, gern wieder!' },
+    { name:'Lotta',    text:'Superschneller Versand.' },
+    { name:'Matti',    text:'Super nett und alles perfekt.' },
+    { name:'Jayden',   text:'Schnellster Versand.' },
+    { name:'Sven H.',  text:'Vielen lieben Dank! Alles bestens.' },
+    { name:'Inger K.', text:'Alles prima gelaufen, gerne wieder!' },
+    { name:'Maria',    text:'Alles super – schneller Versand!' },
+    { name:'Cora',     text:'Hat super geklappt!' },
+    { name:'Viktoria', text:'Alles bestens, gerne wieder.' },
+    { name:'Jonny',    text:'Schneller Versand, top.' },
+    { name:'Mona M.',  text:'Alles wunderbar. Vielen lieben Dank!' },
+    { name:'N. R.',    text:'Mega freundlich und schnell geliefert.' },
+    { name:'Miss H.',  text:'Alles bestens! Vielen, lieben Dank!' },
+    { name:'Nele',     text:'Alles super! Sehr schneller Versand!' },
+    { name:'Kim',      text:'Sehr freundlich und schnelle Abwicklung!' }
+  ];
+
+  (function initTestimonials(){
+    const grid = document.getElementById('testimonialGrid');
+    if(!grid || !REVIEWS.length) return;
+    const PER_PAGE = 5;
+    const INTERVAL = 6500;
+    let start = 0;
+
+    function cardHtml(r){
+      const initial = (r.name.trim()[0] || '★').toUpperCase();
+      return `
+        <article class="testimonial">
+          <div class="stars" aria-label="5 von 5 Sternen">★★★★★</div>
+          <p class="t-quote">${escapeHtml(r.text)}</p>
+          <div class="t-author">
+            <div class="t-avatar">${escapeHtml(initial)}</div>
+            <div class="t-meta">
+              <span class="t-name">${escapeHtml(r.name)}</span>
+              <span class="t-verified">Verifiziert · Vinted</span>
+            </div>
+          </div>
+        </article>`;
+    }
+    function render(){
+      const n = Math.min(PER_PAGE, REVIEWS.length);
+      let html = '';
+      for(let i = 0; i < n; i++){ html += cardHtml(REVIEWS[(start + i) % REVIEWS.length]); }
+      grid.innerHTML = html;
+    }
+    render();
+
+    if(REVIEWS.length <= PER_PAGE) return;   // zu wenig zum Rotieren
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let paused = false;
+
+    function advance(){
+      if(paused) return;
+      start = (start + PER_PAGE) % REVIEWS.length;
+      if(reduce){ render(); return; }
+      grid.classList.add('is-fading');
+      setTimeout(() => { render(); grid.classList.remove('is-fading'); }, 450);
+    }
+    setInterval(advance, INTERVAL);
+
+    // zum Lesen pausieren beim Überfahren; bei Tab-Wechsel ebenfalls pausieren
+    grid.addEventListener('mouseenter', () => { paused = true; });
+    grid.addEventListener('mouseleave', () => { paused = false; });
+    document.addEventListener('visibilitychange', () => { paused = document.hidden; });
+  })();
 
   /* ---------- Newsletter-Anmeldung ---------- */
   (function initNewsletter(){
