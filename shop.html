@@ -112,24 +112,28 @@
     margin-top:var(--s4);
   }
 
-  /* das ausgestellte Stück */
+  /* das ausgestellte Stück (wird per JS mit dem neuesten echten Stück gefüllt) */
   .hero-piece{ margin:0; }
   .hero-piece-frame{
     aspect-ratio:4/5;
     background:var(--tile);
     border:1px solid var(--line);
     display:flex;
-    align-items:flex-end;
+    align-items:center;
     justify-content:center;
     overflow:hidden;
+    transition:border-color .35s ease;
   }
   .hero-piece-frame img{
-    width:88%;
-    height:92%;
-    object-fit:contain;
-    object-position:bottom center;
-    filter:drop-shadow(0 18px 30px rgba(0,0,0,0.4));
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    transition:transform .7s cubic-bezier(.2,.6,.2,1);
   }
+  .hero-piece-frame.is-link{ cursor:pointer; }
+  .hero-piece-frame.is-link:hover{ border-color:var(--line-strong); }
+  .hero-piece-frame.is-link:hover img{ transform:scale(1.03); }
   .hero-piece-meta{
     display:flex;
     justify-content:space-between;
@@ -727,6 +731,61 @@
     text-transform:uppercase;
     color:var(--faint);
   }
+
+  /* ---------- Kollektions-Band: editorialer Einstieg in die Designer-Auswahl ---------- */
+  .collection-band{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-top:var(--s7);
+    background:var(--surface);
+  }
+  .collection-band-inner{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:var(--s4);
+    align-items:end;
+    padding-top:var(--s6);
+    padding-bottom:var(--s6);
+  }
+  @media(min-width:820px){
+    .collection-band-inner{ grid-template-columns:1.2fr 0.8fr; gap:clamp(32px, 5vw, 96px); }
+  }
+  .collection-band .eyebrow{ display:block; margin-bottom:var(--s2); }
+  .collection-band h2{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(36px, 6.5vw, 84px);
+    line-height:0.9;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .collection-band-side{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:var(--s3);
+  }
+  @media(min-width:820px){
+    .collection-band-side{ align-items:flex-end; text-align:right; }
+  }
+  .collection-band-count{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .collection-band-text{
+    font-size:15px;
+    font-weight:300;
+    line-height:1.8;
+    color:var(--muted);
+    max-width:38ch;
+  }
+  /* im Kollektions-Modus (man ist ja schon drin) ausblenden */
+  body.collection-mode .collection-band{ display:none; }
 </style>
 </head>
 <body>
@@ -769,17 +828,11 @@
       <p class="hero-statement">Handverlesene Unikate aus drei Jahrzehnten adidas — Firebird, Adibreak, Velours &amp; Designerstücke. <b>Jedes Teil ein Einzelstück. Kein Restock.</b></p>
       <div class="hero-ctas">
         <a class="btn-solid" href="#grid">Ganzen Bestand ansehen</a>
-        <a class="link-quiet brand-editorial__cta" href="#grid">Nur Designerstücke</a>
       </div>
     </div>
     <figure class="hero-piece">
-      <div class="hero-piece-frame grain">
-        <img src="deko-vest.png" alt="Vintage Adidas Fleece-Weste in Rosa mit grünem Trefoil" fetchpriority="high">
-      </div>
-      <figcaption class="hero-piece-meta mono">
-        <span>Aus dem Archiv</span>
-        <span>Velours &amp; Fleece · Y2K · Unikat</span>
-      </figcaption>
+      <div class="hero-piece-frame grain" id="heroFrame"></div>
+      <figcaption class="hero-piece-meta mono" id="heroMeta"></figcaption>
     </figure>
   </div>
 </section>
@@ -835,6 +888,20 @@
     <button type="button" class="collection-back-btn" id="collectionBackBottom">← Zurück zu allen Stücken</button>
   </div>
 </div>
+
+<section class="collection-band" id="collectionBand" aria-label="Ausgewählte Kollektion" hidden>
+  <div class="collection-band-inner container">
+    <div>
+      <span class="eyebrow">Ausgewählte Kollektion</span>
+      <h2>Designer<br>&amp; Velours</h2>
+    </div>
+    <div class="collection-band-side">
+      <p class="collection-band-text">Die seltensten Stücke des Archivs — Souvelour, Velours und Designer-Kooperationen. Kuratiert, geprüft, jedes Teil ein Unikat.</p>
+      <span class="collection-band-count" id="collectionBandCount"></span>
+      <a class="btn-ghost brand-editorial__cta" href="#grid">Kollektion ansehen</a>
+    </div>
+  </div>
+</section>
 
 <div class="condition-box">
   <h2>Zustand &amp;<br>Transparenz</h2>
@@ -953,9 +1020,16 @@
     return String(total - index).padStart(3, '0');
   }
 
+  /* Einmal laden, überall nutzen (Grid, Hero-Stück, Kollektions-Band) */
+  const PRODUCTS_DATA = loadProductData();
+
+  function isSoldOut(p){
+    return (p.sold === true || p.available === false) || (typeof p.stock === 'number' && p.stock <= 0);
+  }
+
   function renderProductGrid(){
     const grid = document.getElementById('grid');
-    const data = loadProductData();
+    const data = PRODUCTS_DATA;
 
     // Bühne für das erste verfügbare Stück
     let leadAssigned = false;
@@ -1017,6 +1091,62 @@
   }
 
   renderProductGrid();
+
+  /* ---------- Hero: das neueste echte Stück ausstellen ----------
+     Bevorzugt das neueste verfügbare Kollektions-Stück (featured),
+     sonst das neueste verfügbare Stück überhaupt. Ohne Produkte:
+     ruhige Archiv-Kachel als Platzhalter. */
+  (function initHeroPiece(){
+    const frame = document.getElementById('heroFrame');
+    const meta = document.getElementById('heroMeta');
+    if(!frame || !meta) return;
+    const data = PRODUCTS_DATA;
+
+    let idx = data.findIndex(p => p.featured === true && !isSoldOut(p));
+    if(idx === -1) idx = data.findIndex(p => !isSoldOut(p));
+
+    if(idx === -1){
+      frame.innerHTML = `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv im Aufbau<br>Neue Stücke folgen</span>`;
+      meta.innerHTML = `<span>Triad Archiv</span><span>Kuratierte Unikate</span>`;
+      return;
+    }
+
+    const p = data[idx];
+    const no = archiveNo(idx, data.length);
+    const imgSrc = p.image || (p.images || [])[0];
+    frame.innerHTML = imgSrc
+      ? `<img src="${imgSrc}" alt="${escapeHtml(p.name || 'Vintage-Adidas-Stück')}" fetchpriority="high">`
+      : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
+
+    const cats = Array.isArray(p.cats) ? p.cats : [];
+    const parts = [];
+    if(cats.length) parts.push(escapeHtml(cats[0]));
+    if(p.size) parts.push('Gr. ' + escapeHtml(p.size));
+    parts.push((typeof p.stock === 'number' && p.stock === 1) ? 'Unikat' : 'Verfügbar');
+    meta.innerHTML = `<span>Archiv No. ${no}</span><span>${parts.join(' · ')}</span>`;
+
+    frame.classList.add('is-link');
+    frame.setAttribute('role', 'link');
+    frame.setAttribute('tabindex', '0');
+    frame.setAttribute('aria-label', (p.name || 'Produkt') + ' ansehen');
+    const open = () => { window.location.href = 'product.html?id=' + encodeURIComponent(p.id); };
+    frame.addEventListener('click', open);
+    frame.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+  })();
+
+  /* ---------- Kollektions-Band: nur zeigen, wenn es Kollektions-Stücke gibt ---------- */
+  (function initCollectionBand(){
+    const band = document.getElementById('collectionBand');
+    if(!band) return;
+    const featured = PRODUCTS_DATA.filter(p => p.featured === true);
+    if(featured.length === 0) return;   // bleibt hidden — kein leeres Versprechen
+    band.hidden = false;
+    const countEl = document.getElementById('collectionBandCount');
+    if(countEl){
+      const n = featured.length;
+      countEl.textContent = String(n).padStart(2, '0') + (n === 1 ? ' Stück' : ' Stücke') + ' · handverlesen';
+    }
+  })();
 
   const buttons = document.querySelectorAll('.filter-btn');
   const products = Array.from(document.querySelectorAll('.product'));
