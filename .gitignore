@@ -3,9 +3,13 @@
 # Geheimer Stripe-Schlüssel (liegt online in Netlifys geschützten Einstellungen)
 stripe-secret.txt
 
+# Geheimes PayPal-Secret (liegt online in Netlifys geschützten Einstellungen)
+paypal-secret.txt
+
 # Lokaler PowerShell-Server & Starter (werden online nicht gebraucht)
 server.ps1
 Shop starten.bat
+Online setzen.bat
 
 # Lokale Daten aus dem Testbetrieb
 orders.txt
@@ -14,3 +18,9 @@ newsletter.txt
 # Werkzeug-/Systemordner
 .claude/
 node_modules/
+
+# Alte/unbenutzte Bilder, nur lokal als Ablage
+archiv/
+
+# Admin starten.bat ist nur ein lokaler Helfer
+Admin starten.bat

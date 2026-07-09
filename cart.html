@@ -253,6 +253,17 @@
   .checkout-btn:active,
   .continue-btn:active{ transform:translateY(1px); }
 
+  .paypal-divider{
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--faint);
+    margin:2px 0;
+  }
+  #paypalButtonContainer{ min-height:45px; }
+
   .cart-actions{
     display:flex;
     justify-content:flex-end;
@@ -352,6 +363,53 @@
       });
   }
 
+  /* ---------- PayPal ---------- */
+  let paypalSdkPromise = null;
+  function loadPaypalSdk(){
+    if(paypalSdkPromise) return paypalSdkPromise;
+    paypalSdkPromise = fetch('/api/paypal-config')
+      .then(r => r.json())
+      .then(cfg => new Promise((resolve, reject) => {
+        if(!cfg.clientId){ reject(new Error('PayPal ist noch nicht eingerichtet.')); return; }
+        if(window.paypal){ resolve(window.paypal); return; }
+        const s = document.createElement('script');
+        s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cfg.clientId)}&currency=EUR&intent=capture`;
+        s.onload = () => resolve(window.paypal);
+        s.onerror = () => reject(new Error('PayPal konnte nicht geladen werden.'));
+        document.head.appendChild(s);
+      }));
+    return paypalSdkPromise;
+  }
+
+  function renderPaypalButtons(){
+    const container = document.getElementById('paypalButtonContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    loadPaypalSdk().then(paypal => {
+      paypal.Buttons({
+        style: { layout:'horizontal', color:'gold', shape:'rect', label:'paypal', height:45, tagline:false },
+        createOrder: () => fetch('/api/paypal-create-order', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify(loadCart())
+        }).then(r => r.json()).then(data => {
+          if(!data.id) throw new Error(data.error || 'PayPal-Bestellung fehlgeschlagen.');
+          return data.id;
+        }),
+        onApprove: (data) => fetch('/api/paypal-capture-order', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ orderID: data.orderID })
+        }).then(r => r.json()).then(res => {
+          if(!res.ok) throw new Error(res.error || 'Zahlung konnte nicht abgeschlossen werden.');
+          localStorage.removeItem('triadCart');
+          window.location.href = 'success.html?paypal=1';
+        }).catch(err => alert('PayPal-Zahlung fehlgeschlagen:\n' + err.message)),
+        onError: (err) => alert('PayPal-Zahlung fehlgeschlagen:\n' + (err && err.message ? err.message : err))
+      }).render(container);
+    }).catch(err => { console.error(err); container.innerHTML = ''; });
+  }
+
   function renderCart(){
     const cart = loadCart();
 
@@ -401,11 +459,15 @@
       </div>
       <div class="cart-cta">
         <button class="checkout-btn" id="checkoutBtn">Zur Kasse · ${fmt(total)} bezahlen</button>
+        <div class="paypal-divider">oder</div>
+        <div id="paypalButtonContainer"></div>
         <a class="continue-btn" href="shop.html">← Weiter stöbern</a>
       </div>
       <div class="cart-actions">
         <button class="clear-btn" id="clearCart">Warenkorb leeren</button>
       </div>`;
+
+    renderPaypalButtons();
   }
 
   cartWrap.addEventListener('click', e => {

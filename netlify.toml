@@ -59,3 +59,18 @@
   from = "/api/newsletter-confirm"
   to = "/.netlify/functions/newsletter-confirm"
   status = 200
+
+[[redirects]]
+  from = "/api/paypal-config"
+  to = "/.netlify/functions/paypal-config"
+  status = 200
+
+[[redirects]]
+  from = "/api/paypal-create-order"
+  to = "/.netlify/functions/paypal-create-order"
+  status = 200
+
+[[redirects]]
+  from = "/api/paypal-capture-order"
+  to = "/.netlify/functions/paypal-capture-order"
+  status = 200

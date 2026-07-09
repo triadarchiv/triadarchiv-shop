@@ -303,11 +303,11 @@
   /* ---------- Produktraster: editorialer Rhythmus ---------- */
   .grid{
     display:grid;
-    grid-template-columns:1fr;
-    gap:56px 24px;
+    grid-template-columns:repeat(2, 1fr);
+    gap:32px 14px;
   }
   @media(min-width:560px){
-    .grid{ grid-template-columns:repeat(2, 1fr); }
+    .grid{ gap:56px 24px; }
   }
   @media(min-width:1000px){
     .grid{ grid-template-columns:repeat(3, 1fr); gap:72px 32px; }
@@ -323,6 +323,13 @@
       align-items:stretch;
     }
     .product.is-lead .tile-meta{ grid-column:1 / -1; }
+    .product.is-lead .product-img{
+      /* Ohne das hier zwingt aspect-ratio das Bild breiter als seine Spalte
+         (nimmt sich die Höhe der Textspalte und rechnet daraus eine zu große
+         Breite), wodurch es in den Titel-Text hineinragt und ihn verdeckt. */
+      width:100%;
+      min-width:0;
+    }
     .product.is-lead .product-info{
       padding-top:0;
       justify-content:flex-end;
@@ -335,7 +342,10 @@
       line-height:0.95;
       letter-spacing:0.01em;
       text-transform:uppercase;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
       -webkit-line-clamp:4;
+      overflow:hidden;
     }
     .product.is-lead .info-buy{ max-width:340px; }
   }
