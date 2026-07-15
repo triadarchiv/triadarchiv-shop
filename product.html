@@ -368,10 +368,6 @@
 </head>
 <body>
 
-<div class="server-warning" id="serverWarning">
-  ⚠ Diese Seite läuft gerade nicht über den lokalen Server — du siehst möglicherweise nicht den aktuellen Produktstand.
-  Bitte stattdessen über <a href="http://localhost:5510/shop.html">http://localhost:5510/shop.html</a> navigieren (per Doppelklick auf „Shop starten.bat“).
-</div>
 
 <header>
   <a class="logo" href="shop.html">
@@ -408,7 +404,12 @@
 
 <script>
   if(location.protocol === 'file:'){
-    document.getElementById('serverWarning').style.display = 'block';
+    const w = document.createElement('div');
+    w.className = 'server-warning';
+    w.style.display = 'block';
+    w.innerHTML = '⚠ Diese Seite läuft gerade nicht über den lokalen Server — du siehst möglicherweise nicht den aktuellen Produktstand. '
+      + 'Bitte stattdessen über <a href="http://localhost:5510/shop.html">http://localhost:5510/shop.html</a> navigieren (per Doppelklick auf „Shop starten.bat“).';
+    document.body.insertBefore(w, document.body.firstChild);
   }
 
   const PRODUCTS_KEY = 'triadProducts';

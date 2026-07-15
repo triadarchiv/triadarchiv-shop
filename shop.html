@@ -821,11 +821,6 @@
 </head>
 <body>
 
-<div class="server-warning" id="serverWarning">
-  ⚠ Diese Seite läuft gerade nicht über den lokalen Server — du siehst möglicherweise nicht den aktuellen Produktstand.
-  Bitte den Shop über <strong>„Shop starten.bat“</strong> (Doppelklick) öffnen; der Server wählt automatisch einen freien Port und öffnet den Browser.
-</div>
-
 <header>
   <a class="logo" href="shop.html">
     <span class="stripes"><span></span><span></span><span></span></span>
@@ -1011,7 +1006,12 @@
 
 <script>
   if(location.protocol === 'file:'){
-    document.getElementById('serverWarning').style.display = 'block';
+    const w = document.createElement('div');
+    w.className = 'server-warning';
+    w.style.display = 'block';
+    w.innerHTML = '⚠ Diese Seite läuft gerade nicht über den lokalen Server — du siehst möglicherweise nicht den aktuellen Produktstand. '
+      + 'Bitte den Shop über <strong>„Shop starten.bat“</strong> (Doppelklick) öffnen; der Server wählt automatisch einen freien Port und öffnet den Browser.';
+    document.body.insertBefore(w, document.body.firstChild);
   }
 
   /* ---------- product data (shared with admin.html via localStorage) ---------- */
