@@ -1378,10 +1378,16 @@
         ordersList.innerHTML = '<p class="empty-state">Falsches Admin-Passwort. Bitte Seite neu laden und erneut versuchen.</p>';
         return;
       }
-      if(!res.ok){ ordersList.innerHTML = '<p class="empty-state">Bestellungen konnten nicht geladen werden.</p>'; return; }
+      if(!res.ok){
+        const local = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:');
+        ordersList.innerHTML = '<p class="empty-state">' + (local
+          ? 'Bestellungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.'
+          : 'Bestellungen konnten nicht geladen werden.') + '</p>';
+        return;
+      }
       renderOrders(await res.json());
     }catch(e){
-      ordersList.innerHTML = '<p class="empty-state">Bestellungen gibt es nur im echten Online-Shop (triadarchiv.netlify.app/admin.html), nicht in der lokalen Datei.</p>';
+      ordersList.innerHTML = '<p class="empty-state">Bestellungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.</p>';
     }
   }
 
@@ -1425,10 +1431,16 @@
         subsList.innerHTML = '<p class="empty-state">Falsches Admin-Passwort. Bitte Seite neu laden und erneut versuchen.</p>';
         return;
       }
-      if(!res.ok){ subsList.innerHTML = '<p class="empty-state">Anmeldungen konnten nicht geladen werden.</p>'; return; }
+      if(!res.ok){
+        const local = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:');
+        subsList.innerHTML = '<p class="empty-state">' + (local
+          ? 'Newsletter-Anmeldungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.'
+          : 'Anmeldungen konnten nicht geladen werden.') + '</p>';
+        return;
+      }
       renderSubs(await res.json());
     }catch(e){
-      subsList.innerHTML = '<p class="empty-state">Anmeldungen gibt es nur im echten Online-Shop (triadarchiv.netlify.app/admin.html), nicht in der lokalen Datei.</p>';
+      subsList.innerHTML = '<p class="empty-state">Newsletter-Anmeldungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.</p>';
     }
   }
 

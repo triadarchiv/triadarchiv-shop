@@ -62,8 +62,31 @@ export default async (req) => {
         <p style="margin:24px 0;">
           <a href="${confirmUrl}" style="display:inline-block;background:#111111;color:#ffffff;padding:13px 26px;border-radius:6px;text-decoration:none;font-weight:bold;">Anmeldung bestätigen</a>
         </p>
+        <p style="font-size:13px;color:#555;">Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:<br>
+          <a href="${confirmUrl}" style="color:#555;word-break:break-all;">${confirmUrl}</a></p>
         <p style="color:#888;font-size:12px;">Wenn du dich nicht angemeldet hast, ignoriere diese E-Mail einfach – es passiert dann nichts.</p>
+        <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0;">
+        <p style="color:#999;font-size:11px;line-height:1.5;margin:0;">
+          TRIAD ARCHIV · Fabian Müller<br>
+          Schubertstraße 11, 71277 Rutesheim, Deutschland<br>
+          <a href="https://triadarchiv.de" style="color:#999;">triadarchiv.de</a> · <a href="mailto:triadarchiv@web.de" style="color:#999;">triadarchiv@web.de</a>
+        </p>
       </div>`;
+
+    // Reine Text-Version: Mails ohne Text-Teil (nur HTML + Button) werden von
+    // Spamfiltern – besonders web.de/GMX – deutlich schlechter bewertet.
+    const text = `Fast geschafft!
+
+Danke für deine Anmeldung beim TRIAD ARCHIV Newsletter. Bitte bestätige sie über diesen Link – danach bist du dabei und erfährst als Erste:r von neuen Drops:
+
+${confirmUrl}
+
+Wenn du dich nicht angemeldet hast, ignoriere diese E-Mail einfach – es passiert dann nichts.
+
+—
+TRIAD ARCHIV · Fabian Müller
+Schubertstraße 11, 71277 Rutesheim, Deutschland
+triadarchiv.de · triadarchiv@web.de`;
 
     try {
       const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -79,6 +102,7 @@ export default async (req) => {
           to: [{ email }],
           subject: "Bitte bestätige deine Anmeldung – TRIAD ARCHIV",
           htmlContent: html,
+          textContent: text,
         }),
       });
       if (resp.ok) {
