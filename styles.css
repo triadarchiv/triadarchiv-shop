@@ -35,8 +35,9 @@
   --s7: 112px;
 
   /* ----- Layout ----- */
-  --container: 1440px;
-  --pad-x: clamp(20px, 5vw, 72px);
+  /* Fast volle Bildschirmbreite; auf sehr breiten Monitoren sanft gedeckelt. */
+  --container: min(1840px, 93vw);
+  --pad-x: clamp(20px, 4vw, 64px);
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; }
