@@ -581,7 +581,7 @@
           Fotos hierher ziehen · oder mit <strong>Strg + V</strong> einfügen
           <div class="dz-hint">
             Aus Instagram: Bild rechtsklicken → „Bild kopieren" → hier Strg + V.<br>
-            Erstes Bild wird Hauptbild, weitere werden Zusatzbilder (max. 3). Klicken zum Auswählen.
+            Erstes Bild wird Hauptbild, weitere werden Zusatzbilder (max. 6). Klicken zum Auswählen.
           </div>
         </div>
         <input type="file" id="fDropInput" accept="image/*" multiple style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
@@ -601,7 +601,7 @@
       </div>
 
       <div class="field">
-        <label>Zusätzliche Bilder (max. 3)</label>
+        <label>Zusätzliche Bilder (max. 6)</label>
         <div class="sub-images" id="subImagesPreview"></div>
         <input type="file" id="fSubImages" accept="image/*" multiple style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
         <label for="fSubImages" class="btn btn-small" id="addSubImgBtn" style="display:inline-block;text-align:center;cursor:pointer;">Bilder hinzufügen</label>
@@ -763,7 +763,7 @@
     return pushToServer(products);
   }
 
-  const MAX_SUB_IMAGES = 3;
+  const MAX_SUB_IMAGES = 6;
 
   let products = loadProducts();
   let editingId = null;
@@ -1005,7 +1005,7 @@
   const dropZone = document.getElementById('dropZone');
   const fDropInput = document.getElementById('fDropInput');
 
-  // Ein Bild aufnehmen: erstes -> Hauptbild, danach -> Zusatzbilder (max. 3)
+  // Ein Bild aufnehmen: erstes -> Hauptbild, danach -> Zusatzbilder (max. 6)
   function ingestImageDataUrl(dataUrl){
     if(!currentImage){
       currentImage = dataUrl;
