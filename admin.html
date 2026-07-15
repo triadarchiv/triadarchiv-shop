@@ -300,6 +300,43 @@
   .btn-small{ padding:6px 10px; font-size:10px; }
   .btn-block{ width:100%; }
 
+  /* Veröffentlichen-Leiste: neue Artikel sammeln, dann alle auf einmal online stellen */
+  .publish-bar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin:0 0 16px;
+    padding:14px 16px;
+    background:rgba(255,61,120,0.08);
+    border:1px solid var(--pink);
+  }
+  .publish-bar .pb-text{
+    flex:1;
+    min-width:180px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    line-height:1.5;
+    color:var(--off-white);
+  }
+  .publish-bar .pb-text b{ color:var(--pink); }
+  .publish-bar .btn-publish{
+    background:var(--pink);
+    border-color:var(--pink);
+    color:#121110;
+    font-weight:700;
+  }
+  .publish-bar .btn-publish:hover{ opacity:0.9; color:#121110; }
+  .product-row.is-draft{ opacity:0.7; }
+  .row-info .meta .draft-badge{
+    color:var(--pink);
+    border:1px solid var(--pink);
+    padding:1px 6px;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
   .form-actions{ display:flex; gap:10px; margin-top:20px; }
   .form-actions .btn{ flex:1; }
 
@@ -414,6 +451,29 @@
 
   #importFile{ display:none; }
 
+  .dropzone{
+    border:1.5px dashed rgba(244,241,234,0.28);
+    border-radius:6px;
+    padding:18px 14px;
+    text-align:center;
+    color:var(--grey);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.3px;
+    line-height:1.7;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .dropzone:hover{ border-color:rgba(244,241,234,0.5); }
+  .dropzone strong{ color:var(--off-white); font-weight:600; }
+  .dropzone .dz-hint{ margin-top:7px; font-size:10px; color:var(--grey); line-height:1.5; }
+  .dropzone.drag-over{
+    border-color:var(--pink);
+    border-style:solid;
+    background:rgba(255,61,120,0.09);
+    color:var(--off-white);
+  }
+
   .server-warning{
     display:none;
     background:#4a1b0c;
@@ -504,15 +564,28 @@
           <label for="fSize">Größe</label>
           <select id="fSize">
             <option value="">Bitte wählen</option>
-            <option value="XXS">XXS</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
-            <option value="3XL">3XL</option>
-            <option value="4XL">4XL</option>
-            <option value="5XL">5XL</option>
+            <optgroup label="Herren / unisex">
+              <option value="XXS">XXS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+              <option value="3XL">3XL</option>
+              <option value="4XL">4XL</option>
+              <option value="5XL">5XL</option>
+            </optgroup>
+            <optgroup label="Damen">
+              <option value="30">30</option>
+              <option value="32">32</option>
+              <option value="34">34</option>
+              <option value="36">36</option>
+              <option value="38">38</option>
+              <option value="40">40</option>
+              <option value="42">42</option>
+              <option value="44">44</option>
+              <option value="46">46</option>
+            </optgroup>
           </select>
         </div>
         <div class="field">
@@ -526,6 +599,18 @@
             <option value="Vintage / Gebraucht">Vintage / Gebraucht</option>
           </select>
         </div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label>Bilder schnell hinzufügen</label>
+        <div class="dropzone" id="dropZone" tabindex="0">
+          Fotos hierher ziehen · oder mit <strong>Strg + V</strong> einfügen
+          <div class="dz-hint">
+            Aus Instagram: Bild rechtsklicken → „Bild kopieren" → hier Strg + V.<br>
+            Erstes Bild wird Hauptbild, weitere werden Zusatzbilder (max. 3). Klicken zum Auswählen.
+          </div>
+        </div>
+        <input type="file" id="fDropInput" accept="image/*" multiple style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;">
       </div>
 
       <div class="field" style="margin-top:16px;">
@@ -562,6 +647,11 @@
 
   <div class="panel">
     <h2>Deine Produkte <span class="badge-count" id="productCount">0 Produkte</span></h2>
+
+    <div class="publish-bar" id="publishBar" hidden>
+      <span class="pb-text" id="publishText"></span>
+      <button class="btn btn-publish" id="publishBtn">✓ Alle veröffentlichen</button>
+    </div>
 
     <div class="toolbar">
       <button class="btn" id="exportBtn">↓ Export (JSON)</button>
@@ -663,9 +753,25 @@
 
   function loadProducts(){
     const serverData = fetchServerProducts();
+
+    // lokal gesammelte Entwürfe (noch nicht veröffentlicht) bewahren, damit sie
+    // beim Neuladen nicht von der Server-Liste überschrieben werden
+    let drafts = [];
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) drafts = parsed.filter(p => p.published === false);
+      }
+    }catch(e){}
+
     if(serverData){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(serverData));
-      return serverData;
+      const serverPublished = serverData.map(p => ({ ...p, published: true }));
+      const serverIds = new Set(serverPublished.map(p => p.id));
+      const keptDrafts = drafts.filter(d => !serverIds.has(d.id));
+      const merged = [...keptDrafts, ...serverPublished];   // Entwürfe oben
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
     }
 
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -680,9 +786,12 @@
       return [];
     }
   }
+  // Speichert lokal und schickt NUR veröffentlichte Artikel an den Server.
+  // Entwürfe (published === false) bleiben so lange nur im Browser, bis auf
+  // „Alle veröffentlichen“ geklickt wird. Gibt zurück, ob der Server-Push klappte.
   function saveProducts(products){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-    pushToServer(products);
+    return pushToServer(products.filter(p => p.published !== false));
   }
 
   const MAX_SUB_IMAGES = 3;
@@ -723,7 +832,42 @@
   const productList = document.getElementById('productList');
   const emptyState = document.getElementById('emptyState');
   const productCount = document.getElementById('productCount');
+  const publishBar = document.getElementById('publishBar');
+  const publishText = document.getElementById('publishText');
+  const publishBtn = document.getElementById('publishBtn');
   const toast = document.getElementById('toast');
+
+  // ----- Entwürfe sammeln & auf einen Schlag veröffentlichen -----
+  function draftCount(){ return products.filter(p => p.published === false).length; }
+
+  function updatePublishBar(){
+    if(!publishBar) return;
+    const n = draftCount();
+    publishBar.hidden = n === 0;
+    if(n > 0){
+      publishText.innerHTML = `<b>${n}</b> ${n === 1 ? 'neuer Artikel ist' : 'neue Artikel sind'} noch nicht online. `
+        + `Alles fertig? Dann alle zusammen veröffentlichen.`;
+    }
+  }
+
+  function publishDrafts(){
+    const drafts = products.filter(p => p.published === false);
+    if(drafts.length === 0) return;
+    if(!confirm(`${drafts.length} ${drafts.length === 1 ? 'Artikel' : 'Artikel'} jetzt online stellen?`)) return;
+    drafts.forEach(p => { p.published = true; });
+    const ok = saveProducts(products);
+    if(!ok){
+      drafts.forEach(p => { p.published = false; });   // zurück auf Entwurf
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      renderList();
+      showToast('Veröffentlichen fehlgeschlagen — bitte erneut versuchen');
+      return;
+    }
+    renderList();
+    showToast(`${drafts.length} ${drafts.length === 1 ? 'Artikel ist' : 'Artikel sind'} jetzt online`);
+  }
+
+  if(publishBtn) publishBtn.addEventListener('click', publishDrafts);
 
   function showToast(msg){
     toast.textContent = msg;
@@ -811,6 +955,102 @@
     updateSubImagesPreview();
   });
 
+  /* ---------- Schnell-Zone: Ziehen & Einfügen (Strg+V) ---------- */
+  const dropZone = document.getElementById('dropZone');
+  const fDropInput = document.getElementById('fDropInput');
+
+  // Ein Bild aufnehmen: erstes -> Hauptbild, danach -> Zusatzbilder (max. 3)
+  function ingestImageDataUrl(dataUrl){
+    if(!currentImage){
+      currentImage = dataUrl;
+      updateImgPreview();
+      showToast('Hauptbild gesetzt');
+    } else if(currentSubImages.length < MAX_SUB_IMAGES){
+      currentSubImages.push(dataUrl);
+      updateSubImagesPreview();
+      showToast('Zusatzbild hinzugefügt');
+    } else {
+      showToast('Voll: 1 Hauptbild + ' + MAX_SUB_IMAGES + ' Zusatzbilder');
+    }
+  }
+
+  function ingestImageFile(file){
+    if(!isSupportedImage(file)){
+      showToast('Format nicht unterstützt — bitte JPG oder PNG');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => showToast('Bild konnte nicht gelesen werden');
+    reader.onload = () => ingestImageDataUrl(reader.result);
+    reader.readAsDataURL(file);
+  }
+
+  // Fallback: eine Bild-URL (z. B. beim Direkt-Ziehen aus dem Browser) laden
+  function ingestImageUrl(url){
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        if(!blob.type.startsWith('image/')) throw new Error('kein Bild');
+        const reader = new FileReader();
+        reader.onload = () => ingestImageDataUrl(reader.result);
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => showToast('Direkt-Ziehen aus Instagram klappt nicht — Bild rechtsklicken → „Bild kopieren", dann Strg + V'));
+  }
+
+  // Klick auf die Zone -> Datei-Auswahl (Mehrfachauswahl)
+  dropZone.addEventListener('click', () => fDropInput.click());
+  dropZone.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fDropInput.click(); }
+  });
+  fDropInput.addEventListener('change', () => {
+    Array.from(fDropInput.files).forEach(ingestImageFile);
+    fDropInput.value = '';
+  });
+
+  // Ziehen & Ablegen — auf der Zone UND auf dem ganzen Formular-Panel
+  const formPanel = form.closest('.panel');
+  ['dragenter','dragover'].forEach(ev =>
+    formPanel.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); })
+  );
+  ['dragleave','drop'].forEach(ev =>
+    formPanel.addEventListener(ev, (e) => {
+      if(ev === 'dragleave' && formPanel.contains(e.relatedTarget)) return;
+      dropZone.classList.remove('drag-over');
+    })
+  );
+  formPanel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const dt = e.dataTransfer;
+    if(!dt) return;
+    const files = Array.from(dt.files || []).filter(f => f.type.startsWith('image/'));
+    if(files.length){ files.forEach(ingestImageFile); return; }
+    // Kein File -> aus dem Browser gezogene Bild-URL versuchen
+    let url = (dt.getData('text/uri-list') || dt.getData('text/plain') || '').split('\n')[0].trim();
+    if(!url){
+      const html = dt.getData('text/html');
+      const m = html && html.match(/<img[^>]+src="([^"]+)"/i);
+      if(m) url = m[1];
+    }
+    if(/^https?:/i.test(url)){ ingestImageUrl(url); return; }
+    showToast('Keine Bilddaten erkannt');
+  });
+
+  // Einfügen mit Strg + V — überall auf der Seite
+  window.addEventListener('paste', (e) => {
+    const items = Array.from((e.clipboardData && e.clipboardData.items) || []);
+    const imgItem = items.find(it => it.type.startsWith('image/'));
+    if(imgItem){
+      const file = imgItem.getAsFile();
+      if(file){ ingestImageFile(file); e.preventDefault(); }
+      return;
+    }
+    const text = e.clipboardData && e.clipboardData.getData('text');
+    if(text && /^https?:\/\/\S+\.(jpe?g|png|webp|gif)/i.test(text.trim())){
+      ingestImageUrl(text.trim());
+    }
+  });
+
   function resetForm(){
     editingId = null;
     form.reset();
@@ -883,9 +1123,10 @@
     } else {
       products.unshift({
         id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
-        name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice()
+        name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice(),
+        published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
       });
-      showToast('Produkt hinzugefügt');
+      showToast('Als Entwurf gespeichert — noch nicht online');
     }
 
     saveProducts(products);
@@ -915,6 +1156,7 @@
   function renderList(){
     productCount.textContent = products.length + (products.length === 1 ? ' Produkt' : ' Produkte');
     emptyState.hidden = products.length > 0;
+    updatePublishBar();
 
     productList.innerHTML = products.map((p, i) => {
       const thumb = p.image
@@ -933,12 +1175,15 @@
       const featuredHtml = p.featured
         ? `<span class="feat-badge">★ ${p.alsoInShop ? 'Kollektion + Shop' : 'Nur Kollektion'}</span>`
         : '';
+      const isDraft = p.published === false;
+      const draftHtml = isDraft ? `<span class="draft-badge">Entwurf</span>` : '';
       return `
-        <div class="product-row">
+        <div class="product-row${isDraft ? ' is-draft' : ''}">
           <div class="row-thumb">${thumb}</div>
           <div class="row-info">
             <div class="name">${escapeHtml(p.name)}</div>
             <div class="meta">
+              ${draftHtml}
               <span>${priceHtml}</span>
               <span>${p.cats.map(escapeHtml).join(', ')}</span>
               ${sizeHtml}

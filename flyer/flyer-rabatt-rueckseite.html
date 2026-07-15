@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Rückseite (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* A5 Hochformat + 2mm Beschnitt rundum → 152×214mm. Endformat 148×210. */
+  :root{
+    --bg:#0d0d0d; --text:#f4f4f4; --muted:#9a9a9a; --faint:#6f6f6f;
+    --line:rgba(244,244,244,0.22);
+    --accent:#ec0b63;
+    --font:'Inter',-apple-system,Arial,sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--font); color:var(--text); background:var(--bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .card{
+    position:relative; width:152mm; height:214mm; overflow:hidden;
+    background:var(--bg); padding:16mm 15mm;
+    display:flex; flex-direction:column;
+  }
+
+  /* Lichtscheine hinter den Produkten */
+  .glow-top{
+    position:absolute; right:-18mm; top:-6mm; width:96mm; height:76mm; z-index:1;
+    pointer-events:none;
+    background:radial-gradient(closest-side, rgba(236,11,99,0.12), rgba(236,11,99,0.04) 55%, transparent 75%);
+  }
+  .glow-mid{
+    position:absolute; right:-16mm; top:44mm; width:92mm; height:84mm; z-index:1;
+    pointer-events:none;
+    background:radial-gradient(closest-side, rgba(236,11,99,0.10), rgba(236,11,99,0.04) 55%, transparent 75%);
+  }
+  .glow-bottom{
+    position:absolute; right:-24mm; bottom:-14mm; width:130mm; height:130mm; z-index:1;
+    pointer-events:none;
+    background:radial-gradient(closest-side, rgba(236,11,99,0.12), rgba(236,11,99,0.04) 55%, transparent 75%);
+  }
+
+  /* Strick-Pulli: oben rechts, löst sich weich ins Schwarz auf.
+     Zweite Maske blendet die linke Flanke aus, damit die Topbar lesbar bleibt. */
+  .product-top{
+    position:absolute; right:4mm; top:4mm; width:54mm; z-index:1;
+    transform:rotate(8deg);
+    filter:drop-shadow(0 3mm 6mm rgba(0,0,0,0.7));
+    -webkit-mask-image:radial-gradient(ellipse 52% 52% at 50% 48%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%),
+                       linear-gradient(90deg, transparent 12%, #000 52%);
+    -webkit-mask-composite:source-in;
+            mask-image:radial-gradient(ellipse 52% 52% at 50% 48%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%),
+                       linear-gradient(90deg, transparent 12%, #000 52%);
+            mask-composite:intersect;
+  }
+  /* Chile 62 Jacke: rechts mittig, führt die Kaskade weiter */
+  .product-mid{
+    position:absolute; right:4mm; top:54mm; width:48mm; z-index:1;
+    transform:rotate(-8deg);
+    filter:drop-shadow(0 3mm 6mm rgba(0,0,0,0.7));
+    -webkit-mask-image:radial-gradient(ellipse 54% 54% at 50% 48%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%);
+            mask-image:radial-gradient(ellipse 54% 54% at 50% 48%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%);
+  }
+  /* Cow-Print Shorts: links unten in der freien Fläche unter ERA */
+  .product-shorts{
+    position:absolute; left:13mm; top:129mm; width:50mm; z-index:2;
+    transform:rotate(-7deg);
+    filter:drop-shadow(0 3mm 6mm rgba(0,0,0,0.7));
+    -webkit-mask-image:radial-gradient(ellipse 56% 54% at 50% 48%, #000 55%, rgba(0,0,0,0.85) 76%, transparent 98%);
+            mask-image:radial-gradient(ellipse 56% 54% at 50% 48%, #000 55%, rgba(0,0,0,0.85) 76%, transparent 98%);
+  }
+  /* Adibreak-Hose: unten rechts, taucht aus dem Schatten auf */
+  .product-bottom{
+    position:absolute; right:4mm; bottom:4mm; width:92mm; z-index:1;
+    transform:rotate(-5deg);
+    filter:drop-shadow(0 4mm 8mm rgba(0,0,0,0.7));
+    -webkit-mask-image:radial-gradient(ellipse 54% 56% at 50% 44%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%);
+            mask-image:radial-gradient(ellipse 54% 56% at 50% 44%, #000 52%, rgba(0,0,0,0.85) 74%, transparent 97%);
+  }
+
+  /* Scrim: dunkler Verlauf von links, hält den Text lesbar */
+  .scrim{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(90deg,
+      rgba(13,13,13,0.97) 0%, rgba(13,13,13,0.92) 40%,
+      rgba(13,13,13,0.5) 60%, rgba(13,13,13,0) 100%);
+  }
+  /* unten links abdunkeln für Tagline & Handles */
+  .scrim-b{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(180deg,
+      rgba(13,13,13,0) 0%, rgba(13,13,13,0) 66%,
+      rgba(13,13,13,0.45) 80%, rgba(13,13,13,0.9) 94%);
+  }
+
+  .content{ position:relative; z-index:3; display:flex; flex-direction:column; height:100%; }
+
+  .topbar{
+    font-size:7.6pt; letter-spacing:1.8pt; text-transform:uppercase;
+    color:var(--faint); font-weight:500; display:flex; gap:3.5mm; align-items:center;
+    text-shadow:0 0 1.6mm rgba(13,13,13,0.95), 0 0 0.6mm rgba(13,13,13,0.9);
+  }
+  .topbar .sep{ color:rgba(244,244,244,0.18); }
+
+  .drop{ margin-top:11mm; font-weight:800; font-size:29pt; letter-spacing:0.2pt; }
+
+  .body{ margin-top:5.5mm; font-size:9.6pt; line-height:1.62; color:var(--muted); max-width:86mm; }
+
+  .groups{ margin-top:9mm; display:flex; flex-direction:column; gap:7mm; max-width:80mm; }
+  .group .lbl{
+    display:flex; align-items:center; gap:2.6mm;
+    font-weight:700; font-size:9.5pt; letter-spacing:1.6pt; text-transform:uppercase; color:var(--text);
+    margin-bottom:2mm;
+  }
+  .group .lbl .dot{ width:3pt; height:3pt; border-radius:50%; background:var(--accent); }
+  .group .val{ font-size:10pt; color:var(--muted); letter-spacing:0.3pt; }
+
+  .spacer{ flex:1; }
+
+  .rule{ height:0.9pt; background:var(--accent); width:58mm; margin-bottom:4.5mm; }
+  .tag{ font-size:10.5pt; color:var(--text); font-weight:500; max-width:78mm; }
+  .handles{
+    margin-top:4mm; font-size:10.5pt; letter-spacing:0.6pt; color:var(--muted);
+    display:flex; gap:4mm; align-items:center;
+  }
+  .handles .h{ color:var(--text); font-weight:600; }
+  .handles .sep{ color:rgba(244,244,244,0.2); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="glow-top"></div>
+    <div class="glow-mid"></div>
+    <div class="glow-bottom"></div>
+    <img class="product-mid" src="img/p-leather.png" alt="Vintage Adidas Chile 62 Track Top">
+    <img class="product-top" src="img/p-knit.png" alt="Vintage Adidas Originals Strick-Sweater">
+    <img class="product-bottom" src="img/p-adibreak.png" alt="Vintage Adidas Adibreak Popperhose">
+    <div class="scrim"></div>
+    <img class="product-shorts" src="img/p-cow.png" alt="Vintage Adidas Cow-Print Shorts">
+    <div class="scrim-b"></div>
+
+    <div class="content">
+      <div class="topbar"><span>Neu gestartet</span><span class="sep">•</span><span>Est. 2026</span><span class="sep">|</span><span>Authentic&nbsp;Goods</span></div>
+
+      <div class="drop">DER NEUE DROP.</div>
+
+      <p class="body">Regelmäßige Drops aus archivierten, vergriffenen &amp; ausverkauften Adidas Kollektionen. Von raren Velours-Pieces über Strick bis zu den Ikonen. Jeder Drop ist eine neue Chance auf streng limitierte Archiv-Pieces.</p>
+
+      <div class="groups">
+        <div class="group">
+          <div class="lbl"><span class="dot"></span>The Icons:</div>
+          <div class="val">Firebird &nbsp;•&nbsp; Adibreak &nbsp;•&nbsp; Track Tops</div>
+        </div>
+        <div class="group">
+          <div class="lbl"><span class="dot"></span>The Textures:</div>
+          <div class="val">Velours &nbsp;•&nbsp; Strick &nbsp;•&nbsp; Nylon</div>
+        </div>
+        <div class="group">
+          <div class="lbl"><span class="dot"></span>Era:</div>
+          <div class="val">Y2K &amp; 90s &nbsp;•&nbsp; Originals &nbsp;•&nbsp; Collabs</div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="rule"></div>
+      <div class="tag">Vintage Vibes. Real Quality. Built to Last.</div>
+      <div class="handles"><span class="h">@triadarchiv</span><span class="sep">|</span><span>triadarchiv.de</span></div>
+    </div>
+  </div>
+</body>
+</html>

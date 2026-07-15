@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Rückseite v4 (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#1c0f13; --bg-2:#0e0708;
+    --text:#f6efe9; --muted:#c9b7ae; --faint:#8a726a;
+    --accent:#ff5d6c; --accent-soft:#ffb199;
+    --serif:'Fraunces', Georgia, serif;
+    --body:'Inter', Arial, sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--body); color:var(--text); background:var(--bg-2);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg-2); }
+
+  .warmth{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(125mm 105mm at 50% 58%, #3a1a1c 0%, #200f11 46%, var(--bg-2) 78%),
+      linear-gradient(180deg, #241315 0%, transparent 30%);
+  }
+  .grain{
+    position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0.5; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+    background-size:55mm 55mm;
+  }
+
+  .content{
+    position:relative; z-index:3; height:100%;
+    padding:14mm 13mm 9mm; display:flex; flex-direction:column;
+  }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:6.8pt; letter-spacing:1.9pt; text-transform:uppercase;
+    color:var(--faint); font-weight:500;
+  }
+  .topbar .dot{ color:var(--accent); }
+
+  .headline{
+    margin-top:8mm; font-family:var(--serif); font-weight:600; font-style:italic;
+    line-height:1.02; font-size:29pt; color:var(--text);
+  }
+  .headline .accent{ color:var(--accent-soft); }
+
+  .lead{
+    margin-top:4.5mm; font-size:8.8pt; font-weight:500; line-height:1.65;
+    color:var(--muted); max-width:114mm;
+  }
+  .lead b{ color:var(--text); font-weight:700; }
+
+  /* Bouquet aus drei weiteren Pieces */
+  .bouquet{ position:relative; flex:1; min-height:0; margin-top:3mm; }
+  .bouquet .ground{
+    position:absolute; left:50%; bottom:8mm; width:82mm; height:14mm;
+    transform:translateX(-50%);
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0.55), transparent 72%);
+    filter:blur(2mm);
+  }
+  .bouquet img{ position:absolute; filter:drop-shadow(0 3mm 5mm rgba(0,0,0,0.45)); }
+  .c-back { width:58mm; left:50%; bottom:4mm; transform:translateX(-78%) rotate(-8deg); z-index:1; opacity:0.95; }
+  .c-mid  { width:56mm; left:50%; bottom:2mm; transform:translateX(-14%) rotate(8deg);  z-index:2; }
+  .c-front{ width:50mm; left:50%; bottom:8mm; transform:translateX(-50%) rotate(-3deg); z-index:3; }
+
+  .facts{
+    position:relative; z-index:4;
+    border-top:0.35mm solid rgba(246,239,233,0.18); padding-top:4.5mm;
+    display:flex; gap:8mm;
+  }
+  .fact{ flex:1; }
+  .fact .label{
+    font-size:6.4pt; letter-spacing:1.6pt; text-transform:uppercase;
+    color:var(--faint); font-weight:600;
+  }
+  .fact .value{
+    margin-top:1.8mm; font-size:7.8pt; font-weight:500; line-height:1.5; color:var(--text);
+  }
+
+  .closer{
+    margin-top:5mm; font-family:var(--serif); font-style:italic; font-weight:600;
+    line-height:1.15; font-size:13.5pt; color:var(--text);
+  }
+  .closer .accent{ color:var(--accent-soft); }
+
+  .footer{
+    margin-top:4.5mm; padding-top:3.2mm; border-top:0.35mm solid rgba(246,239,233,0.18);
+    display:flex; justify-content:space-between; align-items:baseline; gap:6mm;
+    font-size:7pt; letter-spacing:1.5pt; text-transform:uppercase; font-weight:600;
+  }
+  .footer .url{ color:var(--text); }
+  .footer .mid{ color:var(--faint); font-size:5.8pt; letter-spacing:1pt; flex:1; text-align:center; white-space:nowrap; }
+  .footer .ig{ color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="warmth"></div>
+  <div class="grain"></div>
+
+  <div class="content">
+    <div class="topbar">
+      <span>Neu gestartet</span>
+      <span><span class="dot">●</span>&nbsp; Est. 2026</span>
+      <span>Authentic Goods</span>
+    </div>
+
+    <h1 class="headline">Der neue <span class="accent">Drop.</span></h1>
+
+    <p class="lead">Regelmäßige Drops aus archivierten, vergriffenen und ausverkauften
+    Adidas-Kollektionen — von raren Velours-Pieces über Strick bis zu den Ikonen.
+    <b>Einmal weg, für immer weg.</b></p>
+
+    <div class="bouquet">
+      <div class="ground"></div>
+      <img class="c-back"  src="img/p-cow.png" alt="Adidas Cow-Print Shorts">
+      <img class="c-mid"   src="img/p-adibreak.png" alt="Adidas Adibreak Hose">
+      <img class="c-front" src="img/p-leather.png" alt="Adidas Chile 62 Track Top">
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <div class="label">The Icons</div>
+        <div class="value">Firebird · Adibreak · Track Tops</div>
+      </div>
+      <div class="fact">
+        <div class="label">The Textures</div>
+        <div class="value">Velours · Strick · Nylon</div>
+      </div>
+      <div class="fact">
+        <div class="label">Era</div>
+        <div class="value">Y2K &amp; 90s · Originals</div>
+      </div>
+    </div>
+
+    <div class="closer">Vintage Vibes. Real Quality.<br><span class="accent">Built to last.</span></div>
+
+    <div class="footer">
+      <span class="url">triadarchiv.de</span>
+      <span class="mid">Neuer Drop? Zuerst auf Instagram.</span>
+      <span class="ig">@triadarchiv</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

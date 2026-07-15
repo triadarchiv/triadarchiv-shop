@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Rückseite v3 Magazin-Editorial (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* A5 Hochformat + 2mm Beschnitt rundum → 152×214mm.
+     Endformat 148×210, Texte min. 7mm vom Blattrand. */
+  :root{
+    --bg:#0d0d0d; --text:#f4f4f4; --muted:#9a9a9a; --faint:#6f6f6f;
+    --line:rgba(244,244,244,0.18);
+    --accent:#ec0b63;
+    --head:'Anton', Impact, sans-serif;
+    --body:'Inter', Arial, sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--body); color:var(--text); background:var(--bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg); }
+
+  .backdrop{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(100mm 100mm at 22% 58%, rgba(236,11,99,0.10), transparent 65%),
+      radial-gradient(90mm 90mm at 88% 30%, rgba(236,11,99,0.07), transparent 65%);
+  }
+  /* riesige Archiv-Nummer als Hintergrund */
+  .ghostnum{
+    position:absolute; z-index:1; right:4mm; bottom:26mm;
+    font-family:var(--head); font-size:120pt; line-height:1;
+    color:transparent; -webkit-text-stroke:0.4mm rgba(244,244,244,0.08);
+  }
+
+  .content{
+    position:absolute; inset:0; z-index:3;
+    padding:10mm 13mm 9mm; display:flex; flex-direction:column;
+  }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:6.6pt; letter-spacing:1.8pt; text-transform:uppercase;
+    color:var(--faint); font-weight:600;
+    border-bottom:0.35mm solid var(--line); padding-bottom:2.6mm;
+  }
+  .topbar .dot{ color:var(--accent); }
+
+  .headline{
+    margin-top:5.5mm; font-family:var(--head); text-transform:uppercase;
+    font-size:29pt; line-height:0.98; letter-spacing:0.3mm;
+  }
+  .headline .accent{ color:var(--accent); }
+
+  .lead{
+    margin-top:4mm; font-size:8.4pt; font-weight:500; line-height:1.65;
+    color:var(--muted); max-width:118mm;
+  }
+  .lead b{ color:var(--text); font-weight:700; }
+
+  /* Editorial-Grid: 1 großes + 2 kleine Pieces, mit Index-Nummern */
+  .grid{
+    flex:1; min-height:0; margin:5.5mm 0 0;
+    display:flex; gap:7mm;
+  }
+  .col-l{ flex:1.15; display:flex; flex-direction:column; }
+  .col-r{ flex:1; display:flex; flex-direction:column; gap:5mm; }
+  .piece{ flex:1; min-height:0; display:flex; flex-direction:column; }
+  .piece .imgbox{
+    flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
+  }
+  .piece img{
+    max-width:100%; max-height:100%; width:auto; height:auto;
+    filter:drop-shadow(0 3mm 7mm rgba(0,0,0,0.65));
+  }
+  .cap{
+    margin-top:2mm; display:flex; align-items:baseline; gap:2.6mm;
+    border-top:0.35mm solid var(--line); padding-top:1.8mm;
+  }
+  .cap .no{
+    font-family:var(--head); font-size:8.5pt; color:var(--accent); letter-spacing:0.6pt;
+  }
+  .cap .name{
+    font-size:6.6pt; font-weight:700; letter-spacing:1.6pt; text-transform:uppercase; color:var(--text);
+  }
+  .cap .tag{
+    margin-left:auto; font-size:6pt; font-weight:600; letter-spacing:1.2pt;
+    text-transform:uppercase; color:var(--faint);
+  }
+
+  /* Pull-Quote */
+  .quote{
+    margin-top:6mm; text-align:center;
+    font-family:var(--head); text-transform:uppercase;
+    font-size:17pt; line-height:1.05; letter-spacing:0.4mm;
+  }
+  .quote .accent{ color:var(--accent); }
+
+  .footer{
+    margin-top:4.5mm; padding-top:3mm; border-top:0.35mm solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; gap:6mm;
+    font-size:7.2pt; letter-spacing:1.7pt; text-transform:uppercase; font-weight:700;
+  }
+  .footer .url{ color:var(--text); }
+  .footer .mid{ color:var(--faint); font-size:6pt; letter-spacing:1.2pt; flex:1; text-align:center; white-space:nowrap; }
+  .footer .ig{ color:var(--muted); }
+
+  .noise{
+    position:absolute; inset:0; z-index:8; pointer-events:none; opacity:0.4;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+    background-size:60mm 60mm;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="backdrop"></div>
+  <div class="ghostnum">01</div>
+
+  <div class="content">
+
+    <div class="topbar">
+      <span>Triad Archiv</span>
+      <span><span class="dot">●</span>&nbsp; Drop 01 · Sommer 2026</span>
+      <span>Authentic Goods</span>
+    </div>
+
+    <h1 class="headline">Der neue Drop<span class="accent">.</span></h1>
+
+    <p class="lead">Regelmäßige Drops aus archivierten, vergriffenen und ausverkauften
+    Adidas-Kollektionen — von raren Velours-Pieces über Strick bis zu den Ikonen.
+    Jeder Drop ist eine neue Chance auf streng limitierte Archiv-Pieces.</p>
+
+    <div class="grid">
+      <div class="col-l">
+        <div class="piece">
+          <div class="imgbox"><img src="img/p-knit.png" alt="Adidas Originals Strick-Sweater"></div>
+          <div class="cap"><span class="no">№01</span><span class="name">Knit Sweater</span><span class="tag">Strick</span></div>
+        </div>
+      </div>
+      <div class="col-r">
+        <div class="piece">
+          <div class="imgbox"><img src="img/p-adibreak.png" alt="Adidas Adibreak Hose"></div>
+          <div class="cap"><span class="no">№02</span><span class="name">Adibreak</span><span class="tag">Icon</span></div>
+        </div>
+        <div class="piece">
+          <div class="imgbox"><img src="img/p-leather.png" alt="Adidas Chile 62 Track Top"></div>
+          <div class="cap"><span class="no">№03</span><span class="name">Chile 62</span><span class="tag">Y2K</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote">Einmal weg. <span class="accent">Für immer weg.</span></div>
+
+    <div class="footer">
+      <span class="url">triadarchiv.de</span>
+      <span class="mid">Neuer Drop? Zuerst auf Instagram.</span>
+      <span class="ig">@triadarchiv</span>
+    </div>
+
+  </div>
+
+  <div class="noise"></div>
+</div>
+</body>
+</html>

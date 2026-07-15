@@ -2,6 +2,7 @@
 // Artikel als verkauft markieren und Bestellung protokollieren. Speicher: Netlify Blobs.
 
 import { getStore } from "@netlify/blobs";
+import { markUsed } from "./_discount.mjs";
 
 export default async (req) => {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -69,6 +70,12 @@ export default async (req) => {
       customer: session.customer_details || null,
     });
     await store.setJSON("orders", orders);
+
+    // Wurde ein Rabattcode genutzt? Dann die E-Mail als "verbraucht" markieren,
+    // damit dieser Kunde den Code kein zweites Mal einlösen kann.
+    if (session.metadata && session.metadata.discount_code) {
+      await markUsed(session.metadata.discount_email || (session.customer_details && session.customer_details.email));
+    }
 
     return new Response(JSON.stringify({ ok: true, paid: true }), { status: 200 });
   } catch (e) {

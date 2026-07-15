@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Vorderseite (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* A5 Hochformat + 2mm Beschnitt rundum → 152×214mm. Endformat 148×210. */
+  :root{
+    --bg:#0d0d0d; --text:#f4f4f4; --muted:#9a9a9a; --faint:#6f6f6f;
+    --line:rgba(244,244,244,0.22);
+    --accent:#ec0b63;
+    --font:'Inter',-apple-system,Arial,sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--font); color:var(--text); background:var(--bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .card{
+    position:relative; width:152mm; height:214mm; overflow:hidden;
+    background:var(--bg); padding:16mm 15mm;
+    display:flex; flex-direction:column;
+  }
+
+  /* sanfter Lichtschein hinter dem Produkt */
+  .glow{
+    position:absolute; right:-30mm; top:22mm; width:126mm; height:136mm; z-index:1;
+    pointer-events:none;
+    background:radial-gradient(closest-side, rgba(236,11,99,0.14), rgba(236,11,99,0.05) 55%, transparent 75%);
+  }
+  /* Produktbild: groß rechts, löst sich an den Rändern weich ins Schwarz auf */
+  .product{
+    position:absolute; right:4mm; top:40mm; width:92mm; z-index:1;
+    transform:rotate(6deg);
+    filter:drop-shadow(0 6mm 11mm rgba(0,0,0,0.7));
+    -webkit-mask-image:radial-gradient(ellipse 52% 54% at 50% 46%, #000 52%, rgba(0,0,0,0.85) 76%, transparent 98%);
+            mask-image:radial-gradient(ellipse 52% 54% at 50% 46%, #000 52%, rgba(0,0,0,0.85) 76%, transparent 98%);
+  }
+  /* Scrim: dunkler Verlauf von links, hält den Text knackig lesbar */
+  .scrim{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(90deg,
+      rgba(13,13,13,0.97) 0%, rgba(13,13,13,0.92) 40%,
+      rgba(13,13,13,0.5) 60%, rgba(13,13,13,0) 100%);
+  }
+  /* unten zusätzlich abdunkeln für QR/Code-Bereich */
+  .scrim-b{
+    position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(180deg,
+      rgba(13,13,13,0) 0%, rgba(13,13,13,0) 54%,
+      rgba(13,13,13,0.55) 68%, rgba(13,13,13,0.97) 84%);
+  }
+
+  .content{ position:relative; z-index:3; display:flex; flex-direction:column; height:100%; }
+
+  .topbar{
+    font-size:7.6pt; letter-spacing:1.8pt; text-transform:uppercase;
+    color:var(--faint); font-weight:500; display:flex; gap:3.5mm; align-items:center;
+  }
+  .topbar .sep{ color:rgba(244,244,244,0.18); }
+
+  .wordmark{
+    margin-top:10mm; font-weight:600; line-height:1.04;
+    font-size:34pt; letter-spacing:4.8pt; color:var(--text);
+  }
+
+  .subclaim{
+    margin-top:6mm; color:var(--accent); font-weight:700; text-transform:uppercase;
+    font-size:12.5pt; line-height:1.45; letter-spacing:0.8pt; max-width:74mm;
+  }
+
+  .pct{ margin-top:7mm; color:var(--accent); font-weight:800; font-size:62pt; line-height:0.9; letter-spacing:-1.4pt; }
+  .pct-sub{ margin-top:3mm; color:var(--accent); font-weight:700; text-transform:uppercase; font-size:11pt; letter-spacing:1.8pt; }
+
+  .spacer{ flex:1; }
+
+  .boxes{ display:flex; gap:5.5mm; align-items:stretch; margin-top:7mm; }
+  .qrbox{
+    width:31mm; height:31mm; border:0.8pt solid var(--line); border-radius:1.4mm;
+    background:#f4f4f4; padding:2.5mm; display:flex; align-items:center; justify-content:center;
+  }
+  .qrbox img{ width:100%; height:100%; display:block; }
+  .codecol{ display:flex; flex-direction:column; align-items:flex-start; }
+  .codebox{
+    height:31mm; min-width:45mm; border:0.8pt solid var(--line); border-radius:1.4mm;
+    display:flex; align-items:center; justify-content:center; padding:0 7mm;
+    font-weight:700; font-size:20pt; letter-spacing:3.4pt; color:var(--text);
+    background:rgba(13,13,13,0.65);
+  }
+  .codecap{ margin-top:3mm; font-size:9.5pt; line-height:1.4; color:var(--muted); max-width:52mm; }
+
+  .badges{
+    margin-top:7.5mm; font-size:9.5pt; letter-spacing:2pt; text-transform:uppercase;
+    color:var(--muted); font-weight:600; display:flex; gap:4mm; align-items:center;
+  }
+  .badges .dot{ width:3.2pt; height:3.2pt; border-radius:50%; background:var(--accent); display:inline-block; }
+
+  .handles{
+    margin-top:4.5mm; font-size:11pt; letter-spacing:0.8pt; color:var(--muted);
+    display:flex; gap:4mm; align-items:center;
+  }
+  .handles .h{ color:var(--text); font-weight:600; }
+  .handles .sep{ color:rgba(244,244,244,0.2); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="glow"></div>
+    <img class="product" src="img/p-floral.png" alt="Vintage Adidas Firebird Track Top">
+    <div class="scrim"></div>
+    <div class="scrim-b"></div>
+
+    <div class="content">
+      <div class="topbar"><span>Kuratiertes Archiv</span><span class="sep">|</span><span>Vintage Adidas</span><span class="sep">|</span><span>Deutschland</span></div>
+
+      <div class="wordmark">TRIAD<br>ARCHIV</div>
+
+      <div class="subclaim">Dein Archiv für authentische Y2K Adidas Fundstücke.</div>
+
+      <div class="pct">10%</div>
+      <div class="pct-sub">Auf deine erste Bestellung</div>
+
+      <div class="spacer"></div>
+
+      <div class="boxes">
+        <div class="qrbox"><img src="qr-code.svg" alt="QR-Code zum Shop"></div>
+        <div class="codecol">
+          <div class="codebox">ARCHIV10</div>
+          <div class="codecap">Scannen, stöbern &amp; Code an der Kasse eingeben.</div>
+        </div>
+      </div>
+
+      <div class="badges"><span>Handverlesen</span><span class="dot"></span><span>Geprüft</span><span class="dot"></span><span>Kuratiert</span></div>
+
+      <div class="handles"><span class="h">@triadarchiv</span><span class="sep">|</span><span>triadarchiv.de</span></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Rückseite v2 (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* A5 Hochformat + 2mm Beschnitt rundum → 152×214mm.
+     Endformat 148×210, alle Inhalte min. 7mm vom Blattrand. */
+  :root{
+    --bg:#0d0d0d; --text:#f4f4f4; --muted:#9a9a9a; --faint:#6f6f6f;
+    --line:rgba(244,244,244,0.20);
+    --accent:#ec0b63;
+    --font:'Inter',-apple-system,Arial,sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--font); color:var(--text); background:var(--bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg); }
+  .glow{
+    position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(85mm 85mm at 25% 62%, rgba(236,11,99,0.06), transparent 70%);
+  }
+
+  .content{
+    position:relative; z-index:2; height:100%;
+    padding:14mm 13mm 13mm; display:flex; flex-direction:column;
+  }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:6.8pt; letter-spacing:1.9pt; text-transform:uppercase;
+    color:var(--faint); font-weight:500;
+  }
+  .topbar .dot{ color:var(--accent); }
+
+  .headline{
+    margin-top:9mm; font-weight:800; letter-spacing:-0.2mm; line-height:1.05;
+    font-size:27pt;
+  }
+  .headline .accent{ color:var(--accent); }
+
+  .lead{
+    margin-top:5mm; font-size:9pt; font-weight:500; line-height:1.7;
+    color:var(--muted); max-width:112mm;
+  }
+  .lead b{ color:var(--text); font-weight:700; }
+
+  /* Zwei Bilder, vollständig sichtbar, ruhig nebeneinander */
+  .photos{
+    flex:1; min-height:0; margin:7mm 0 6mm;
+    display:flex; align-items:center; justify-content:center; gap:10mm;
+  }
+  .photos .slot{
+    flex:1; height:100%; display:flex; align-items:center; justify-content:center;
+  }
+  .photos img{
+    max-height:100%; max-width:100%; width:auto; height:auto;
+    filter:drop-shadow(0 4mm 9mm rgba(0,0,0,0.6));
+  }
+  .photos .slot:first-child img{ transform:rotate(-2deg); }
+  .photos .slot:last-child  img{ transform:rotate(2deg); }
+
+  /* drei ruhige Spalten */
+  .facts{
+    border-top:0.35mm solid var(--line); padding-top:5mm;
+    display:flex; gap:8mm;
+  }
+  .fact{ flex:1; }
+  .fact .label{
+    font-size:6.6pt; letter-spacing:1.8pt; text-transform:uppercase;
+    color:var(--faint); font-weight:600;
+  }
+  .fact .label i{ font-style:normal; color:var(--accent); margin-right:1.2mm; }
+  .fact .value{
+    margin-top:2mm; font-size:7.7pt; font-weight:600; line-height:1.55; color:var(--text);
+  }
+
+  .closer{
+    margin-top:6mm; font-size:12.5pt; font-weight:800; letter-spacing:-0.1mm;
+  }
+  .closer .accent{ color:var(--accent); }
+
+  .footer{
+    margin-top:5mm; padding-top:3.5mm; border-top:0.35mm solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; gap:6mm;
+    font-size:7.4pt; letter-spacing:1.7pt; text-transform:uppercase; font-weight:600;
+  }
+  .footer .url{ color:var(--text); }
+  .footer .mid{ color:var(--faint); font-size:6pt; letter-spacing:1.2pt; flex:1; text-align:center; white-space:nowrap; }
+  .footer .ig{ color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow"></div>
+  <div class="content">
+
+    <div class="topbar">
+      <span>Neu gestartet</span>
+      <span><span class="dot">●</span>&nbsp; Est. 2026</span>
+      <span>Authentic Goods</span>
+    </div>
+
+    <h1 class="headline">Der neue Drop<span class="accent">.</span></h1>
+
+    <p class="lead">Regelmäßige Drops aus archivierten, vergriffenen und ausverkauften
+    Adidas-Kollektionen — von raren Velours-Pieces über Strick bis zu den Ikonen.
+    Jeder Drop ist eine neue Chance auf streng limitierte Archiv-Pieces.
+    <b>Einmal weg, für immer weg.</b></p>
+
+    <div class="photos">
+      <div class="slot"><img src="img/p-knit.png" alt="Adidas Originals Strick-Sweater"></div>
+      <div class="slot"><img src="img/p-adibreak.png" alt="Adidas Adibreak Hose"></div>
+    </div>
+
+    <div class="facts">
+      <div class="fact">
+        <div class="label"><i>●</i>The Icons</div>
+        <div class="value">Firebird · Adibreak · Track Tops</div>
+      </div>
+      <div class="fact">
+        <div class="label"><i>●</i>The Textures</div>
+        <div class="value">Velours · Strick · Nylon</div>
+      </div>
+      <div class="fact">
+        <div class="label"><i>●</i>Era</div>
+        <div class="value">Y2K &amp; 90s · Originals · Collabs</div>
+      </div>
+    </div>
+
+    <div class="closer">Vintage Vibes. Real Quality. <span class="accent">Built to last.</span></div>
+
+    <div class="footer">
+      <span class="url">triadarchiv.de</span>
+      <span class="mid">Neuer Drop? Zuerst auf Instagram.</span>
+      <span class="ig">@triadarchiv</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

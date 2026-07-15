@@ -189,6 +189,107 @@
     font-variant-numeric:tabular-nums;
   }
   .summary-row .free{ color:var(--text); }
+  .summary-row.discount span:last-child{ color:var(--accent); }
+
+  /* ---- Rabattcode ---- */
+  .discount-box{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .discount-toggle{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    padding:2px 0;
+    border-bottom:1px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .discount-toggle:hover{ color:var(--text); border-color:var(--line-strong); }
+  .discount-fields{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+  }
+  .discount-fields input{
+    flex:1 1 160px;
+    min-width:0;
+    background:var(--tile);
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.5px;
+    padding:11px 12px;
+    border-radius:0;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .discount-fields input::placeholder{ color:var(--faint); text-transform:none; letter-spacing:0.3px; }
+  .discount-fields input:focus{ border-color:var(--text); }
+  .discount-fields input#discountCode{ text-transform:uppercase; }
+  .discount-fields button{
+    flex:0 0 auto;
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    padding:0 20px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  .discount-fields button:hover{ background:transparent; color:var(--text); }
+  .discount-fields button:disabled{ opacity:.55; cursor:default; }
+  .discount-msg{
+    flex:1 1 100%;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.3px;
+    line-height:1.5;
+    margin-top:2px;
+  }
+  .discount-msg.err{ color:var(--accent); }
+  .discount-msg.ok{ color:var(--muted); }
+  .discount-applied{
+    margin-top:14px;
+    padding:12px 14px;
+    border:1px solid var(--line-strong);
+    background:var(--tile);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .discount-applied .code{ color:var(--accent); font-weight:600; }
+  .discount-applied button{
+    background:none;
+    border:none;
+    color:var(--faint);
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    padding:2px 0;
+    border-bottom:1px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .discount-applied button:hover{ color:var(--text); border-color:var(--line-strong); }
   .cart-total{
     display:flex;
     justify-content:space-between;
@@ -327,6 +428,7 @@
   const FREE_FROM = 80;
 
   function fmt(n){ return n.toFixed(2).replace('.', ',') + '€'; }
+  function round2(n){ return Math.round((Number(n)||0) * 100) / 100; }
 
   function loadCart(){
     return JSON.parse(localStorage.getItem('triadCart') || '[]');
@@ -335,8 +437,70 @@
     localStorage.setItem('triadCart', JSON.stringify(cart));
   }
 
+  /* ---------- Rabattcode ---------- */
+  // Gespeichert wird ein bereits vom Server geprüfter Rabatt: {code, email, percent}
+  function loadDiscount(){
+    try { return JSON.parse(localStorage.getItem('triadDiscount') || 'null'); }
+    catch(e){ return null; }
+  }
+  function saveDiscount(d){ localStorage.setItem('triadDiscount', JSON.stringify(d)); }
+  function clearDiscount(){ localStorage.removeItem('triadDiscount'); }
+
+  async function applyDiscount(){
+    const codeEl = document.getElementById('discountCode');
+    const emailEl = document.getElementById('discountEmail');
+    const msgEl = document.getElementById('discountMsg');
+    const btn = document.getElementById('discountApply');
+    const code = (codeEl.value || '').trim();
+    const email = (emailEl.value || '').trim();
+
+    if(!code){ showDiscountMsg('Bitte einen Code eingeben.', 'err'); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showDiscountMsg('Bitte eine gültige E-Mail eingeben.', 'err'); return; }
+
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Prüfe …';
+    try {
+      const r = await fetch('/api/validate-code', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ code, email })
+      });
+      const data = await r.json();
+      if(data.valid){
+        saveDiscount({ code: code.toUpperCase(), email: email.toLowerCase(), percent: data.percent });
+        renderCart();
+        return;
+      }
+      const reasons = {
+        unknown: 'Dieser Code ist ungültig.',
+        email: 'Bitte eine gültige E-Mail eingeben.',
+        used: 'Dieser Code wurde für diese E-Mail bereits genutzt (gilt nur für die erste Bestellung).',
+      };
+      showDiscountMsg(reasons[data.reason] || 'Code konnte nicht eingelöst werden.', 'err');
+    } catch(e){
+      showDiscountMsg('Verbindung fehlgeschlagen. Bitte später erneut versuchen.', 'err');
+    } finally {
+      const b = document.getElementById('discountApply');
+      if(b){ b.disabled = false; b.textContent = original; }
+    }
+  }
+
+  function showDiscountMsg(text, kind){
+    const msgEl = document.getElementById('discountMsg');
+    if(!msgEl) return;
+    msgEl.textContent = text;
+    msgEl.className = 'discount-msg ' + (kind || '');
+  }
+
   function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Rabatt-Payload für Checkout (nur Code + E-Mail; der Server prüft erneut).
+  function discountPayload(){
+    const d = loadDiscount();
+    return d ? { code: d.code, email: d.email } : null;
   }
 
   function startCheckout(){
@@ -349,7 +513,7 @@
     fetch('/api/checkout', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify(cart)
+      body: JSON.stringify({ items: cart, discount: discountPayload() })
     })
       .then(r => r.json())
       .then(data => {
@@ -391,7 +555,7 @@
         createOrder: () => fetch('/api/paypal-create-order', {
           method:'POST',
           headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify(loadCart())
+          body: JSON.stringify({ items: loadCart(), discount: discountPayload() })
         }).then(r => r.json()).then(data => {
           if(!data.id) throw new Error(data.error || 'PayPal-Bestellung fehlgeschlagen.');
           return data.id;
@@ -441,18 +605,42 @@
       </div>`).join('');
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const discount = loadDiscount();
+    const discountAmount = discount ? round2(subtotal * discount.percent / 100) : 0;
     const shipping = subtotal >= FREE_FROM ? 0 : SHIPPING;
-    const total = subtotal + shipping;
+    const total = round2(subtotal - discountAmount + shipping);
     const shippingLabel = shipping === 0
       ? '<span class="free">Kostenlos</span>'
       : fmt(shipping);
+
+    const discountRow = discountAmount > 0
+      ? `<div class="summary-row discount"><span>Rabatt (${escapeHtml(discount.code)} · −${discount.percent}%)</span><span>−${fmt(discountAmount)}</span></div>`
+      : '';
+
+    // Rabatt-Bereich: entweder aktiver Code oder Eingabeformular
+    const discountBox = discount
+      ? `<div class="discount-applied">
+           <span>Code <span class="code">${escapeHtml(discount.code)}</span> aktiv · −${discount.percent}%</span>
+           <button id="discountRemove">Entfernen</button>
+         </div>`
+      : `<div class="discount-box">
+           <button class="discount-toggle" id="discountToggle">+ Rabattcode einlösen</button>
+           <div class="discount-fields" id="discountFields" hidden>
+             <input id="discountCode" placeholder="Code (z. B. ARCHIV10)" autocomplete="off" spellcheck="false">
+             <input id="discountEmail" type="email" placeholder="Deine E-Mail" autocomplete="email">
+             <button id="discountApply">Einlösen</button>
+             <div class="discount-msg" id="discountMsg"></div>
+           </div>
+         </div>`;
 
     cartWrap.innerHTML = `
       <div class="cart-list">${itemsHtml}</div>
       <div class="cart-summary">
         <div class="summary-row"><span>Zwischensumme</span><span>${fmt(subtotal)}</span></div>
+        ${discountRow}
         <div class="summary-row"><span>Versand${shipping === 0 ? '' : ` (gratis ab ${FREE_FROM}€)`}</span><span>${shippingLabel}</span></div>
       </div>
+      ${discountBox}
       <div class="cart-total">
         <span>Gesamt</span>
         <span class="amount">${fmt(total)}</span>
@@ -485,6 +673,25 @@
       return;
     }
 
+    if(btn.id === 'discountToggle'){
+      const fields = document.getElementById('discountFields');
+      if(fields){ fields.hidden = false; }
+      const code = document.getElementById('discountCode');
+      if(code){ code.focus(); }
+      return;
+    }
+
+    if(btn.id === 'discountApply'){
+      applyDiscount();
+      return;
+    }
+
+    if(btn.id === 'discountRemove'){
+      clearDiscount();
+      renderCart();
+      return;
+    }
+
     const action = btn.dataset.action;
     if(!action) return;
     const index = Number(btn.dataset.index);
@@ -498,6 +705,14 @@
 
     saveCart(cart);
     renderCart();
+  });
+
+  // Enter in den Rabatt-Feldern löst "Einlösen" aus
+  cartWrap.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && (e.target.id === 'discountCode' || e.target.id === 'discountEmail')){
+      e.preventDefault();
+      applyDiscount();
+    }
   });
 
   renderCart();

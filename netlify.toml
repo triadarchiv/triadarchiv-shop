@@ -28,6 +28,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/validate-code"
+  to = "/.netlify/functions/validate-code"
+  status = 200
+
+[[redirects]]
   from = "/api/products"
   to = "/.netlify/functions/products"
   status = 200

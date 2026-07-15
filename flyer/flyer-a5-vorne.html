@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Vorderseite (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ================================================================
+     A5 HOCHFORMAT + 2mm BESCHNITT rundum  →  Seite = 152mm × 214mm
+     Endformat (Trim) = 148×210mm, Sicherheitszone: 7mm vom Blattrand
+     ================================================================ */
+  :root{
+    --bg:#0b0b0c;
+    --paper:#f4f2ec;
+    --pink:#ff2d78;
+    --green:#c5ff3a;
+    --muted:#8f8f92;
+    --head:'Anton', Impact, sans-serif;
+    --body:'Inter', Arial, sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{
+    font-family:var(--body); background:var(--bg); color:var(--paper);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg); }
+
+  /* ---------- Hintergrund-Ebenen ---------- */
+  .ghost{
+    position:absolute; z-index:1; font-family:var(--head); color:transparent;
+    -webkit-text-stroke:0.45mm rgba(244,242,236,0.09);
+    letter-spacing:1mm; line-height:0.86; user-select:none;
+  }
+  .ghost-1{ top:57mm; left:-6mm; font-size:118pt; transform:rotate(-90deg) translateX(-100%); transform-origin:left top; }
+  .halftone{
+    position:absolute; z-index:1; pointer-events:none;
+    background-image:radial-gradient(rgba(244,242,236,0.14) 0.28mm, transparent 0.29mm);
+    background-size:1.7mm 1.7mm;
+    -webkit-mask-image:linear-gradient(135deg,#000 0%,transparent 70%);
+            mask-image:linear-gradient(135deg,#000 0%,transparent 70%);
+  }
+  .ht-tr{ top:0; right:0; width:62mm; height:62mm; }
+
+  /* ---------- Collage ---------- */
+  .ph{ position:absolute; filter:drop-shadow(0 4mm 9mm rgba(0,0,0,0.75)); }
+  .ph img{ display:block; width:100%; height:auto; }
+  .ph-floral{ width:96mm; right:-16mm; top:56mm; transform:rotate(-7deg); z-index:4; }
+  .ph-knit  { width:56mm; left:-11mm;  top:74mm; transform:rotate(9deg);  z-index:3; }
+  .ph-trio  { width:84mm; left:-13mm;  top:112mm; transform:rotate(-4deg); z-index:5; }
+
+  /* Klebeband-Sticker über den Fotos */
+  .tape{
+    position:absolute; z-index:6; font-weight:800; font-size:6.6pt; letter-spacing:1.6pt;
+    text-transform:uppercase; padding:1.6mm 3.4mm; white-space:nowrap;
+  }
+  .tape-pink { background:var(--pink);  color:#0b0b0c; top:106mm; right:12mm; transform:rotate(4deg); }
+  .tape-green{ background:var(--green); color:#0b0b0c; top:103mm; left:5mm;  transform:rotate(-8deg); }
+
+  /* Scrim oben + unten, damit Headline & CTA knackig lesbar bleiben */
+  .scrim-t{ position:absolute; inset:0; z-index:5; pointer-events:none;
+    background:linear-gradient(180deg, rgba(11,11,12,0.96) 0%, rgba(11,11,12,0.82) 22%, rgba(11,11,12,0) 42%); }
+  .scrim-b{ position:absolute; inset:0; z-index:5; pointer-events:none;
+    background:linear-gradient(0deg, rgba(11,11,12,0.98) 0%, rgba(11,11,12,0.9) 16%, rgba(11,11,12,0) 34%); }
+
+  /* ---------- Inhalt ---------- */
+  .content{ position:absolute; inset:0; z-index:7; padding:9mm; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:6.4pt; font-weight:600; letter-spacing:1.9pt; text-transform:uppercase; color:var(--muted);
+  }
+  .topbar b{ color:var(--paper); font-weight:800; }
+  .topbar .dot{ color:var(--pink); }
+
+  .headline{ margin-top:7mm; font-family:var(--head); line-height:0.92; text-transform:uppercase; }
+  .headline .l1{ display:block; font-size:41pt; letter-spacing:0.4mm; color:var(--paper); }
+  .headline .l2{ display:block; font-size:41pt; letter-spacing:0.4mm; color:transparent;
+    -webkit-text-stroke:0.5mm var(--paper); }
+  .headline .l3{ display:block; font-size:41pt; letter-spacing:0.4mm; color:var(--pink); }
+
+  .sub{
+    margin-top:4.5mm; max-width:86mm;
+    font-size:8.6pt; font-weight:600; line-height:1.5; color:rgba(244,242,236,0.88);
+  }
+  .sub em{ font-style:normal; color:var(--green); font-weight:800; }
+
+  .spacer{ flex:1; }
+
+  /* ---------- CTA-Block unten ---------- */
+  .cta{
+    position:relative; display:flex; align-items:stretch; gap:4mm;
+  }
+  .cta-box{
+    flex:1; background:var(--pink); color:#0b0b0c; padding:4.6mm 5.5mm 4.2mm;
+    transform:rotate(-1.3deg); box-shadow:0 3mm 8mm rgba(0,0,0,0.6);
+  }
+  .cta-box .big{ font-family:var(--head); font-size:21.5pt; line-height:0.95; text-transform:uppercase; letter-spacing:0.2mm; }
+  .cta-box .code-row{ display:flex; align-items:center; gap:3mm; margin-top:2.6mm; }
+  .cta-box .code{
+    border:0.55mm solid #0b0b0c; padding:1.3mm 3.6mm;
+    font-weight:900; font-size:12.5pt; letter-spacing:2.4pt;
+  }
+  .cta-box .code-hint{ font-size:6.4pt; font-weight:700; letter-spacing:0.8pt; text-transform:uppercase; line-height:1.45; max-width:44mm; }
+  .qr-chip{
+    width:26mm; background:var(--paper); padding:2.2mm;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.4mm;
+    transform:rotate(1.6deg); box-shadow:0 3mm 8mm rgba(0,0,0,0.6);
+  }
+  .qr-chip img{ width:100%; display:block; }
+  .qr-chip span{ color:#0b0b0c; font-size:5.4pt; font-weight:800; letter-spacing:1.2pt; text-transform:uppercase; }
+
+  .footer{
+    margin-top:5mm; display:flex; justify-content:space-between; align-items:baseline;
+    font-size:7.2pt; font-weight:700; letter-spacing:1.6pt; text-transform:uppercase;
+  }
+  .footer .url{ color:var(--paper); }
+  .footer .ig{ color:var(--muted); }
+  .footer .claim{ color:var(--muted); font-size:6.2pt; }
+  .footer .claim i{ font-style:normal; color:var(--pink); }
+
+  /* Grunge-Noise über allem */
+  .noise{
+    position:absolute; inset:0; z-index:9; pointer-events:none; opacity:0.5;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+    background-size:60mm 60mm;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="ghost ghost-1">ARCHIV</div>
+  <div class="halftone ht-tr"></div>
+
+  <div class="ph ph-knit"><img src="img/p-knit.png" alt=""></div>
+  <div class="ph ph-floral"><img src="img/p-floral.png" alt=""></div>
+  <div class="ph ph-trio"><img src="img/p-pink.png" alt=""></div>
+
+  <div class="scrim-t"></div>
+  <div class="scrim-b"></div>
+
+  <div class="tape tape-green">Y2K Originals</div>
+  <div class="tape tape-pink">1 of 1 — kein Restock</div>
+
+  <div class="content">
+    <div class="topbar">
+      <span><b>TRIAD ARCHIV</b> <span class="dot">●</span> Kuratiertes Archiv</span>
+      <span>Vintage Adidas <span class="dot">●</span> Deutschland</span>
+    </div>
+
+    <h1 class="headline">
+      <span class="l1">The</span>
+      <span class="l2">Archive</span>
+      <span class="l3">is open.</span>
+    </h1>
+
+    <p class="sub">Regelmäßige Drops. Dein Style. Deine Ära.<br>
+    Von <em>sportlich</em> bis <em>Luxus</em> — jetzt vor Ort.</p>
+
+    <div class="spacer"></div>
+
+    <div class="cta">
+      <div class="cta-box">
+        <div class="big">10% Rabatt</div>
+        <div class="code-row">
+          <span class="code">ARCHIV10</span>
+          <span class="code-hint">Code an der Kasse eingeben — gilt auf deine erste Bestellung</span>
+        </div>
+      </div>
+      <div class="qr-chip">
+        <img src="qr-code.svg" alt="QR-Code zu triadarchiv.de">
+        <span>Scan me</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="url">triadarchiv.de</span>
+      <span class="claim">Handverlesen <i>●</i> Geprüft <i>●</i> Kuratiert</span>
+      <span class="ig">@triadarchiv</span>
+    </div>
+  </div>
+
+  <div class="noise"></div>
+</div>
+</body>
+</html>

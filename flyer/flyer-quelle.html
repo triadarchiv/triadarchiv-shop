@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121110; --bg-deep:#0c0b0a; --surface:#171614;
+    --line:rgba(244,241,234,0.10); --line-strong:rgba(244,241,234,0.18);
+    --text:#f4f1ea; --muted:#a8a49b; --faint:#7c786f;
+    --accent:#ff3d78;
+    --font-display:'Anton','Arial Narrow',Impact,sans-serif;
+    --font-sans:'Inter',-apple-system,Arial,sans-serif;
+    --font-mono:'JetBrains Mono','Consolas',monospace;
+  }
+  @page{ size:105mm 148mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:105mm; height:148mm; }
+  body{
+    font-family:var(--font-sans); color:var(--text);
+    background:var(--bg); -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  .card{
+    position:relative; width:105mm; height:148mm; overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 78% 8%, rgba(255,61,120,0.06), transparent 55%),
+      linear-gradient(180deg,#141310 0%, #121110 45%, #0f0e0c 100%);
+    padding:9mm 8mm 8mm;
+    display:flex; flex-direction:column;
+  }
+  /* dünner Innenrahmen, editorial */
+  .frame{
+    position:absolute; inset:4mm; border:0.4pt solid var(--line);
+    pointer-events:none;
+  }
+
+  /* Kopf */
+  .eyebrow{
+    font-family:var(--font-mono); font-size:5.4pt; letter-spacing:1.6pt;
+    text-transform:uppercase; color:var(--faint); font-weight:500;
+  }
+  .topline{ display:flex; justify-content:space-between; align-items:baseline; position:relative; z-index:2; }
+  .topline .idx{ font-family:var(--font-mono); font-size:5.4pt; color:var(--faint); letter-spacing:1pt; }
+
+  /* Wortmarke */
+  .wordmark{ margin-top:7mm; position:relative; z-index:2; }
+  .wordmark h1{
+    font-family:var(--font-display); font-weight:400; line-height:0.86;
+    font-size:38pt; letter-spacing:0.5pt;
+  }
+  .wordmark h1 .archiv{
+    color:transparent; -webkit-text-stroke:0.7pt var(--text);
+    text-stroke:0.7pt var(--text);
+  }
+  .claim{
+    margin-top:4mm; max-width:47mm; font-size:8.2pt; line-height:1.5;
+    color:var(--muted); font-weight:400;
+  }
+  .claim b{ color:var(--text); font-weight:600; }
+
+  /* Produktbild - Farbe kommt vom Produkt */
+  .vest{
+    position:absolute; right:-9mm; top:24mm; width:58mm; z-index:1;
+    filter:drop-shadow(0 6mm 10mm rgba(0,0,0,0.55));
+    opacity:0.96;
+  }
+
+  .spacer{ flex:1; }
+
+  /* Meta-Zeile */
+  .meta{
+    display:flex; gap:3mm; align-items:center; position:relative; z-index:2;
+    font-family:var(--font-mono); font-size:5.6pt; letter-spacing:0.8pt;
+    color:var(--faint); text-transform:uppercase; margin-bottom:5mm;
+  }
+  .meta .dot{ width:2.4pt; height:2.4pt; border-radius:50%; background:var(--accent); }
+  .hair{ height:0.4pt; background:var(--line-strong); margin:0 0 5mm; position:relative; z-index:2; }
+
+  /* QR-Block */
+  .cta{ display:flex; align-items:center; gap:6mm; position:relative; z-index:2; }
+  .qrwrap{
+    background:var(--text); padding:2.4mm; border-radius:1.5mm;
+    width:26mm; height:26mm; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .qrwrap img{ width:100%; height:100%; }
+  .ctacopy{ display:flex; flex-direction:column; gap:1.6mm; }
+  .ctacopy .lead{ font-family:var(--font-display); font-size:15pt; line-height:1.04; letter-spacing:0.3pt; padding-top:0.8mm; }
+  .ctacopy .sub{ font-size:7pt; color:var(--muted); line-height:1.4; max-width:40mm; }
+  .ctacopy .url{
+    font-family:var(--font-mono); font-size:8pt; font-weight:500; letter-spacing:0.4pt;
+    color:var(--text); margin-top:0.6mm;
+  }
+  .ctacopy .url .arrow{ color:var(--accent); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="frame"></div>
+
+    <div class="topline">
+      <span class="eyebrow">Kuratiertes Archiv — Vintage Adidas</span>
+      <span class="idx">Deutschland</span>
+    </div>
+
+    <div class="wordmark">
+      <h1>TRIAD<br><span class="archiv">ARCHIV</span></h1>
+      <p class="claim">Handverlesene Y2K- &amp; Retro-Unikate — Firebird, Adibreak, Velours. <b>Jedes Teil ein Einzelstück.</b></p>
+    </div>
+
+    <img class="vest" src="deko-vest.png" alt="Vintage Adidas Vest">
+
+    <div class="spacer"></div>
+
+    <div class="meta">
+      <span>Handverlesen</span><span class="dot"></span>
+      <span>Geprüft</span><span class="dot"></span>
+      <span>Unikate</span>
+    </div>
+    <div class="hair"></div>
+
+    <div class="cta">
+      <div class="qrwrap"><img src="qr.svg" alt="QR-Code zum Shop"></div>
+      <div class="ctacopy">
+        <span class="lead">SCAN &amp;<br>STÖBERN</span>
+        <span class="sub">Das ganze Archiv — live, mit sofortiger Verfügbarkeit.</span>
+        <span class="url"><span class="arrow">→</span> triadarchiv.de</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

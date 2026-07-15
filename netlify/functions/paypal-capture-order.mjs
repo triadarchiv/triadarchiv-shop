@@ -3,6 +3,7 @@
 
 import { getStore } from '@netlify/blobs';
 import { getAccessToken, PAYPAL_API } from './_paypal.mjs';
+import { markUsed } from './_discount.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -99,6 +100,19 @@ export default async (req) => {
       customer: { email: payer.email_address || '', name: payerName },
     });
     await store.setJSON('orders', orders);
+
+    // Wurde diese Bestellung mit Rabattcode angelegt? Dann die vorgemerkte E-Mail
+    // als "verbraucht" markieren (einmal pro Kunde) und den Merker aufräumen.
+    try {
+      const pending = (await store.get('discountPending', { type: 'json' })) || {};
+      if (pending[orderID]) {
+        await markUsed(pending[orderID]);
+        delete pending[orderID];
+        await store.setJSON('discountPending', pending);
+      }
+    } catch (e) {
+      // Markierung fehlgeschlagen -> Bestellung bleibt trotzdem gültig.
+    }
 
     return new Response(JSON.stringify({ ok: true, paid: true }), { status: 200 });
   } catch (e) {

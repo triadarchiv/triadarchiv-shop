@@ -112,39 +112,60 @@
     margin-top:var(--s4);
   }
 
-  /* das ausgestellte Stück (wird per JS mit dem neuesten echten Stück gefüllt) */
-  .hero-piece{ margin:0; }
-  .hero-piece-frame{
-    aspect-ratio:4/5;
-    background:var(--tile);
-    border:1px solid var(--line);
-    display:flex;
+  /* rechte Hero-Spalte: auffälliger Drop-Hinweis statt Produktkachel */
+  .hero-drop{
+    align-self:end;
+    border-top:1px solid var(--line-strong);
+    padding-top:var(--s4);
+  }
+  .hero-drop-kicker{
+    display:inline-flex;
     align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    transition:border-color .35s ease;
-  }
-  .hero-piece-frame img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center;
-    transition:transform .7s cubic-bezier(.2,.6,.2,1);
-  }
-  .hero-piece-frame.is-link{ cursor:pointer; }
-  .hero-piece-frame.is-link:hover{ border-color:var(--line-strong); }
-  .hero-piece-frame.is-link:hover img{ transform:scale(1.03); }
-  .hero-piece-meta{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-top:12px;
-    font-size:10px;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
     font-weight:500;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .hero-drop-kicker .pulse{
+    flex:0 0 auto;
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 0 rgba(255,61,120,0.45);
+    animation:dropPulse 2.4s ease-out infinite;
+  }
+  @keyframes dropPulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,61,120,0.45); }
+    70%{ box-shadow:0 0 0 9px rgba(255,61,120,0); }
+    100%{ box-shadow:0 0 0 0 rgba(255,61,120,0); }
+  }
+  .hero-drop-headline{
+    font-family:var(--font-display);
+    font-weight:400;
+    text-transform:uppercase;
+    font-size:clamp(52px, 7.4vw, 104px);
+    line-height:0.88;
+    letter-spacing:0.01em;
+    color:var(--text);
+    margin-top:var(--s3);
+  }
+  .hero-drop-headline .accent{ color:var(--accent); }
+  .hero-drop-sub{
+    max-width:34ch;
+    margin-top:var(--s3);
+    font-family:var(--font-mono);
+    font-size:11px;
     letter-spacing:2px;
+    line-height:1.7;
     text-transform:uppercase;
     color:var(--faint);
+  }
+  @media(prefers-reduced-motion: reduce){
+    .hero-drop-kicker .pulse{ animation:none; }
   }
 
   /* ---------- Abschnittskopf über dem Bestand ---------- */
@@ -840,10 +861,11 @@
         <a class="btn-solid" href="#grid">Ganzen Bestand ansehen</a>
       </div>
     </div>
-    <figure class="hero-piece">
-      <div class="hero-piece-frame grain" id="heroFrame"></div>
-      <figcaption class="hero-piece-meta mono" id="heroMeta"></figcaption>
-    </figure>
+    <aside class="hero-drop" aria-label="Jede Woche neue Stücke">
+      <span class="hero-drop-kicker"><span class="pulse" aria-hidden="true"></span>Neuer Drop · Jede Woche</span>
+      <p class="hero-drop-headline">Jede Woche<br><span class="accent">neue Unikate</span></p>
+      <p class="hero-drop-sub">Frisch kuratiert · streng limitiert · nie nachbestellt</p>
+    </aside>
   </div>
 </section>
 
@@ -1102,48 +1124,6 @@
 
   renderProductGrid();
 
-  /* ---------- Hero: das neueste echte Stück ausstellen ----------
-     Bevorzugt das neueste verfügbare Kollektions-Stück (featured),
-     sonst das neueste verfügbare Stück überhaupt. Ohne Produkte:
-     ruhige Archiv-Kachel als Platzhalter. */
-  (function initHeroPiece(){
-    const frame = document.getElementById('heroFrame');
-    const meta = document.getElementById('heroMeta');
-    if(!frame || !meta) return;
-    const data = PRODUCTS_DATA;
-
-    let idx = data.findIndex(p => p.featured === true && !isSoldOut(p));
-    if(idx === -1) idx = data.findIndex(p => !isSoldOut(p));
-
-    if(idx === -1){
-      frame.innerHTML = `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv im Aufbau<br>Neue Stücke folgen</span>`;
-      meta.innerHTML = `<span>Triad Archiv</span><span>Kuratierte Unikate</span>`;
-      return;
-    }
-
-    const p = data[idx];
-    const no = archiveNo(idx, data.length);
-    const imgSrc = p.image || (p.images || [])[0];
-    frame.innerHTML = imgSrc
-      ? `<img src="${imgSrc}" alt="${escapeHtml(p.name || 'Vintage-Adidas-Stück')}" fetchpriority="high">`
-      : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
-
-    const cats = Array.isArray(p.cats) ? p.cats : [];
-    const parts = [];
-    if(cats.length) parts.push(escapeHtml(cats[0]));
-    if(p.size) parts.push('Gr. ' + escapeHtml(p.size));
-    parts.push((typeof p.stock === 'number' && p.stock === 1) ? 'Unikat' : 'Verfügbar');
-    meta.innerHTML = `<span>Archiv No. ${no}</span><span>${parts.join(' · ')}</span>`;
-
-    frame.classList.add('is-link');
-    frame.setAttribute('role', 'link');
-    frame.setAttribute('tabindex', '0');
-    frame.setAttribute('aria-label', (p.name || 'Produkt') + ' ansehen');
-    const open = () => { window.location.href = 'product.html?id=' + encodeURIComponent(p.id); };
-    frame.addEventListener('click', open);
-    frame.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
-  })();
-
   /* ---------- Kollektions-Band: nur zeigen, wenn es Kollektions-Stücke gibt ---------- */
   (function initCollectionBand(){
     const band = document.getElementById('collectionBand');
@@ -1172,7 +1152,7 @@
 
   /* ----- fixed size options ----- */
   const sizeOptions = document.getElementById('sizeOptions');
-  const SIZES = ['XXS','XS','S','M','L','XL','XXL','3XL'];
+  const SIZES = ['XXS','XS','S','M','L','XL','XXL','3XL','30','32','34','36','38','40','42','44','46'];
   sizeOptions.innerHTML = SIZES
     .map(s => `<button type="button" class="size-chip" data-size="${s}">${s}</button>`)
     .join('');

@@ -25,8 +25,9 @@ export async function getAccessToken() {
   return data.access_token;
 }
 
-// Gleiche Logik wie checkout.js (Stripe): Zwischensumme + Versand (6,19 EUR, gratis ab 80 EUR)
-export function cartTotals(cart) {
+// Gleiche Logik wie checkout.mjs (Stripe): Zwischensumme + Versand (6,19 EUR, gratis ab 80 EUR).
+// discountPercent (z. B. 10) reduziert die Zwischensumme; der Versand bleibt gleich.
+export function cartTotals(cart, discountPercent = 0) {
   let subtotal = 0;
   const ids = [];
   const items = cart.map((item) => {
@@ -37,7 +38,9 @@ export function cartTotals(cart) {
     if (item.id) ids.push(String(item.id));
     return { name: String(item.name || 'Artikel').slice(0, 127), price, qty };
   });
+  const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const discount = discountPercent > 0 ? round2(subtotal * discountPercent / 100) : 0;
   const shipping = subtotal >= 80 ? 0 : 6.19;
-  const total = subtotal + shipping;
-  return { items, ids, subtotal, shipping, total };
+  const total = round2(subtotal - discount + shipping);
+  return { items, ids, subtotal: round2(subtotal), discount, shipping, total };
 }

@@ -69,17 +69,24 @@
   </div>
 
   <script>
-    // Warenkorb nach erfolgreicher Zahlung leeren
-    localStorage.removeItem('triadCart');
-
-    // Bestellung serverseitig verifizieren -> Artikel als verkauft markieren, Bestellung protokollieren
     (function(){
       const params = new URLSearchParams(location.search);
+
+      // Warenkorb nach erfolgreicher Zahlung leeren -- außer beim PayPal-Schnellkauf
+      // am Produkt (keepCart=1): da wird nur das eine Produkt bezahlt, der Warenkorb
+      // mit eventuell anderen, noch nicht bezahlten Artikeln soll erhalten bleiben.
+      if(!params.has('keepCart')){
+        localStorage.removeItem('triadCart');
+      }
+
+      // Bestellung serverseitig verifizieren -> Artikel als verkauft markieren, Bestellung protokollieren
       const sessionId = params.get('session_id');
       if(sessionId){
         fetch('/api/order-complete?session_id=' + encodeURIComponent(sessionId))
           .catch(() => { /* stiller Fehler: Bestellung ist trotzdem bezahlt */ });
       }
+      // PayPal-Bestellungen sind zum Zeitpunkt der Weiterleitung hierher bereits
+      // server-seitig erfasst (paypal-capture-order), hier ist nichts weiter nötig.
     })();
   </script>
 </body>

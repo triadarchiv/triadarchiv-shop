@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Vorderseite v3 Magazin-Cover (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* A5 Hochformat + 2mm Beschnitt rundum → 152×214mm.
+     Endformat 148×210, Texte min. 7mm vom Blattrand. */
+  :root{
+    --bg:#0d0d0d; --text:#f4f4f4; --muted:#9a9a9a; --faint:#6f6f6f;
+    --accent:#ec0b63;
+    --head:'Anton', Impact, sans-serif;
+    --body:'Inter', Arial, sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--body); color:var(--text); background:var(--bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg); }
+
+  /* Hintergrund: Glow + Ring, damit nichts leer wirkt */
+  .backdrop{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(95mm 95mm at 50% 44%, rgba(236,11,99,0.16), transparent 68%),
+      radial-gradient(120mm 120mm at 50% 110%, rgba(236,11,99,0.10), transparent 60%);
+  }
+  .ring{
+    position:absolute; z-index:1; width:118mm; height:118mm; border-radius:50%;
+    border:0.5mm solid rgba(244,244,244,0.10);
+    left:50%; top:44%; transform:translate(-50%,-50%);
+  }
+  .ring2{
+    position:absolute; z-index:1; width:96mm; height:96mm; border-radius:50%;
+    border:0.35mm dashed rgba(244,244,244,0.08);
+    left:50%; top:44%; transform:translate(-50%,-50%);
+  }
+
+  /* Masthead wie ein Magazintitel */
+  .masthead{
+    position:absolute; z-index:2; top:8.5mm; left:0; right:0;
+    text-align:center; font-family:var(--head);
+    font-size:47pt; line-height:1; letter-spacing:1.2mm;
+    color:var(--text); text-transform:uppercase; white-space:nowrap;
+  }
+  .tagline{
+    position:absolute; z-index:2; top:28.5mm; left:13mm; right:13mm;
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:6.6pt; letter-spacing:1.8pt; text-transform:uppercase;
+    color:var(--muted); font-weight:600;
+  }
+  .tagline .dot{ color:var(--accent); }
+
+  /* Cover-Lines senkrecht an den Rändern */
+  .coverline{
+    position:absolute; z-index:2; font-size:6.4pt; letter-spacing:2.2pt;
+    text-transform:uppercase; color:var(--faint); font-weight:600; white-space:nowrap;
+  }
+  .cl-left{
+    left:9mm; top:50%; transform:rotate(180deg) translateY(50%);
+    writing-mode:vertical-rl;
+  }
+  .cl-right{
+    right:9mm; top:50%; transform:translateY(-50%);
+    writing-mode:vertical-rl;
+  }
+  .coverline b{ color:var(--text); font-weight:700; }
+  .coverline i{ font-style:normal; color:var(--accent); }
+
+  /* Das Cover-Motiv: groß, überlappt den Masthead */
+  .hero{
+    position:absolute; z-index:3; left:50%; top:31mm; transform:translateX(-50%);
+    width:97mm;
+    filter:drop-shadow(0 6mm 12mm rgba(0,0,0,0.8));
+  }
+  .hero img{ display:block; width:100%; height:auto; }
+
+  /* Sticker-Badge auf dem Motiv */
+  .badge{
+    position:absolute; z-index:4; left:20mm; top:140mm;
+    background:var(--text); color:#0d0d0d;
+    font-weight:800; font-size:6.8pt; letter-spacing:1.6pt; text-transform:uppercase;
+    padding:1.8mm 3.6mm; transform:rotate(-4deg);
+    box-shadow:0 2mm 5mm rgba(0,0,0,0.5);
+  }
+
+  /* Cover-Line groß unter dem Motiv */
+  .coverstory{
+    position:absolute; z-index:4; left:0; right:0; top:161mm;
+    text-align:center; font-family:var(--head); text-transform:uppercase;
+    font-size:19pt; line-height:1; letter-spacing:0.5mm; color:var(--text);
+  }
+  .coverstory .accent{ color:var(--accent); }
+
+  /* Banner unten: volle Breite bis in den Beschnitt */
+  .banner{
+    position:absolute; z-index:5; left:0; right:0; bottom:0; height:36mm;
+    background:var(--accent); color:#0d0d0d;
+    display:flex; align-items:center; gap:5mm;
+    padding:3mm 13mm 6.5mm;
+  }
+  .banner .left{ flex:1; }
+  .banner .big{
+    font-family:var(--head); font-size:15.5pt; line-height:1.05;
+    text-transform:uppercase; letter-spacing:0.2mm;
+  }
+  .banner .code-row{ margin-top:1.8mm; display:flex; align-items:center; gap:3mm; }
+  .banner .code{
+    border:0.5mm solid #0d0d0d; padding:1.1mm 3.4mm;
+    font-weight:900; font-size:10.5pt; letter-spacing:2.6pt;
+  }
+  .banner .hint{
+    font-size:6.2pt; font-weight:700; letter-spacing:0.5pt; line-height:1.4;
+    text-transform:uppercase; max-width:40mm;
+  }
+  .banner .meta{
+    margin-top:1.8mm; font-size:6.6pt; font-weight:800; letter-spacing:1.4pt; text-transform:uppercase;
+  }
+  .banner .qr{
+    width:23mm; flex:0 0 auto; background:#f4f4f4; padding:1.8mm;
+    display:flex; flex-direction:column; align-items:center; gap:1mm;
+  }
+  .banner .qr img{ width:100%; display:block; }
+  .banner .qr span{ font-size:5.2pt; font-weight:800; letter-spacing:1.2pt; text-transform:uppercase; color:#0d0d0d; }
+
+  .noise{
+    position:absolute; inset:0; z-index:8; pointer-events:none; opacity:0.4;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+    background-size:60mm 60mm;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="backdrop"></div>
+  <div class="ring"></div>
+  <div class="ring2"></div>
+
+  <div class="masthead">Triad Archiv</div>
+  <div class="tagline">
+    <span>Kuratiertes Archiv</span>
+    <span><span class="dot">●</span>&nbsp; Vintage Adidas</span>
+    <span>Deutschland</span>
+  </div>
+
+  <div class="coverline cl-left"><b>Firebird</b> · Adibreak · Track Tops &nbsp;<i>—</i>&nbsp; Y2K &amp; 90s</div>
+  <div class="coverline cl-right"><b>Velours</b> · Strick · Nylon &nbsp;<i>—</i>&nbsp; Originals &amp; Collabs</div>
+
+  <div class="hero"><img src="img/p-floral.png" alt="Adidas Firebird Jacke — Floral"></div>
+
+  <div class="badge">1 of 1 — Kein Restock</div>
+
+  <div class="coverstory">The Archive is open<span class="accent">.</span></div>
+
+  <div class="banner">
+    <div class="left">
+      <div class="big">10% auf deine erste Bestellung</div>
+      <div class="code-row">
+        <span class="code">ARCHIV10</span>
+        <span class="hint">Code an der Kasse eingeben — einmalig pro Kunde</span>
+      </div>
+      <div class="meta">triadarchiv.de &nbsp;·&nbsp; @triadarchiv</div>
+    </div>
+    <div class="qr">
+      <img src="qr-code.svg" alt="QR-Code zu triadarchiv.de">
+      <span>Scannen &amp; stöbern</span>
+    </div>
+  </div>
+
+  <div class="noise"></div>
+</div>
+</body>
+</html>

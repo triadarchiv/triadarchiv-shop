@@ -442,6 +442,53 @@
     return String(total - index).padStart(3, '0');
   }
 
+  /* ---------- PayPal (Schnellkauf direkt am Produkt) ---------- */
+  let paypalSdkPromise = null;
+  function loadPaypalSdk(){
+    if(paypalSdkPromise) return paypalSdkPromise;
+    paypalSdkPromise = fetch('/api/paypal-config')
+      .then(r => r.json())
+      .then(cfg => new Promise((resolve, reject) => {
+        if(!cfg.clientId){ reject(new Error('PayPal ist noch nicht eingerichtet.')); return; }
+        if(window.paypal){ resolve(window.paypal); return; }
+        const s = document.createElement('script');
+        s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cfg.clientId)}&currency=EUR&intent=capture`;
+        s.onload = () => resolve(window.paypal);
+        s.onerror = () => reject(new Error('PayPal konnte nicht geladen werden.'));
+        document.head.appendChild(s);
+      }));
+    return paypalSdkPromise;
+  }
+
+  function renderPaypalButtons(getCart, container){
+    if(!container) return;
+    container.innerHTML = '';
+    loadPaypalSdk().then(paypal => {
+      paypal.Buttons({
+        style: { layout:'horizontal', color:'gold', shape:'rect', label:'paypal', height:45, tagline:false },
+        createOrder: () => fetch('/api/paypal-create-order', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify(getCart())
+        }).then(r => r.json()).then(data => {
+          if(!data.id) throw new Error(data.error || 'PayPal-Bestellung fehlgeschlagen.');
+          return data.id;
+        }),
+        onApprove: (data) => fetch('/api/paypal-capture-order', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ orderID: data.orderID })
+        }).then(r => r.json()).then(res => {
+          if(!res.ok) throw new Error(res.error || 'Zahlung konnte nicht abgeschlossen werden.');
+          // keepCart=1: Schnellkauf betrifft nur dieses eine Produkt, ein evtl.
+          // vorhandener Warenkorb mit anderen Artikeln soll erhalten bleiben.
+          window.location.href = 'success.html?paypal=1&keepCart=1';
+        }).catch(err => alert('PayPal-Zahlung fehlgeschlagen:\n' + err.message)),
+        onError: (err) => alert('PayPal-Zahlung fehlgeschlagen:\n' + (err && err.message ? err.message : err))
+      }).render(container);
+    }).catch(err => { console.error(err); container.innerHTML = ''; });
+  }
+
   const detailWrap = document.getElementById('detailWrap');
   const productId = new URLSearchParams(window.location.search).get('id');
   const products = loadProductData();
@@ -686,51 +733,6 @@
       s.textContent = JSON.stringify(ld);
       document.head.appendChild(s);
     })();
-  }
-
-  /* ---------- PayPal (Schnellkauf direkt am Produkt) ---------- */
-  let paypalSdkPromise = null;
-  function loadPaypalSdk(){
-    if(paypalSdkPromise) return paypalSdkPromise;
-    paypalSdkPromise = fetch('/api/paypal-config')
-      .then(r => r.json())
-      .then(cfg => new Promise((resolve, reject) => {
-        if(!cfg.clientId){ reject(new Error('PayPal ist noch nicht eingerichtet.')); return; }
-        if(window.paypal){ resolve(window.paypal); return; }
-        const s = document.createElement('script');
-        s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(cfg.clientId)}&currency=EUR&intent=capture`;
-        s.onload = () => resolve(window.paypal);
-        s.onerror = () => reject(new Error('PayPal konnte nicht geladen werden.'));
-        document.head.appendChild(s);
-      }));
-    return paypalSdkPromise;
-  }
-
-  function renderPaypalButtons(getCart, container){
-    if(!container) return;
-    container.innerHTML = '';
-    loadPaypalSdk().then(paypal => {
-      paypal.Buttons({
-        style: { layout:'horizontal', color:'gold', shape:'rect', label:'paypal', height:45, tagline:false },
-        createOrder: () => fetch('/api/paypal-create-order', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify(getCart())
-        }).then(r => r.json()).then(data => {
-          if(!data.id) throw new Error(data.error || 'PayPal-Bestellung fehlgeschlagen.');
-          return data.id;
-        }),
-        onApprove: (data) => fetch('/api/paypal-capture-order', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ orderID: data.orderID })
-        }).then(r => r.json()).then(res => {
-          if(!res.ok) throw new Error(res.error || 'Zahlung konnte nicht abgeschlossen werden.');
-          window.location.href = 'success.html?paypal=1';
-        }).catch(err => alert('PayPal-Zahlung fehlgeschlagen:\n' + err.message)),
-        onError: (err) => alert('PayPal-Zahlung fehlgeschlagen:\n' + (err && err.message ? err.message : err))
-      }).render(container);
-    }).catch(err => { console.error(err); container.innerHTML = ''; });
   }
 
   /* ---------- cart ---------- */

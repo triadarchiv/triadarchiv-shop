@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>TRIAD ARCHIV — Flyer A5 Rückseite v5 (152×214mm inkl. 2mm Beschnitt)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#1c0f13; --bg-2:#0e0708;
+    --text:#f6efe9; --muted:#c9b7ae; --faint:#8a726a;
+    --accent:#ff5d6c; --accent-soft:#ffb199;
+    --serif:'Fraunces', Georgia, serif;
+    --body:'Inter', Arial, sans-serif;
+  }
+  @page{ size:152mm 214mm; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:152mm; height:214mm; }
+  body{ font-family:var(--body); color:var(--text); background:var(--bg-2);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .page{ position:relative; width:152mm; height:214mm; overflow:hidden; background:var(--bg-2); }
+
+  .warmth{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(125mm 115mm at 50% 44%, #3a1a1c 0%, #200f11 48%, var(--bg-2) 80%),
+      linear-gradient(180deg, #241315 0%, transparent 32%);
+  }
+  .grain{
+    position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0.5; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+    background-size:55mm 55mm;
+  }
+
+  .content{
+    position:relative; z-index:3; height:100%;
+    padding:14mm 13mm 13mm; display:flex; flex-direction:column;
+  }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:8.4pt; letter-spacing:1.7pt; text-transform:uppercase;
+    color:var(--faint); font-weight:500;
+  }
+  .topbar .dot{ color:var(--accent); }
+
+  .headline{
+    margin-top:9mm; font-family:var(--serif); font-weight:600; font-style:italic;
+    line-height:1.02; font-size:36pt; color:var(--text);
+  }
+  .headline .accent{ color:var(--accent-soft); }
+
+  .lead{
+    margin-top:5mm; font-size:11.5pt; font-weight:500; line-height:1.65;
+    color:var(--muted); max-width:126mm;
+  }
+  .lead b{ color:var(--text); font-weight:700; }
+  .lead .hl{ color:var(--accent-soft); font-weight:700; }
+
+  /* drei Pillars als große Editorial-Nummern */
+  .pillars{
+    flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center;
+    gap:6.5mm; padding:4mm 0;
+  }
+  .pillar{ display:flex; align-items:baseline; gap:6mm; }
+  .pillar .no{
+    font-family:var(--serif); font-style:italic; font-size:46pt; font-weight:500;
+    color:var(--accent-soft); width:30mm; flex:0 0 auto; line-height:1;
+  }
+  .pillar .body{ flex:1; border-bottom:0.3mm solid rgba(246,239,233,0.14); padding-bottom:4mm; }
+  .pillar .name{
+    font-family:var(--serif); font-size:21pt; font-weight:600; color:var(--text); line-height:1.1;
+  }
+  .pillar .desc{
+    margin-top:1.6mm; font-size:10pt; font-weight:500; color:var(--muted); letter-spacing:0.2pt;
+  }
+
+  .closer{
+    margin-top:2mm; font-family:var(--serif); font-style:italic; font-weight:600;
+    line-height:1.15; font-size:17pt; color:var(--text); text-align:center;
+  }
+  .closer .accent{ color:var(--accent-soft); }
+
+  .footer{
+    margin-top:6mm; padding-top:3.5mm; border-top:0.35mm solid rgba(246,239,233,0.18);
+    display:flex; justify-content:space-between; align-items:baseline; gap:5mm;
+    font-size:8.3pt; letter-spacing:1.3pt; text-transform:uppercase; font-weight:600;
+  }
+  .footer .url{ color:var(--text); }
+  .footer .mid{ color:var(--faint); font-size:6.9pt; letter-spacing:0.8pt; flex:1; text-align:center; white-space:nowrap; }
+  .footer .ig{ color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="warmth"></div>
+  <div class="grain"></div>
+
+  <div class="content">
+    <div class="topbar">
+      <span>Neu gestartet</span>
+      <span><span class="dot">●</span>&nbsp; Est. 2026</span>
+      <span>Authentic Goods</span>
+    </div>
+
+    <h1 class="headline">Der neue <span class="accent">Drop.</span></h1>
+
+    <p class="lead">Regelmäßige Drops aus <b>archivierten</b>, <b>vergriffenen</b> und
+    <b>ausverkauften</b> Adidas-Kollektionen. Jeder Drop ist eine neue Chance auf
+    <span class="hl">streng limitierte Archiv-Pieces</span>.</p>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="no">01</div>
+        <div class="body">
+          <div class="name">The Icons</div>
+          <div class="desc">Firebird · Adibreak · Track Tops</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="no">02</div>
+        <div class="body">
+          <div class="name">The Textures</div>
+          <div class="desc">Velours · Strick · Nylon</div>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="no">03</div>
+        <div class="body">
+          <div class="name">The Era</div>
+          <div class="desc">Y2K &amp; 90s · Originals · Collabs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="closer">Einmal weg. <span class="accent">Für immer weg.</span></div>
+
+    <div class="footer">
+      <span class="url">triadarchiv.de</span>
+      <span class="mid">Neuer Drop? Zuerst auf Instagram.</span>
+      <span class="ig">@triadarchiv</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
