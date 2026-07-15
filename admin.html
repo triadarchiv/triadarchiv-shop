@@ -190,6 +190,13 @@
   .field-row{ display:flex; gap:12px; }
   .field-row .field{ flex:1; }
 
+  /* Größen & Bestand: mehrere Zeilen -> beim Speichern ein Artikel je Größe */
+  .size-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .size-row select{ flex:1; }
+  .size-row .size-row-qty{ width:76px; flex:0 0 auto; }
+  .size-row .size-row-remove{ flex:0 0 auto; }
+  .size-row .size-row-remove:disabled{ opacity:0.3; cursor:default; }
+
   .price-row{ display:flex; gap:12px; }
   .price-row .field{ flex:1; }
 
@@ -542,12 +549,6 @@
       <p class="hint" id="badgeHint">Rabatt-Badge wird automatisch berechnet, wenn ein alter Preis angegeben ist.</p>
 
       <div class="field">
-        <label for="fStock">Stückzahl (Bestand)</label>
-        <input type="number" id="fStock" min="0" step="1" placeholder="z. B. 1">
-        <p class="hint">Bei <strong>0</strong> wird das Produkt automatisch als „Ausverkauft“ angezeigt. Leer = ohne Bestandsanzeige.</p>
-      </div>
-
-      <div class="field">
         <label class="feat-check" for="fFeatured">
           <input type="checkbox" id="fFeatured">
           <span>★ In Kollektion aufnehmen</span>
@@ -559,46 +560,23 @@
         <p class="hint">Nur „In Kollektion“ = Artikel erscheint <strong>ausschließlich</strong> unter „Kollektion ansehen“. Mit beiden Häkchen erscheint er in der Kollektion <strong>und</strong> im normalen Shop.</p>
       </div>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="fSize">Größe</label>
-          <select id="fSize">
-            <option value="">Bitte wählen</option>
-            <optgroup label="Herren / unisex">
-              <option value="XXS">XXS</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-              <option value="XXL">XXL</option>
-              <option value="3XL">3XL</option>
-              <option value="4XL">4XL</option>
-              <option value="5XL">5XL</option>
-            </optgroup>
-            <optgroup label="Damen">
-              <option value="30">30</option>
-              <option value="32">32</option>
-              <option value="34">34</option>
-              <option value="36">36</option>
-              <option value="38">38</option>
-              <option value="40">40</option>
-              <option value="42">42</option>
-              <option value="44">44</option>
-              <option value="46">46</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="field">
-          <label for="fCondition">Zustand</label>
-          <select id="fCondition">
-            <option value="">Bitte wählen</option>
-            <option value="Neu mit Etikett">Neu mit Etikett</option>
-            <option value="Neu ohne Etikett">Neu ohne Etikett</option>
-            <option value="Sehr guter Zustand">Sehr guter Zustand</option>
-            <option value="Gebraucht">Gebraucht</option>
-            <option value="Vintage / Gebraucht">Vintage / Gebraucht</option>
-          </select>
-        </div>
+      <div class="field">
+        <label>Größen &amp; Bestand</label>
+        <div id="sizeRows"></div>
+        <button type="button" class="btn btn-small" id="addSizeRowBtn">+ Weitere Größe</button>
+        <p class="hint" id="sizeRowsHint">Dasselbe Stück in mehreren Größen? Für jede Größe eine Zeile anlegen — beim Speichern wird daraus automatisch <strong>ein Artikel je Größe</strong>, mit denselben Fotos, Beschreibung und Preis. Menge leer lassen = Bestand wird nicht angezeigt. Bei <strong>0</strong> gilt der Artikel als „Ausverkauft“.</p>
+      </div>
+
+      <div class="field">
+        <label for="fCondition">Zustand</label>
+        <select id="fCondition">
+          <option value="">Bitte wählen</option>
+          <option value="Neu mit Etikett">Neu mit Etikett</option>
+          <option value="Neu ohne Etikett">Neu ohne Etikett</option>
+          <option value="Sehr guter Zustand">Sehr guter Zustand</option>
+          <option value="Gebraucht">Gebraucht</option>
+          <option value="Vintage / Gebraucht">Vintage / Gebraucht</option>
+        </select>
       </div>
 
       <div class="field" style="margin-top:16px;">
@@ -816,10 +794,10 @@
   const fName = document.getElementById('fName');
   const fPrice = document.getElementById('fPrice');
   const fOldPrice = document.getElementById('fOldPrice');
-  const fStock = document.getElementById('fStock');
   const fFeatured = document.getElementById('fFeatured');
   const fAlsoShop = document.getElementById('fAlsoShop');
-  const fSize = document.getElementById('fSize');
+  const sizeRowsEl = document.getElementById('sizeRows');
+  const addSizeRowBtn = document.getElementById('addSizeRowBtn');
   const fCondition = document.getElementById('fCondition');
   const fDesc = document.getElementById('fDesc');
   const fImage = document.getElementById('fImage');
@@ -836,6 +814,83 @@
   const publishText = document.getElementById('publishText');
   const publishBtn = document.getElementById('publishBtn');
   const toast = document.getElementById('toast');
+
+  // ----- Größen & Bestand: mehrere Zeilen -> beim Anlegen ein Artikel je Größe -----
+  const SIZE_OPTIONS_HTML = `
+    <option value="">Bitte wählen</option>
+    <optgroup label="Herren / unisex">
+      <option value="XXS">XXS</option>
+      <option value="S">S</option>
+      <option value="M">M</option>
+      <option value="L">L</option>
+      <option value="XL">XL</option>
+      <option value="XXL">XXL</option>
+      <option value="3XL">3XL</option>
+      <option value="4XL">4XL</option>
+      <option value="5XL">5XL</option>
+    </optgroup>
+    <optgroup label="Damen">
+      <option value="30">30</option>
+      <option value="32">32</option>
+      <option value="34">34</option>
+      <option value="36">36</option>
+      <option value="38">38</option>
+      <option value="40">40</option>
+      <option value="42">42</option>
+      <option value="44">44</option>
+      <option value="46">46</option>
+    </optgroup>`;
+
+  function addSizeRow(size, qty){
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.innerHTML = `
+      <select class="size-row-size">${SIZE_OPTIONS_HTML}</select>
+      <input type="number" class="size-row-qty" min="0" step="1" placeholder="1">
+      <button type="button" class="btn btn-small btn-danger size-row-remove" title="Größe entfernen" aria-label="Größe entfernen">✕</button>`;
+    row.querySelector('.size-row-size').value = size || '';
+    row.querySelector('.size-row-qty').value = (qty === null || qty === undefined) ? '' : qty;
+    row.querySelector('.size-row-remove').addEventListener('click', () => {
+      row.remove();
+      updateSizeRowRemoveButtons();
+    });
+    sizeRowsEl.appendChild(row);
+    updateSizeRowRemoveButtons();
+    return row;
+  }
+
+  function updateSizeRowRemoveButtons(){
+    const rows = sizeRowsEl.querySelectorAll('.size-row');
+    rows.forEach(r => { r.querySelector('.size-row-remove').disabled = rows.length <= 1; });
+  }
+
+  function resetSizeRows(size, qty){
+    sizeRowsEl.innerHTML = '';
+    addSizeRow(size || '', qty === undefined ? 1 : qty);
+  }
+
+  function setSizeRowsMultiAllowed(allowed){
+    addSizeRowBtn.style.display = allowed ? '' : 'none';
+    sizeRowsEl.querySelectorAll('.size-row-remove').forEach(b => { b.style.display = allowed ? '' : 'none'; });
+  }
+
+  // Liefert eine Zeile pro ausgefüllter Größe. Die erste Zeile zählt auch ohne
+  // gewählte Größe (Einzelprodukt ohne Größenangabe blieb bisher möglich),
+  // weitere leere Zeilen werden stillschweigend übersprungen.
+  function getSizeRows(){
+    const rows = Array.from(sizeRowsEl.querySelectorAll('.size-row'));
+    const result = [];
+    rows.forEach((row, i) => {
+      const size = row.querySelector('.size-row-size').value;
+      const qtyRaw = row.querySelector('.size-row-qty').value.trim();
+      if(i > 0 && !size) return;   // zusätzliche, nicht ausgefüllte Zeile -> ignorieren
+      const stock = qtyRaw === '' ? null : Math.max(0, parseInt(qtyRaw, 10) || 0);
+      result.push({ size, stock });
+    });
+    return result;
+  }
+
+  addSizeRowBtn.addEventListener('click', () => addSizeRow('', 1));
 
   // ----- Entwürfe sammeln & auf einen Schlag veröffentlichen -----
   function draftCount(){ return products.filter(p => p.published === false).length; }
@@ -1059,6 +1114,8 @@
     updateSubImagesPreview();
     updateImgPreview();
     catsGrid.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    resetSizeRows('', 1);
+    setSizeRowsMultiAllowed(true);
     formTitle.textContent = 'Neues Produkt';
     submitBtn.textContent = 'Produkt speichern';
     cancelEditBtn.style.display = 'none';
@@ -1069,10 +1126,10 @@
     fName.value = product.name;
     fPrice.value = product.price;
     fOldPrice.value = product.oldPrice || '';
-    fStock.value = product.stock ?? '';
     fFeatured.checked = product.featured === true;
     fAlsoShop.checked = product.alsoInShop === true;
-    fSize.value = product.size || '';
+    resetSizeRows(product.size || '', product.stock ?? null);
+    setSizeRowsMultiAllowed(false);   // ein bestehendes Stück bleibt ein Artikel, keine Aufteilung beim Bearbeiten
     fCondition.value = product.condition || '';
     fDesc.value = product.desc || '';
     currentImage = product.image || '';
@@ -1096,14 +1153,12 @@
     const price = parseFloat(fPrice.value);
     const oldPriceRaw = fOldPrice.value.trim();
     const oldPrice = oldPriceRaw ? parseFloat(oldPriceRaw) : null;
-    const stockRaw = fStock.value.trim();
-    const stock = stockRaw === '' ? null : Math.max(0, parseInt(stockRaw, 10) || 0);
     const featured = fFeatured.checked;
     const alsoInShop = fAlsoShop.checked;
     const cats = Array.from(catsGrid.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
-    const size = fSize.value;
     const condition = fCondition.value;
     const desc = fDesc.value.trim();
+    const sizeRows = getSizeRows();
 
     if(!name || isNaN(price)){
       showToast('Bitte Name und Preis angeben');
@@ -1115,18 +1170,26 @@
     }
 
     if(editingId){
+      const { size, stock } = sizeRows[0];
       const idx = products.findIndex(p => p.id === editingId);
       if(idx !== -1){
         products[idx] = { ...products[idx], name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice() };
       }
       showToast('Produkt aktualisiert');
     } else {
-      products.unshift({
-        id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
-        name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice(),
-        published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
+      // Eine Zeile je Größe -> ein eigener Artikel je Größe, mit gleichen
+      // Fotos/Beschreibung/Preis. So muss nur einmal alles ausgefüllt werden,
+      // auch wenn dasselbe Stück in mehreren Größen vorhanden ist.
+      sizeRows.forEach(({ size, stock }, i) => {
+        products.unshift({
+          id: 'p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8),
+          name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice(),
+          published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
+        });
       });
-      showToast('Als Entwurf gespeichert — noch nicht online');
+      showToast(sizeRows.length > 1
+        ? `${sizeRows.length} Größen als Entwurf gespeichert — noch nicht online`
+        : 'Als Entwurf gespeichert — noch nicht online');
     }
 
     saveProducts(products);
@@ -1395,6 +1458,7 @@
   });
 
   updateImgPreview();
+  resetSizeRows('', 1);
   renderList();
 </script>
 
