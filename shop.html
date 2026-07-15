@@ -1061,20 +1061,36 @@
     return (p.sold === true || p.available === false) || (typeof p.stock === 'number' && p.stock <= 0);
   }
 
+  // Mehrere Größen desselben Artikels teilen sich eine groupId -> als EIN Artikel zeigen.
+  function groupKey(p){ return p.groupId || p.id; }
+  function groupProducts(list){
+    const order = [];
+    const buckets = {};
+    list.forEach(p => {
+      const k = groupKey(p);
+      if(!buckets[k]){ buckets[k] = []; order.push(k); }
+      buckets[k].push(p);
+    });
+    return order.map(k => buckets[k]);
+  }
+
   function renderProductGrid(){
     const grid = document.getElementById('grid');
-    const data = PRODUCTS_DATA;
+    const groups = groupProducts(PRODUCTS_DATA);
 
     // Bühne für das erste verfügbare Stück
     let leadAssigned = false;
 
-    const cardsHtml = data.map((p, idx) => {
+    const cardsHtml = groups.map((variants, idx) => {
+      const p = variants[0];   // Repräsentant (gemeinsame Felder)
       const cats = Array.isArray(p.cats) ? p.cats : [];
-      const no = archiveNo(idx, data.length);
+      const no = archiveNo(idx, groups.length);
       const catLabel = cats.length ? cats[0] : 'Archiv';
 
-      const stockTracked = typeof p.stock === 'number';
-      const soldOut = (p.sold === true || p.available === false) || (stockTracked && p.stock <= 0);
+      const available = variants.filter(v => !isSoldOut(v));
+      const soldOut = available.length === 0;
+      const rep = available[0] || p;   // Kachel verlinkt auf eine verfügbare Größe
+      const multi = variants.length > 1;
 
       const isLead = !leadAssigned && !soldOut;
       if(isLead) leadAssigned = true;
@@ -1088,19 +1104,29 @@
         ? `<span class="old">${p.oldPrice}€</span><span class="now">${p.price}€</span>`
         : `<span class="now">${p.price != null ? p.price + '€' : '—'}</span>`;
 
-      // Meta-Zeile unter dem Namen: Größe + Status
+      // Meta-Zeile: verfügbare Größen + Status
+      const availSizes = available.map(v => v.size).filter(Boolean);
+      const allSizes = variants.map(v => v.size).filter(Boolean);
       const metaParts = [];
-      if(p.size) metaParts.push('Gr. ' + escapeHtml(p.size));
-      if(soldOut){ metaParts.push('<span class="out">Archiviert</span>'); }
-      else if(stockTracked){ metaParts.push(p.stock === 1 ? 'Unikat — 1/1' : p.stock + ' verfügbar'); }
+      if(soldOut){
+        metaParts.push('<span class="out">Archiviert</span>');
+      } else if(multi){
+        metaParts.push('Gr. ' + availSizes.map(escapeHtml).join(', '));
+      } else {
+        if(p.size) metaParts.push('Gr. ' + escapeHtml(p.size));
+        if(typeof rep.stock === 'number') metaParts.push(rep.stock === 1 ? 'Unikat — 1/1' : rep.stock + ' verfügbar');
+      }
       const metaHtml = metaParts.length ? `<div class="meta-line">${metaParts.join(' · ')}</div>` : '';
 
+      // Mehrere Größen -> zur Detailseite (Größe wählen). Einzelgröße -> direkt in den Warenkorb.
       const btnHtml = soldOut
         ? `<button class="add-btn" disabled>Verkauft</button>`
-        : `<button class="add-btn">In den Warenkorb</button>`;
+        : multi
+          ? `<button class="add-btn" data-choose="1">Größe wählen</button>`
+          : `<button class="add-btn">In den Warenkorb</button>`;
 
       return `
-        <article class="product${soldOut ? ' is-sold' : ''}${isLead ? ' is-lead' : ''}" data-id="${escapeHtml(p.id)}" data-cat="${cats.map(escapeHtml).join(' ')}" data-name="${escapeHtml(p.name || '')}" data-price="${p.price}" data-size="${escapeHtml(p.size || '')}" data-available="${!soldOut}" data-featured="${p.featured === true}" data-alsoshop="${p.alsoInShop === true}">
+        <article class="product${soldOut ? ' is-sold' : ''}${isLead ? ' is-lead' : ''}" data-id="${escapeHtml(rep.id)}" data-cat="${cats.map(escapeHtml).join(' ')}" data-name="${escapeHtml(p.name || '')}" data-price="${p.price}" data-size="${escapeHtml(allSizes.join(' '))}" data-available="${!soldOut}" data-featured="${p.featured === true}" data-alsoshop="${p.alsoInShop === true}">
           <div class="tile-meta"><span class="tile-no">No. ${no}</span><span class="tile-cat">${escapeHtml(catLabel)}</span></div>
           <div class="product-img">${badge}${imgContent}${stamp}</div>
           <div class="product-info">
@@ -1114,7 +1140,7 @@
         </article>`;
     }).join('');
 
-    const comingSoon = data.length === 0
+    const comingSoon = groups.length === 0
       ? `<div class="shop-empty">
            <span class="eyebrow">Archiv im Aufbau</span>
            <h2>Die ersten Stücke<br>kommen bald</h2>
@@ -1130,7 +1156,7 @@
   (function initCollectionBand(){
     const band = document.getElementById('collectionBand');
     if(!band) return;
-    const featured = PRODUCTS_DATA.filter(p => p.featured === true);
+    const featured = groupProducts(PRODUCTS_DATA.filter(p => p.featured === true));
     if(featured.length === 0) return;   // bleibt hidden — kein leeres Versprechen
     band.hidden = false;
     const countEl = document.getElementById('collectionBandCount');
@@ -1189,7 +1215,8 @@
       const matchesCategory = activeFilter === 'all' || cats.split(' ').includes(activeFilter);
       const name = p.querySelector('.name').textContent.toLowerCase();
       const matchesSearch = name.includes(term);
-      const matchesSize = selectedSizes.size === 0 || selectedSizes.has(p.dataset.size);
+      const cardSizes = (p.dataset.size || '').split(' ').filter(Boolean);
+      const matchesSize = selectedSizes.size === 0 || cardSizes.some(s => selectedSizes.has(s));
       const matchesPrice = (Number(p.dataset.price) || 0) <= maxPrice;
       const matchesAvail = availFilter === 'all'
         || (availFilter === 'in'  && p.dataset.available === 'true')
@@ -1405,8 +1432,14 @@
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const product = btn.closest('.product');
+      // Mehrere Größen: erst auf der Detailseite die Größe wählen
+      if(btn.dataset.choose === '1'){
+        window.location.href = 'product.html?id=' + encodeURIComponent(product.dataset.id);
+        return;
+      }
       flyToCart(product.querySelector('.product-img'));
-      addToCart(product.dataset.id, product.dataset.name, Number(product.dataset.price), 'Onesize', product.querySelector('.product-img').innerHTML);
+      const size = (product.dataset.size || '').trim() || 'Onesize';
+      addToCart(product.dataset.id, product.dataset.name, Number(product.dataset.price), size, product.querySelector('.product-img').innerHTML);
       const originalLabel = btn.textContent;
       btn.textContent = 'Hinzugefügt';
       btn.classList.add('added');

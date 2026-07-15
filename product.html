@@ -300,6 +300,50 @@
   .stock-line.low{ color:var(--muted); }
   .stock-line.out{ color:var(--muted); }
 
+  /* ---------- Größenauswahl ---------- */
+  .size-select{ display:flex; flex-direction:column; gap:10px; }
+  .size-select-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .size-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .size-chip-detail{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    min-width:52px;
+    justify-content:center;
+    background:transparent;
+    border:1px solid var(--line-strong);
+    border-radius:0;
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:1px;
+    padding:11px 14px;
+    cursor:pointer;
+    transition:border-color .2s ease, background .2s ease, color .2s ease;
+  }
+  .size-chip-detail:hover:not(:disabled){ border-color:var(--text); }
+  .size-chip-detail.active{ background:var(--text); border-color:var(--text); color:var(--bg); }
+  .size-chip-detail.out{
+    color:var(--faint);
+    border-color:var(--line);
+    cursor:not-allowed;
+    text-decoration:line-through;
+  }
+  .size-chip-detail .chip-x{
+    font-size:9px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    text-decoration:none;
+  }
+
   /* ---------- Mengenauswahl ---------- */
   .qty-selector{
     display:flex;
@@ -443,6 +487,22 @@
     return String(total - index).padStart(3, '0');
   }
 
+  /* Mehrere Größen desselben Artikels teilen sich eine groupId -> ein Artikel mit Größenauswahl. */
+  function groupKey(p){ return p.groupId || p.id; }
+  function isSoldOut(p){
+    return (p.sold === true || p.available === false) || (typeof p.stock === 'number' && p.stock <= 0);
+  }
+  function groupProducts(list){
+    const order = [];
+    const buckets = {};
+    list.forEach(p => {
+      const k = groupKey(p);
+      if(!buckets[k]){ buckets[k] = []; order.push(k); }
+      buckets[k].push(p);
+    });
+    return order.map(k => buckets[k]);
+  }
+
   /* ---------- PayPal (Schnellkauf direkt am Produkt) ---------- */
   let paypalSdkPromise = null;
   function loadPaypalSdk(){
@@ -494,8 +554,8 @@
   const productId = new URLSearchParams(window.location.search).get('id');
   // Entwürfe (published === false) ausblenden – ein direkter Link darf sie nicht zeigen
   const products = loadProductData().filter(p => p.published !== false);
-  const productIdx = products.findIndex(p => p.id === productId);
-  const product = productIdx !== -1 ? products[productIdx] : undefined;
+  const product = products.find(p => p.id === productId)
+               || products.find(p => groupKey(p) === productId);
 
   if(!product){
     detailWrap.innerHTML = `
@@ -504,42 +564,76 @@
         <a href="shop.html">Zurück zum Archiv →</a>
       </div>`;
   } else {
-    const cats = Array.isArray(product.cats) ? product.cats : [];
-    const no = archiveNo(productIdx, products.length);
-    const images = [product.image, ...(product.images || [])].filter(Boolean);
+    // Alle Größen dieses Artikels (Gruppe). Gemeinsame Felder (Name, Preis, Fotos,
+    // Beschreibung, Maße) sind bei allen Varianten gleich -> vom Repräsentanten nehmen.
+    const gid = groupKey(product);
+    const variants = products.filter(p => groupKey(p) === gid);
+    const rep = variants[0] || product;
+    const availableVariants = variants.filter(v => !isSoldOut(v));
+    const hasSizes = variants.some(v => v.size);
+    const multiSize = variants.length > 1;
 
-    // Bestand: nur "getrackt", wenn stock eine Zahl ist. 0 => ausverkauft.
-    const stockTracked = typeof product.stock === 'number';
-    const stockN = stockTracked ? product.stock : null;
-    const soldOut = stockTracked && stockN <= 0;
-    const isUnikat = !stockTracked || stockN <= 1;   // Archiv-Standard: Einzelstück
+    // aktuell gewählte Variante: die angeklickte (falls verfügbar), sonst erste verfügbare
+    let active = availableVariants.find(v => v.id === product.id)
+              || availableVariants[0] || product;
+
+    const cats = Array.isArray(rep.cats) ? rep.cats : [];
+    // Archivnummer artikelweise (gleiche Regel/Reihenfolge wie shop.html)
+    const groups = groupProducts(products);
+    const groupIdx = groups.findIndex(g => groupKey(g[0]) === gid);
+    const no = archiveNo(groupIdx, groups.length);
+    const images = [rep.image, ...(rep.images || [])].filter(Boolean);
+
+    const soldOut = availableVariants.length === 0;   // ganzer Artikel ausverkauft
+    const isUnikat = variants.length === 1 && (typeof rep.stock !== 'number' || rep.stock <= 1);
 
     const badge = soldOut
       ? `<div class="gallery-badge sold">Verkauft — Archiviert</div>`
-      : product.oldPrice ? `<div class="gallery-badge">Sale</div>` : '';
+      : rep.oldPrice ? `<div class="gallery-badge">Sale</div>` : '';
     const mainImgHtml = images.length
-      ? `<img id="mainImg" src="${images[0]}" alt="${escapeHtml(product.name || 'Vintage-Adidas-Stück')}">`
+      ? `<img id="mainImg" src="${images[0]}" alt="${escapeHtml(rep.name || 'Vintage-Adidas-Stück')}">`
       : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
     const thumbsHtml = images.length > 1
       ? `<div class="gallery-thumbs" id="galleryThumbs">${images.map((src, i) => `
           <button type="button" class="gallery-thumb${i === 0 ? ' active' : ''}" data-src="${src}"><img src="${src}" alt=""></button>
         `).join('')}</div>`
       : '';
-    const priceHtml = product.oldPrice
-      ? `<span class="old">${product.oldPrice}€</span><span class="now">${product.price}€</span>`
-      : `<span class="now">${product.price != null ? product.price + '€' : '—'}</span>`;
+    const priceHtml = rep.oldPrice
+      ? `<span class="old">${rep.oldPrice}€</span><span class="now">${rep.price}€</span>`
+      : `<span class="now">${rep.price != null ? rep.price + '€' : '—'}</span>`;
 
-    const stockLineHtml = stockTracked
-      ? `<div class="stock-line ${soldOut ? 'out' : (stockN === 1 ? 'low' : '')}">${
-          soldOut ? 'Verkauft — bleibt im Archiv'
-          : stockN === 1 ? 'Unikat — 1 von 1'
-          : stockN + ' Stück verfügbar'
-        }</div>`
+    // Größenauswahl (nur wenn es überhaupt Größen gibt). Ausverkaufte Größen sind deaktiviert.
+    const sizeSelectorHtml = hasSizes
+      ? `<div class="size-select" id="sizeSelect">
+          <div class="size-select-label">Größe${multiSize ? ' wählen' : ''}</div>
+          <div class="size-chips">
+            ${variants.map(v => {
+              const out = isSoldOut(v);
+              const sel = v.id === active.id;
+              return `<button type="button" class="size-chip-detail${sel ? ' active' : ''}${out ? ' out' : ''}" data-id="${escapeHtml(v.id)}"${out ? ' disabled' : ''}>${escapeHtml(v.size || 'Onesize')}${out ? '<span class="chip-x">ausverkauft</span>' : ''}</button>`;
+            }).join('')}
+          </div>
+        </div>`
       : '';
 
-    // Mengenauswahl: max = verfügbarer Bestand (bei nicht getracktem Bestand großzügiges Limit)
-    const maxQty = stockTracked ? stockN : 99;
-    const qtySelectorHtml = (!soldOut && maxQty > 1)
+    // Bestand/Menge richten sich nach der aktuell gewählten Größe -> in Slots re-rendern
+    function stockLineFor(v){
+      const tracked = typeof v.stock === 'number';
+      if(!tracked) return '';
+      const n = v.stock;
+      return `<div class="stock-line ${n <= 0 ? 'out' : (n === 1 ? 'low' : '')}">${
+        n <= 0 ? 'Verkauft — bleibt im Archiv'
+        : n === 1 ? 'Unikat — 1 von 1'
+        : n + ' Stück verfügbar'
+      }</div>`;
+    }
+    const stockLineHtml = soldOut
+      ? `<div class="stock-line out">Verkauft — bleibt im Archiv</div>`
+      : stockLineFor(active);
+
+    // Mengenauswahl: max = Bestand der gewählten Größe (bei nicht getracktem Bestand großzügig)
+    const activeMax = typeof active.stock === 'number' ? active.stock : 99;
+    const qtySelectorHtml = (!soldOut && activeMax > 1)
       ? `<div class="qty-selector">
           <span class="qty-label">Menge</span>
           <div class="qty-stepper">
@@ -554,8 +648,14 @@
     const specs = [];
     specs.push({ label:'Archiv-Nr.', text:'No. ' + no, mono:true });
     if(cats.length) specs.push({ label:'Kollektion', text:cats.map(escapeHtml).join(', '), mono:true });
-    if(product.size) specs.push({ label:'Größe', text:escapeHtml(product.size) });
-    if(product.condition) specs.push({ label:'Zustand', text:escapeHtml(product.condition) });
+    // Bei mehreren Größen übernimmt der Größen-Wähler oben die Anzeige; bei einer Größe hier zeigen.
+    if(!multiSize && rep.size) specs.push({ label:'Größe', text:escapeHtml(rep.size) });
+    if(rep.condition) specs.push({ label:'Zustand', text:escapeHtml(rep.condition) });
+    const m = rep.measurements || {};
+    if(m.chest) specs.push({ label:'Brustumfang', text:m.chest + ' cm', mono:true });
+    if(m.shoulderLength) specs.push({ label:'Länge (Schulter–Bund)', text:m.shoulderLength + ' cm', mono:true });
+    if(m.pantsLength) specs.push({ label:'Länge', text:m.pantsLength + ' cm', mono:true });
+    if(m.waist) specs.push({ label:'Bundweite', text:m.waist + ' cm', mono:true });
     specs.push({ label:'Status', text: soldOut ? 'Verkauft — archiviert' : (isUnikat ? 'Unikat — Einzelstück' : 'Verfügbar'), mono:true });
     const specsHtml = `<dl class="spec-rows">${specs.map(s => `
       <div class="spec-row">
@@ -563,8 +663,8 @@
         <dd${s.mono ? ' class="mono-val"' : ''}>${s.text}</dd>
       </div>`).join('')}</dl>`;
 
-    const storyHtml = product.desc
-      ? `<div class="detail-story"><p>${escapeHtml(product.desc)}</p></div>`
+    const storyHtml = rep.desc
+      ? `<div class="detail-story"><p>${escapeHtml(rep.desc)}</p></div>`
       : '';
 
     detailWrap.innerHTML = `
@@ -578,13 +678,14 @@
         </div>
         <div class="detail-info">
           <div class="detail-no"><span>Archiv No. ${no}</span><span class="unikat">${soldOut ? 'Archiviert' : (isUnikat ? 'Unikat' : 'Verfügbar')}</span></div>
-          <h1 class="detail-name">${escapeHtml(product.name || '')}</h1>
+          <h1 class="detail-name">${escapeHtml(rep.name || '')}</h1>
           ${specsHtml}
           ${storyHtml}
           <div class="purchase-area">
+            ${sizeSelectorHtml}
             <div class="detail-price">${priceHtml}</div>
-            ${stockLineHtml}
-            ${qtySelectorHtml}
+            <div id="stockLineSlot">${stockLineHtml}</div>
+            <div id="qtySlot">${qtySelectorHtml}</div>
             <button class="add-btn" id="addBtn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Verkauft' : 'In den Warenkorb'}</button>
             ${soldOut ? '' : `<div class="paypal-quickbuy">
               <div class="paypal-quickbuy-label">oder direkt kaufen</div>
@@ -654,55 +755,101 @@
     })();
 
     if(!soldOut){
-      // ----- Mengenauswahl (Stepper), begrenzt auf den Bestand -----
-      const maxQtyBuy = stockTracked ? stockN : 99;
-      const qtyValueEl = document.getElementById('qtyValue');
-      const qtyMinus = document.getElementById('qtyMinus');
-      const qtyPlus = document.getElementById('qtyPlus');
-      function getQty(){
-        const n = qtyValueEl ? parseInt(qtyValueEl.textContent, 10) : 1;
-        return Math.min(maxQtyBuy, Math.max(1, n || 1));
-      }
-      function setQty(n){
-        n = Math.min(maxQtyBuy, Math.max(1, n));
-        if(qtyValueEl) qtyValueEl.textContent = n;
-        if(qtyMinus) qtyMinus.disabled = n <= 1;
-        if(qtyPlus) qtyPlus.disabled = n >= maxQtyBuy;
-      }
-      if(qtyMinus && qtyPlus){
-        setQty(1);
-        qtyMinus.addEventListener('click', () => setQty(getQty() - 1));
-        qtyPlus.addEventListener('click', () => setQty(getQty() + 1));
+      const addBtn = document.getElementById('addBtn');
+      const stockSlot = document.getElementById('stockLineSlot');
+      const qtySlot = document.getElementById('qtySlot');
+      const sizeSelect = document.getElementById('sizeSelect');
+
+      let qtyValue = 1;
+      function activeMax(){ return typeof active.stock === 'number' ? active.stock : 99; }
+      function getQty(){ return Math.min(activeMax(), Math.max(1, qtyValue || 1)); }
+
+      // Mengen-Stepper passend zum Bestand der gewählten Größe (nur wenn > 1 verfügbar)
+      function renderQty(){
+        const max = activeMax();
+        if(max > 1){
+          qtySlot.innerHTML = `<div class="qty-selector">
+              <span class="qty-label">Menge</span>
+              <div class="qty-stepper">
+                <button type="button" id="qtyMinus" aria-label="Menge verringern">–</button>
+                <span id="qtyValue">1</span>
+                <button type="button" id="qtyPlus" aria-label="Menge erhöhen">+</button>
+              </div>
+            </div>`;
+          const valueEl = qtySlot.querySelector('#qtyValue');
+          const minus = qtySlot.querySelector('#qtyMinus');
+          const plus = qtySlot.querySelector('#qtyPlus');
+          const setQty = (n) => {
+            n = Math.min(max, Math.max(1, n));
+            qtyValue = n;
+            valueEl.textContent = n;
+            minus.disabled = n <= 1;
+            plus.disabled = n >= max;
+          };
+          setQty(1);
+          minus.addEventListener('click', () => setQty(getQty() - 1));
+          plus.addEventListener('click', () => setQty(getQty() + 1));
+        } else {
+          qtySlot.innerHTML = '';
+          qtyValue = 1;
+        }
       }
 
-      document.getElementById('addBtn').addEventListener('click', () => {
+      // Warenkorb/PayPal beziehen sich immer auf die aktuell gewählte Größe (active).
+      // Größe in den Namen schreiben, damit sie in der PayPal-Bestellung sichtbar ist.
+      const paypalGetter = () => [{
+        id: active.id,
+        name: (active.size && active.size !== 'Onesize') ? `${rep.name} (Größe ${active.size})` : rep.name,
+        price: rep.price,
+        qty: getQty()
+      }];
+
+      function refresh(){
+        if(sizeSelect){
+          sizeSelect.querySelectorAll('.size-chip-detail').forEach(c => {
+            c.classList.toggle('active', c.dataset.id === active.id);
+          });
+        }
+        stockSlot.innerHTML = stockLineFor(active);
+        renderQty();
+        renderPaypalButtons(paypalGetter, document.getElementById('paypalButtonContainerProduct'));
+      }
+
+      // Größe wählen -> aktive Variante wechseln
+      if(sizeSelect){
+        sizeSelect.addEventListener('click', (e) => {
+          const chip = e.target.closest('.size-chip-detail');
+          if(!chip || chip.disabled) return;
+          const v = variants.find(x => x.id === chip.dataset.id);
+          if(!v || isSoldOut(v)) return;
+          active = v;
+          refresh();
+        });
+      }
+
+      addBtn.addEventListener('click', () => {
         const qty = getQty();
-        const thumb = images.length ? `<img src="${images[0]}" alt="">` : `Adidas Produkt<br>${escapeHtml(product.name || '')}`;
+        const thumb = images.length ? `<img src="${images[0]}" alt="">` : `Adidas Produkt<br>${escapeHtml(rep.name || '')}`;
         flyToCart(document.querySelector('.gallery-main'));
-        addToCart(product.id, product.name, product.price, 'Onesize', thumb, qty);
-        setQty(1);
-        const btn = document.getElementById('addBtn');
-        const original = btn.textContent;
-        btn.textContent = 'Hinzugefügt';
-        btn.classList.add('added');
+        addToCart(active.id, rep.name, rep.price, active.size || 'Onesize', thumb, qty);
+        const original = addBtn.textContent;
+        addBtn.textContent = 'Hinzugefügt';
+        addBtn.classList.add('added');
         setTimeout(() => {
-          btn.textContent = original;
-          btn.classList.remove('added');
+          addBtn.textContent = original;
+          addBtn.classList.remove('added');
         }, 1200);
+        renderQty();   // Menge nach dem Hinzufügen zurücksetzen
       });
 
-      // ----- PayPal-Schnellkauf: kauft nur dieses Produkt, ohne über den Warenkorb zu gehen -----
-      renderPaypalButtons(
-        () => [{ id: product.id, name: product.name, price: product.price, qty: getQty() }],
-        document.getElementById('paypalButtonContainerProduct')
-      );
+      refresh();   // Startzustand: Bestand, Menge und PayPal für die gewählte Größe aufsetzen
     }
 
     /* ---------- SEO: Titel/Meta pro Produkt + strukturierte Daten (JSON-LD) ---------- */
     (function seo(){
-      const title = `${product.name} — TRIAD ARCHIV`;
+      const title = `${rep.name} — TRIAD ARCHIV`;
       document.title = title;
-      const desc = (product.desc || `${product.name} — handverlesenes Vintage-Adidas-Unikat im TRIAD ARCHIV.`).slice(0, 300);
+      const desc = (rep.desc || `${rep.name} — handverlesenes Vintage-Adidas-Unikat im TRIAD ARCHIV.`).slice(0, 300);
       const absImages = images.map(src => { try { return new URL(src, location.href).href; } catch(e){ return src; } });
       const setMeta = (sel, val) => { const el = document.querySelector(sel); if(el && val) el.setAttribute('content', val); };
       setMeta('meta[name="description"]', desc);
@@ -715,21 +862,21 @@
       const ld = {
         "@context": "https://schema.org/",
         "@type": "Product",
-        "name": product.name,
+        "name": rep.name,
         "description": desc,
         "brand": { "@type": "Brand", "name": "adidas" },
         "itemCondition": "https://schema.org/UsedCondition",
         "offers": {
           "@type": "Offer",
           "priceCurrency": "EUR",
-          "price": String(product.price),
+          "price": String(rep.price),
           "availability": soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
           "itemCondition": "https://schema.org/UsedCondition",
           "url": location.href
         }
       };
       if(absImages.length) ld.image = absImages;
-      if(product.id) ld.sku = String(product.id);
+      if(rep.id) ld.sku = String(gid);
       const s = document.createElement('script');
       s.type = 'application/ld+json';
       s.textContent = JSON.stringify(ld);

@@ -200,6 +200,20 @@
   .price-row{ display:flex; gap:12px; }
   .price-row .field{ flex:1; }
 
+  .measure-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 12px;
+  }
+  .measure-grid .sub-label{
+    display:block;
+    font-family:'Inter', sans-serif;
+    font-size:11px;
+    letter-spacing:.03em;
+    color:var(--grey);
+    margin-bottom:4px;
+  }
+
   .cats-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -560,7 +574,7 @@
         <label>Größen &amp; Bestand</label>
         <div id="sizeRows"></div>
         <button type="button" class="btn btn-small" id="addSizeRowBtn">+ Weitere Größe</button>
-        <p class="hint" id="sizeRowsHint">Dasselbe Stück in mehreren Größen? Für jede Größe eine Zeile anlegen — beim Speichern wird daraus automatisch <strong>ein Artikel je Größe</strong>, mit denselben Fotos, Beschreibung und Preis. Menge leer lassen = Bestand wird nicht angezeigt. Bei <strong>0</strong> gilt der Artikel als „Ausverkauft“.</p>
+        <p class="hint" id="sizeRowsHint">Dasselbe Modell in mehreren Größen? Für jede Größe eine Zeile anlegen — daraus wird <strong>ein Artikel</strong>, bei dem der Käufer die Größe auswählt und sieht, was verfügbar ist. Menge leer lassen = Bestand wird nicht angezeigt. Bei <strong>0</strong> gilt die Größe als „Ausverkauft“.</p>
       </div>
 
       <div class="field">
@@ -573,6 +587,29 @@
           <option value="Gebraucht">Gebraucht</option>
           <option value="Vintage / Gebraucht">Vintage / Gebraucht</option>
         </select>
+      </div>
+
+      <div class="field">
+        <label>Maße (cm)</label>
+        <div class="measure-grid">
+          <div>
+            <label for="fChest" class="sub-label">Brustumfang</label>
+            <input type="number" id="fChest" min="0" step="0.5" placeholder="z. B. 56">
+          </div>
+          <div>
+            <label for="fShoulderLength" class="sub-label">Länge (Schulter–Bund)</label>
+            <input type="number" id="fShoulderLength" min="0" step="0.5" placeholder="z. B. 70">
+          </div>
+          <div>
+            <label for="fPantsLength" class="sub-label">Länge (Hose)</label>
+            <input type="number" id="fPantsLength" min="0" step="0.5" placeholder="z. B. 104">
+          </div>
+          <div>
+            <label for="fWaist" class="sub-label">Bundweite</label>
+            <input type="number" id="fWaist" min="0" step="0.5" placeholder="z. B. 40">
+          </div>
+        </div>
+        <p class="hint">Nur ausfüllen, was zum Artikel passt (z. B. bei Hosen nur Länge &amp; Bundweite) — leere Felder werden im Shop nicht angezeigt.</p>
       </div>
 
       <div class="field" style="margin-top:16px;">
@@ -674,6 +711,13 @@
   }
 
   const STORAGE_KEY = 'triadProducts';
+
+  // Mehrere Größen desselben Artikels teilen sich eine groupId und werden überall
+  // als EIN Artikel dargestellt (Übersicht, Shop, Detailseite). Intern bleibt jede
+  // Größe eine eigene Variante mit eigenem Bestand — so funktioniert das Bezahl-
+  // und "verkauft"-Handling pro Größe unverändert weiter.
+  function groupKey(p){ return p.groupId || p.id; }
+  function newGroupId(){ return 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
 
   const CATEGORIES = [
     { id:'trainingsjacken', label:'Trainingsjacken' },
@@ -790,6 +834,10 @@
   const sizeRowsEl = document.getElementById('sizeRows');
   const addSizeRowBtn = document.getElementById('addSizeRowBtn');
   const fCondition = document.getElementById('fCondition');
+  const fChest = document.getElementById('fChest');
+  const fShoulderLength = document.getElementById('fShoulderLength');
+  const fPantsLength = document.getElementById('fPantsLength');
+  const fWaist = document.getElementById('fWaist');
   const fDesc = document.getElementById('fDesc');
   const fImage = document.getElementById('fImage');
   const imgPreview = document.getElementById('imgPreview');
@@ -811,6 +859,7 @@
     <option value="">Bitte wählen</option>
     <optgroup label="Herren / unisex">
       <option value="XXS">XXS</option>
+      <option value="XS">XS</option>
       <option value="S">S</option>
       <option value="M">M</option>
       <option value="L">L</option>
@@ -1107,28 +1156,44 @@
     catsGrid.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
     resetSizeRows('', 1);
     setSizeRowsMultiAllowed(true);
+    fChest.value = '';
+    fShoulderLength.value = '';
+    fPantsLength.value = '';
+    fWaist.value = '';
     formTitle.textContent = 'Neues Produkt';
     submitBtn.textContent = 'Produkt speichern';
     cancelEditBtn.style.display = 'none';
   }
 
   function startEdit(product){
-    editingId = product.id;
-    fName.value = product.name;
-    fPrice.value = product.price;
-    fOldPrice.value = product.oldPrice || '';
-    fFeatured.checked = product.featured === true;
-    fAlsoShop.checked = product.alsoInShop === true;
-    resetSizeRows(product.size || '', product.stock ?? null);
-    setSizeRowsMultiAllowed(false);   // ein bestehendes Stück bleibt ein Artikel, keine Aufteilung beim Bearbeiten
-    fCondition.value = product.condition || '';
-    fDesc.value = product.desc || '';
-    currentImage = product.image || '';
-    currentSubImages = (product.images || []).slice();
+    // Ganze Gruppe (alle Größen dieses Artikels) laden
+    const gid = groupKey(product);
+    editingId = gid;
+    const group = products.filter(p => groupKey(p) === gid);
+    const rep = group[0] || product;
+    fName.value = rep.name;
+    fPrice.value = rep.price;
+    fOldPrice.value = rep.oldPrice || '';
+    fFeatured.checked = rep.featured === true;
+    fAlsoShop.checked = rep.alsoInShop === true;
+    // je eine Größen-Zeile pro vorhandener Variante; Größen dürfen ergänzt/entfernt werden
+    sizeRowsEl.innerHTML = '';
+    (group.length ? group : [product]).forEach(v => addSizeRow(v.size || '', v.stock ?? null));
+    updateSizeRowRemoveButtons();
+    setSizeRowsMultiAllowed(true);
+    fCondition.value = rep.condition || '';
+    const m = rep.measurements || {};
+    fChest.value = m.chest ?? '';
+    fShoulderLength.value = m.shoulderLength ?? '';
+    fPantsLength.value = m.pantsLength ?? '';
+    fWaist.value = m.waist ?? '';
+    fDesc.value = rep.desc || '';
+    currentImage = rep.image || '';
+    currentSubImages = (rep.images || []).slice();
     updateImgPreview();
     updateSubImagesPreview();
     catsGrid.querySelectorAll('input[type=checkbox]').forEach(cb => {
-      cb.checked = product.cats.includes(cb.value);
+      cb.checked = (rep.cats || []).includes(cb.value);
     });
     formTitle.textContent = 'Produkt bearbeiten';
     submitBtn.textContent = 'Änderungen speichern';
@@ -1151,6 +1216,12 @@
     const desc = fDesc.value.trim();
     const sizeRows = getSizeRows();
 
+    const measurements = {};
+    if(fChest.value.trim() !== '') measurements.chest = parseFloat(fChest.value);
+    if(fShoulderLength.value.trim() !== '') measurements.shoulderLength = parseFloat(fShoulderLength.value);
+    if(fPantsLength.value.trim() !== '') measurements.pantsLength = parseFloat(fPantsLength.value);
+    if(fWaist.value.trim() !== '') measurements.waist = parseFloat(fWaist.value);
+
     if(!name || isNaN(price)){
       showToast('Bitte Name und Preis angeben');
       return;
@@ -1161,25 +1232,44 @@
     }
 
     if(editingId){
-      const { size, stock } = sizeRows[0];
-      const idx = products.findIndex(p => p.id === editingId);
-      if(idx !== -1){
-        products[idx] = { ...products[idx], name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice() };
-      }
+      // editingId = groupKey der bearbeiteten Gruppe. Größen abgleichen:
+      // vorhandene Größe -> aktualisieren (id/verkauft-Status bleiben erhalten),
+      // neue Größe -> als Variante ergänzen, entfernte Größe -> löschen.
+      const gid = editingId;
+      const existing = products.filter(p => groupKey(p) === gid);
+      const firstIdx = products.findIndex(p => groupKey(p) === gid);
+      const ensuredGid = (existing.find(p => p.groupId) || {}).groupId || newGroupId();
+      const anyPublished = existing.some(p => p.published !== false);
+      const bySize = {};
+      existing.forEach(p => { if(bySize[p.size || ''] === undefined) bySize[p.size || ''] = p; });
+      const newVariants = sizeRows.map(({ size, stock }, i) => {
+        const prev = bySize[size || ''];
+        return {
+          ...(prev || {}),
+          id: (prev && prev.id) || ('p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8)),
+          groupId: ensuredGid,
+          name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, measurements,
+          image: currentImage, images: currentSubImages.slice(),
+          published: prev ? prev.published : anyPublished
+        };
+      });
+      products = products.filter(p => groupKey(p) !== gid);
+      products.splice(firstIdx < 0 ? 0 : firstIdx, 0, ...newVariants);
       showToast('Produkt aktualisiert');
     } else {
-      // Eine Zeile je Größe -> ein eigener Artikel je Größe, mit gleichen
-      // Fotos/Beschreibung/Preis. So muss nur einmal alles ausgefüllt werden,
-      // auch wenn dasselbe Stück in mehreren Größen vorhanden ist.
-      sizeRows.forEach(({ size, stock }, i) => {
-        products.unshift({
-          id: 'p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8),
-          name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, image: currentImage, images: currentSubImages.slice(),
-          published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
-        });
-      });
+      // Eine Zeile je Größe -> eine eigene Variante je Größe, aber alle mit
+      // derselben groupId: im Shop erscheinen sie als EIN Artikel, bei dem der
+      // Käufer die Größe wählt. So muss nur einmal alles ausgefüllt werden.
+      const gid = newGroupId();
+      const newVariants = sizeRows.map(({ size, stock }, i) => ({
+        id: 'p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8),
+        groupId: gid,
+        name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, measurements, image: currentImage, images: currentSubImages.slice(),
+        published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
+      }));
+      products.unshift(...newVariants);
       showToast(sizeRows.length > 1
-        ? `${sizeRows.length} Größen als Entwurf gespeichert — noch nicht online`
+        ? `${sizeRows.length} Größen als 1 Artikel gespeichert — noch nicht online`
         : 'Als Entwurf gespeichert — noch nicht online');
     }
 
@@ -1188,31 +1278,50 @@
     renderList();
   });
 
-  function moveProduct(id, dir){
-    const idx = products.findIndex(p => p.id === id);
-    const newIdx = idx + dir;
-    if(idx === -1 || newIdx < 0 || newIdx >= products.length) return;
-    [products[idx], products[newIdx]] = [products[newIdx], products[idx]];
+  // Reihenfolge der Gruppen (erste Erscheinung je groupKey)
+  function groupOrder(){
+    const order = [];
+    const seen = {};
+    products.forEach(p => { const k = groupKey(p); if(!seen[k]){ seen[k] = true; order.push(k); } });
+    return order;
+  }
+
+  function moveGroup(key, dir){
+    const order = groupOrder();
+    const gi = order.indexOf(key);
+    const ni = gi + dir;
+    if(gi === -1 || ni < 0 || ni >= order.length) return;
+    [order[gi], order[ni]] = [order[ni], order[gi]];
+    const buckets = {};
+    products.forEach(p => { const k = groupKey(p); (buckets[k] = buckets[k] || []).push(p); });
+    products = order.reduce((acc, k) => acc.concat(buckets[k]), []);
     saveProducts(products);
     renderList();
   }
 
-  function deleteProduct(id){
-    const product = products.find(p => p.id === id);
-    if(!product) return;
-    if(!confirm(`"${product.name}" wirklich löschen?`)) return;
-    products = products.filter(p => p.id !== id);
+  function deleteGroup(key){
+    const items = products.filter(p => groupKey(p) === key);
+    if(!items.length) return;
+    if(!confirm(`"${items[0].name}" wirklich löschen?`)) return;
+    products = products.filter(p => groupKey(p) !== key);
     saveProducts(products);
-    if(editingId === id) resetForm();
+    if(editingId === key) resetForm();
     renderList();
   }
 
   function renderList(){
-    productCount.textContent = products.length + (products.length === 1 ? ' Produkt' : ' Produkte');
-    emptyState.hidden = products.length > 0;
+    // Varianten (Größen) zu Artikeln (Gruppen) bündeln, Reihenfolge beibehalten
+    const order = groupOrder();
+    const buckets = {};
+    products.forEach(p => { const k = groupKey(p); (buckets[k] = buckets[k] || []).push(p); });
+    const groups = order.map(k => ({ key:k, items:buckets[k] }));
+
+    productCount.textContent = groups.length + (groups.length === 1 ? ' Produkt' : ' Produkte');
+    emptyState.hidden = groups.length > 0;
     updatePublishBar();
 
-    productList.innerHTML = products.map((p, i) => {
+    productList.innerHTML = groups.map((g, i) => {
+      const p = g.items[0];   // Repräsentant (gemeinsame Felder)
       const thumb = p.image
         ? `<img src="${p.image}" alt="">`
         : escapeHtml(p.name);
@@ -1221,15 +1330,19 @@
         : `<span class="now">${p.price}€</span>`;
       const subCount = (p.images || []).length;
       const subCountHtml = subCount > 0 ? `<span>+${subCount} Bild${subCount === 1 ? '' : 'er'}</span>` : '';
-      const sizeHtml = p.size ? `<span>Größe ${escapeHtml(p.size)}</span>` : '';
+      // Größen der Gruppe mit Bestand/„verkauft“ auflisten
+      const sizesLabel = g.items.map(v => {
+        const s = v.size ? escapeHtml(v.size) : 'Onesize';
+        const sold = v.sold === true || (typeof v.stock === 'number' && v.stock <= 0);
+        const info = sold ? ' – verkauft' : (typeof v.stock === 'number' ? ` (${v.stock})` : '');
+        return s + info;
+      }).join(' · ');
+      const sizeHtml = `<span>Größen: ${sizesLabel}</span>`;
       const conditionHtml = p.condition ? `<span>${escapeHtml(p.condition)}</span>` : '';
-      const stockHtml = (typeof p.stock === 'number')
-        ? (p.stock <= 0 ? `<span class="soldout">Ausverkauft</span>` : `<span>Bestand: ${p.stock}</span>`)
-        : '';
       const featuredHtml = p.featured
         ? `<span class="feat-badge">★ ${p.alsoInShop ? 'Kollektion + Shop' : 'Nur Kollektion'}</span>`
         : '';
-      const isDraft = p.published === false;
+      const isDraft = g.items.some(v => v.published === false);
       const draftHtml = isDraft ? `<span class="draft-badge">Entwurf</span>` : '';
       return `
         <div class="product-row${isDraft ? ' is-draft' : ''}">
@@ -1239,19 +1352,18 @@
             <div class="meta">
               ${draftHtml}
               <span>${priceHtml}</span>
-              <span>${p.cats.map(escapeHtml).join(', ')}</span>
+              <span>${(p.cats || []).map(escapeHtml).join(', ')}</span>
               ${sizeHtml}
               ${conditionHtml}
-              ${stockHtml}
               ${featuredHtml}
               ${subCountHtml}
             </div>
           </div>
           <div class="row-actions">
-            <button class="btn btn-small" data-action="up" data-id="${p.id}" ${i === 0 ? 'disabled' : ''} title="Nach oben" aria-label="Nach oben">↑</button>
-            <button class="btn btn-small" data-action="down" data-id="${p.id}" ${i === products.length - 1 ? 'disabled' : ''} title="Nach unten" aria-label="Nach unten">↓</button>
-            <button class="btn btn-small" data-action="edit" data-id="${p.id}" title="Bearbeiten" aria-label="Bearbeiten">✎</button>
-            <button class="btn btn-small btn-danger" data-action="delete" data-id="${p.id}" title="Löschen" aria-label="Löschen">✕</button>
+            <button class="btn btn-small" data-action="up" data-group="${g.key}" ${i === 0 ? 'disabled' : ''} title="Nach oben" aria-label="Nach oben">↑</button>
+            <button class="btn btn-small" data-action="down" data-group="${g.key}" ${i === groups.length - 1 ? 'disabled' : ''} title="Nach unten" aria-label="Nach unten">↓</button>
+            <button class="btn btn-small" data-action="edit" data-group="${g.key}" title="Bearbeiten" aria-label="Bearbeiten">✎</button>
+            <button class="btn btn-small btn-danger" data-action="delete" data-group="${g.key}" title="Löschen" aria-label="Löschen">✕</button>
           </div>
         </div>`;
     }).join('');
@@ -1260,17 +1372,17 @@
   productList.addEventListener('click', (e) => {
     const btn = e.target.closest('button');
     if(!btn) return;
-    const id = btn.dataset.id;
+    const key = btn.dataset.group;
     const action = btn.dataset.action;
     if(action === 'edit'){
-      const product = products.find(p => p.id === id);
+      const product = products.find(p => groupKey(p) === key);
       if(product) startEdit(product);
     } else if(action === 'delete'){
-      deleteProduct(id);
+      deleteGroup(key);
     } else if(action === 'up'){
-      moveProduct(id, -1);
+      moveGroup(key, -1);
     } else if(action === 'down'){
-      moveProduct(id, 1);
+      moveGroup(key, 1);
     }
   });
 

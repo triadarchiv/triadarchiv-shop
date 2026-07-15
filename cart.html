@@ -503,6 +503,15 @@
     return d ? { code: d.code, email: d.email } : null;
   }
 
+  // Für Bezahlung: gewählte Größe in den Artikelnamen schreiben, damit sie in der
+  // Stripe/PayPal-Bestellung sichtbar ist (wichtig fürs Packen). id/Preis bleiben gleich.
+  function checkoutItems(){
+    return loadCart().map(it => ({
+      ...it,
+      name: (it.size && it.size !== 'Onesize') ? `${it.name} (Größe ${it.size})` : it.name
+    }));
+  }
+
   function startCheckout(){
     const cart = loadCart();
     if(cart.length === 0) return;
@@ -513,7 +522,7 @@
     fetch('/api/checkout', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ items: cart, discount: discountPayload() })
+      body: JSON.stringify({ items: checkoutItems(), discount: discountPayload() })
     })
       .then(r => r.json())
       .then(data => {
@@ -555,7 +564,7 @@
         createOrder: () => fetch('/api/paypal-create-order', {
           method:'POST',
           headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ items: loadCart(), discount: discountPayload() })
+          body: JSON.stringify({ items: checkoutItems(), discount: discountPayload() })
         }).then(r => r.json()).then(data => {
           if(!data.id) throw new Error(data.error || 'PayPal-Bestellung fehlgeschlagen.');
           return data.id;
