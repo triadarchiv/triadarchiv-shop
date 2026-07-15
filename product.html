@@ -492,7 +492,8 @@
 
   const detailWrap = document.getElementById('detailWrap');
   const productId = new URLSearchParams(window.location.search).get('id');
-  const products = loadProductData();
+  // Entwürfe (published === false) ausblenden – ein direkter Link darf sie nicht zeigen
+  const products = loadProductData().filter(p => p.published !== false);
   const productIdx = products.findIndex(p => p.id === productId);
   const product = productIdx !== -1 ? products[productIdx] : undefined;
 

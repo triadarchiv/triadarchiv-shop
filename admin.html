@@ -733,26 +733,15 @@
   function loadProducts(){
     const serverData = fetchServerProducts();
 
-    // lokal gesammelte Entwürfe (noch nicht veröffentlicht) bewahren, damit sie
-    // beim Neuladen nicht von der Server-Liste überschrieben werden
-    let drafts = [];
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){
-        const parsed = JSON.parse(raw);
-        if(Array.isArray(parsed)) drafts = parsed.filter(p => p.published === false);
-      }
-    }catch(e){}
-
     if(serverData){
-      const serverPublished = serverData.map(p => ({ ...p, published: true }));
-      const serverIds = new Set(serverPublished.map(p => p.id));
-      const keptDrafts = drafts.filter(d => !serverIds.has(d.id));
-      const merged = [...keptDrafts, ...serverPublished];   // Entwürfe oben
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      return merged;
+      // Der Server ist die Wahrheit und enthält jetzt auch Entwürfe.
+      // Fehlendes published-Feld (Altbestand) = veröffentlicht.
+      const normalized = serverData.map(p => ({ ...p, published: p.published !== false }));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized)); } catch(e){}
+      return normalized;
     }
 
+    // Fallback nur, wenn der Server nicht erreichbar ist -> lokaler Cache
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw){
       saveProducts(DEFAULT_PRODUCTS);
@@ -765,12 +754,13 @@
       return [];
     }
   }
-  // Speichert lokal und schickt NUR veröffentlichte Artikel an den Server.
-  // Entwürfe (published === false) bleiben so lange nur im Browser, bis auf
-  // „Alle veröffentlichen“ geklickt wird. Gibt zurück, ob der Server-Push klappte.
+  // Speichert ALLES (inkl. Entwürfe) auf dem Server. localStorage ist nur noch
+  // ein optionaler Cache und darf am Handy ruhig überlaufen (try/catch), ohne
+  // dass dabei ein Artikel verloren geht. Der Shop blendet Entwürfe selbst aus.
+  // Gibt zurück, ob der Server-Push geklappt hat.
   function saveProducts(products){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-    return pushToServer(products.filter(p => p.published !== false));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch(e){}
+    return pushToServer(products);
   }
 
   const MAX_SUB_IMAGES = 3;
@@ -914,7 +904,7 @@
     const ok = saveProducts(products);
     if(!ok){
       drafts.forEach(p => { p.published = false; });   // zurück auf Entwurf
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch(e){}
       renderList();
       showToast('Veröffentlichen fehlgeschlagen — bitte erneut versuchen');
       return;

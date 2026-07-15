@@ -1052,8 +1052,10 @@
     return String(total - index).padStart(3, '0');
   }
 
-  /* Einmal laden, überall nutzen (Grid, Hero-Stück, Kollektions-Band) */
-  const PRODUCTS_DATA = loadProductData();
+  /* Einmal laden, überall nutzen (Grid, Hero-Stück, Kollektions-Band).
+     Entwürfe (published === false) werden hier ausgeblendet – sie liegen zwar
+     auf dem Server, sollen im Shop aber erst nach „Alle veröffentlichen“ erscheinen. */
+  const PRODUCTS_DATA = loadProductData().filter(p => p.published !== false);
 
   function isSoldOut(p){
     return (p.sold === true || p.available === false) || (typeof p.stock === 'number' && p.stock <= 0);
