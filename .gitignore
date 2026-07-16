@@ -22,5 +22,8 @@ node_modules/
 # Alte/unbenutzte Bilder, nur lokal als Ablage
 archiv/
 
+# Lokal gespeicherte Produktbilder aus dem Testbetrieb (online liegen sie in Netlify Blobs)
+images/
+
 # Admin starten.bat ist nur ein lokaler Helfer
 Admin starten.bat

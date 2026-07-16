@@ -1070,11 +1070,12 @@
     }
   }
 
-  function publishDrafts(){
+  async function publishDrafts(){
     const drafts = products.filter(p => p.published === false);
     if(drafts.length === 0) return;
     if(!confirm(`${drafts.length} ${drafts.length === 1 ? 'Artikel' : 'Artikel'} jetzt online stellen?`)) return;
     drafts.forEach(p => { p.published = true; });
+    try { await ensureImagesUploaded(); } catch(e){}
     const ok = saveProducts(products);
     if(!ok){
       drafts.forEach(p => { p.published = false; });   // zurück auf Entwurf
@@ -1091,13 +1092,15 @@
 
   // ----- Sicherheitsnetz: Buttons der Warn-/Wiederherstellungs-Banner -----
   const saveRetryBtn = document.getElementById('saveRetryBtn');
-  if(saveRetryBtn) saveRetryBtn.addEventListener('click', () => {
+  if(saveRetryBtn) saveRetryBtn.addEventListener('click', async () => {
+    try { await ensureImagesUploaded(); } catch(e){}
     const ok = saveProducts(products);
     if(ok) showToast('Auf dem Server gespeichert');
   });
 
   const recoverBtn = document.getElementById('recoverBtn');
-  if(recoverBtn) recoverBtn.addEventListener('click', () => {
+  if(recoverBtn) recoverBtn.addEventListener('click', async () => {
+    try { await ensureImagesUploaded(); } catch(e){}
     const ok = saveProducts(products);
     if(ok){
       unsyncedRecovery = null;
@@ -1148,28 +1151,77 @@
   // bei voller Web-Qualität).
   const IMG_MAX_DIM = 1800;
   const IMG_QUALITY = 0.85;
+  function _canvasJpeg(img){
+    let { width, height } = img;
+    const scale = Math.min(1, IMG_MAX_DIM / Math.max(width, height));
+    width = Math.max(1, Math.round(width * scale));
+    height = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';           // transparente PNGs -> weißer statt schwarzer Hintergrund
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+    return canvas.toDataURL('image/jpeg', IMG_QUALITY);
+  }
   function compressImageFile(fileOrBlob){
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(fileOrBlob);
       const img = new Image();
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        const scale = Math.min(1, IMG_MAX_DIM / Math.max(width, height));
-        width = Math.max(1, Math.round(width * scale));
-        height = Math.max(1, Math.round(height * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff';           // transparente PNGs -> weißer statt schwarzer Hintergrund
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', IMG_QUALITY));
-      };
+      img.onload = () => { URL.revokeObjectURL(url); resolve(_canvasJpeg(img)); };
       img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Bild konnte nicht gelesen werden')); };
       img.src = url;
     });
+  }
+  // Ein schon vorhandenes Base64-Bild erneut verkleinern (für Altbestand vor dem Umzug).
+  function recompressDataUrl(dataUrl){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(_canvasJpeg(img));
+      img.onerror = () => reject(new Error('Bild konnte nicht gelesen werden'));
+      img.src = dataUrl;
+    });
+  }
+
+  // ----- Bilder separat im Bildspeicher ablegen (statt in der Produktliste) -----
+  // Lädt ein Base64-Bild zum Server hoch und bekommt einen kurzen Link zurück.
+  // Ist der Wert schon ein Link (kein data:...), bleibt er unverändert.
+  function uploadImage(dataUrl){
+    if(typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return Promise.resolve(dataUrl);
+    return fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+      body: JSON.stringify({ dataUrl })
+    }).then(r => {
+      if(r.status === 401){ sessionStorage.removeItem('triadAdminKey'); throw new Error('Falsches Admin-Passwort'); }
+      if(!r.ok) throw new Error('Bild-Upload fehlgeschlagen');
+      return r.json();
+    }).then(res => {
+      if(res && res.url) return res.url;
+      throw new Error('Bild-Upload: ungültige Antwort');
+    });
+  }
+
+  // Vor dem Speichern: alle noch als Base64 gespeicherten Fotos (Altbestand) in den
+  // Bildspeicher umziehen und durch Links ersetzen. Gleiche Fotos nur einmal hochladen.
+  async function ensureImagesUploaded(){
+    const cache = new Map();
+    async function conv(v){
+      if(typeof v !== 'string' || !v.startsWith('data:')) return v;   // schon ein Link
+      if(cache.has(v)) return cache.get(v);
+      let toUpload = v;
+      try { toUpload = await recompressDataUrl(v); } catch(e){}       // vorm Hochladen verkleinern
+      const url = await uploadImage(toUpload);
+      cache.set(v, url);
+      return url;
+    }
+    for(const p of products){
+      if(p.image) p.image = await conv(p.image);
+      if(Array.isArray(p.images)){
+        for(let i = 0; i < p.images.length; i++){ p.images[i] = await conv(p.images[i]); }
+      }
+    }
   }
 
   function updateImgPreview(){
@@ -1198,7 +1250,11 @@
       return;
     }
     compressImageFile(file)
-      .then(dataUrl => { currentImage = dataUrl; updateImgPreview(); })
+      .then(dataUrl => {
+        currentImage = dataUrl; updateImgPreview();   // sofort sichtbar, nichts geht verloren
+        // im Hintergrund hochladen und das Base64 durch den kurzen Link ersetzen
+        uploadImage(dataUrl).then(url => { if(currentImage === dataUrl) currentImage = url; }).catch(() => {});
+      })
       .catch(() => showToast('Bild konnte nicht verarbeitet werden'));
   });
   removeImgBtn.addEventListener('click', () => {
@@ -1219,7 +1275,13 @@
     // nacheinander verarbeiten, damit die Auswahl-Reihenfolge erhalten bleibt
     valid.reduce((chain, file) => chain.then(() =>
       compressImageFile(file)
-        .then(dataUrl => { currentSubImages.push(dataUrl); updateSubImagesPreview(); })
+        .then(dataUrl => {
+          currentSubImages.push(dataUrl); updateSubImagesPreview();
+          uploadImage(dataUrl).then(url => {
+            const i = currentSubImages.indexOf(dataUrl);
+            if(i !== -1) currentSubImages[i] = url;
+          }).catch(() => {});
+        })
         .catch(() => showToast('Bild konnte nicht verarbeitet werden'))
     ), Promise.resolve());
   });
@@ -1241,10 +1303,15 @@
       currentImage = dataUrl;
       updateImgPreview();
       showToast('Hauptbild gesetzt');
+      uploadImage(dataUrl).then(url => { if(currentImage === dataUrl) currentImage = url; }).catch(() => {});
     } else if(currentSubImages.length < MAX_SUB_IMAGES){
       currentSubImages.push(dataUrl);
       updateSubImagesPreview();
       showToast('Zusatzbild hinzugefügt');
+      uploadImage(dataUrl).then(url => {
+        const i = currentSubImages.indexOf(dataUrl);
+        if(i !== -1) currentSubImages[i] = url;
+      }).catch(() => {});
     } else {
       showToast('Voll: 1 Hauptbild + ' + MAX_SUB_IMAGES + ' Zusatzbilder');
     }
@@ -1373,7 +1440,7 @@
 
   cancelEditBtn.addEventListener('click', resetForm);
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = fName.value.trim();
     const price = parseFloat(fPrice.value);
@@ -1438,6 +1505,8 @@
         : 'Als Entwurf gespeichert — noch nicht online';
     }
 
+    // Erst noch nicht hochgeladene Fotos in den Bildspeicher umziehen, dann speichern.
+    try { await ensureImagesUploaded(); } catch(e){ /* Rest bleibt Base64 -> saveProducts warnt ggf. */ }
     const ok = saveProducts(products);
     resetForm();
     renderList();
