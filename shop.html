@@ -615,8 +615,15 @@
     font-size:12px;
     letter-spacing:0.3px;
   }
-  .newsletter-note.success{ color:var(--muted); }
+  .newsletter-note.success{ color:var(--muted); line-height:1.5; }
   .newsletter-note.error{ color:var(--accent); }
+  .newsletter-note b{ color:var(--text); font-weight:500; }
+  .newsletter-note .spam-hint{
+    display:block;
+    margin-top:6px;
+    color:var(--faint);
+    font-size:11px;
+  }
 
   /* ---------- Vertrauen / Assurance (prominent) ---------- */
   .assurance{
@@ -1568,9 +1575,12 @@
         .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
         .then(data => {
           note.className = 'newsletter-note success';
-          note.textContent = (data && data.doi)
-            ? 'Fast geschafft — bitte bestätige deine Anmeldung über den Link in der E-Mail, die wir dir gerade geschickt haben.'
-            : 'Danke, du bist eingetragen. Wir melden uns bei neuen Stücken.';
+          if(data && data.doi){
+            note.innerHTML = 'Fast geschafft! Wir haben dir eine <b>Bestätigungs-E-Mail</b> geschickt — bitte klick auf den Link darin, dann bist du dabei.'
+              + '<span class="spam-hint">Keine Mail bekommen? Schau bitte auch im <b>Spam-</b> oder <b>Werbung-Ordner</b> nach.</span>';
+          } else {
+            note.textContent = 'Danke, du bist eingetragen. Wir melden uns bei neuen Stücken.';
+          }
           form.reset();
         })
         .catch(() => {

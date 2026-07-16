@@ -190,12 +190,24 @@
   .field-row{ display:flex; gap:12px; }
   .field-row .field{ flex:1; }
 
-  /* Größen & Bestand: mehrere Zeilen -> beim Speichern ein Artikel je Größe */
-  .size-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-  .size-row select{ flex:1; }
-  .size-row .size-row-qty{ width:76px; flex:0 0 auto; }
-  .size-row .size-row-remove{ flex:0 0 auto; }
-  .size-row .size-row-remove:disabled{ opacity:0.3; cursor:default; }
+  /* Größen & Bestand: mehrere Zeilen -> beim Speichern ein Artikel je Größe.
+     Jede Größe hat ihre EIGENEN Maße (z. B. XS anders als S). */
+  .size-row{ border:1px solid var(--line); padding:12px; margin-bottom:12px; }
+  .size-row-top{ display:flex; gap:8px; align-items:center; }
+  .size-row-top .size-row-size{ flex:1; }
+  .size-row-top .size-row-qty{ width:76px; flex:0 0 auto; }
+  .size-row-top .size-row-remove{ flex:0 0 auto; }
+  .size-row-top .size-row-remove:disabled{ opacity:0.3; cursor:default; }
+  .size-row-measures{ display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; margin-top:10px; }
+  .size-row-measures .sub-label{
+    display:block;
+    font-family:'Inter', sans-serif;
+    font-size:11px;
+    letter-spacing:.03em;
+    color:var(--grey);
+    margin-bottom:4px;
+  }
+  .size-row-measures input{ width:100%; }
 
   .price-row{ display:flex; gap:12px; }
   .price-row .field{ flex:1; }
@@ -348,6 +360,38 @@
     font-weight:700;
   }
   .publish-bar .btn-publish:hover{ opacity:0.9; color:#121110; }
+
+  /* Rote Warnung: etwas kam NICHT auf den Server */
+  .save-warning{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    margin:0 0 16px; padding:14px 16px;
+    background:rgba(229,72,77,0.10); border:1px solid #e5484d;
+  }
+  .save-warning .sw-text{
+    flex:1; min-width:180px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.5;
+    color:var(--off-white);
+  }
+  .save-warning .sw-text b{ color:#ff6b6e; }
+  .save-warning .btn-retry{ border-color:#e5484d; color:#ff6b6e; }
+  .save-warning .btn-retry:hover{ background:#e5484d; color:#121110; }
+
+  /* Bernstein-Banner: ungespeicherte Artikel wiederhergestellt */
+  .recovery-bar{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    margin:0 0 16px; padding:14px 16px;
+    background:rgba(245,165,36,0.10); border:1px solid #f5a524;
+  }
+  .recovery-bar .rb-text{
+    flex:1; min-width:180px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.5;
+    color:var(--off-white);
+  }
+  .recovery-bar .rb-text b{ color:#f5a524; }
+  .recovery-bar .rb-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .recovery-bar .btn-recover{ background:#f5a524; border-color:#f5a524; color:#121110; font-weight:700; }
+  .recovery-bar .btn-recover:hover{ opacity:0.9; color:#121110; }
+
   .product-row.is-draft{ opacity:0.7; }
   .row-info .meta .draft-badge{
     color:var(--pink);
@@ -571,10 +615,10 @@
       </div>
 
       <div class="field">
-        <label>Größen &amp; Bestand</label>
+        <label>Größen, Bestand &amp; Maße</label>
         <div id="sizeRows"></div>
         <button type="button" class="btn btn-small" id="addSizeRowBtn">+ Weitere Größe</button>
-        <p class="hint" id="sizeRowsHint">Dasselbe Modell in mehreren Größen? Für jede Größe eine Zeile anlegen — daraus wird <strong>ein Artikel</strong>, bei dem der Käufer die Größe auswählt und sieht, was verfügbar ist. Menge leer lassen = Bestand wird nicht angezeigt. Bei <strong>0</strong> gilt die Größe als „Ausverkauft“.</p>
+        <p class="hint" id="sizeRowsHint">Dasselbe Modell in mehreren Größen? Für jede Größe eine Zeile anlegen — daraus wird <strong>ein Artikel</strong>, bei dem der Käufer die Größe auswählt. <strong>Die Maße gibst du je Größe ein</strong> (z. B. XS enger als S) — beim Umschalten der Größe sieht der Käufer genau die passenden Maße. Menge leer lassen = Bestand wird nicht angezeigt, bei <strong>0</strong> gilt die Größe als „Ausverkauft“. Bei Maßen nur ausfüllen, was passt (Hose: nur Länge &amp; Bundweite).</p>
       </div>
 
       <div class="field">
@@ -587,29 +631,6 @@
           <option value="Gebraucht">Gebraucht</option>
           <option value="Vintage / Gebraucht">Vintage / Gebraucht</option>
         </select>
-      </div>
-
-      <div class="field">
-        <label>Maße (cm)</label>
-        <div class="measure-grid">
-          <div>
-            <label for="fChest" class="sub-label">Brustumfang</label>
-            <input type="number" id="fChest" min="0" step="0.5" placeholder="z. B. 56">
-          </div>
-          <div>
-            <label for="fShoulderLength" class="sub-label">Länge (Schulter–Bund)</label>
-            <input type="number" id="fShoulderLength" min="0" step="0.5" placeholder="z. B. 70">
-          </div>
-          <div>
-            <label for="fPantsLength" class="sub-label">Länge (Hose)</label>
-            <input type="number" id="fPantsLength" min="0" step="0.5" placeholder="z. B. 104">
-          </div>
-          <div>
-            <label for="fWaist" class="sub-label">Bundweite</label>
-            <input type="number" id="fWaist" min="0" step="0.5" placeholder="z. B. 40">
-          </div>
-        </div>
-        <p class="hint">Nur ausfüllen, was zum Artikel passt (z. B. bei Hosen nur Länge &amp; Bundweite) — leere Felder werden im Shop nicht angezeigt.</p>
       </div>
 
       <div class="field" style="margin-top:16px;">
@@ -658,6 +679,19 @@
 
   <div class="panel">
     <h2>Deine Produkte <span class="badge-count" id="productCount">0 Produkte</span></h2>
+
+    <div class="save-warning" id="saveWarning" hidden>
+      <span class="sw-text" id="saveWarningText"></span>
+      <button class="btn btn-retry" id="saveRetryBtn">↻ Erneut speichern</button>
+    </div>
+
+    <div class="recovery-bar" id="recoveryBar" hidden>
+      <span class="rb-text" id="recoveryText"></span>
+      <span class="rb-actions">
+        <button class="btn btn-recover" id="recoverBtn">✓ Jetzt auf Server sichern</button>
+        <button class="btn" id="discardRecoveryBtn">Verwerfen</button>
+      </span>
+    </div>
 
     <div class="publish-bar" id="publishBar" hidden>
       <span class="pb-text" id="publishText"></span>
@@ -711,6 +745,21 @@
   }
 
   const STORAGE_KEY = 'triadProducts';
+  // Zusätzlicher Notfall-Speicher: überlebt das Neuladen und wird vom Server-Stand
+  // NIE einfach überschrieben. Schützt Entwürfe, die (noch) nicht auf dem Server sind.
+  const BACKUP_KEY = 'triadProductsBackup';
+
+  // Zustand fürs Sicherheitsnetz
+  let hasUnsynced = false;        // true, wenn etwas nur lokal liegt und NICHT auf dem Server
+  let unsyncedRecovery = null;    // beim Laden wiederhergestellte, ungespeicherte Artikel-IDs
+
+  function readBackup(){
+    try { const r = localStorage.getItem(BACKUP_KEY); const a = r ? JSON.parse(r) : null; return Array.isArray(a) ? a : null; }
+    catch(e){ return null; }
+  }
+  function writeBackup(list){ try { localStorage.setItem(BACKUP_KEY, JSON.stringify(list)); } catch(e){} }
+  function writeCache(list){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch(e){} }
+  function payloadSizeMB(list){ try { return JSON.stringify(list).length / (1024*1024); } catch(e){ return 0; } }
 
   // Mehrere Größen desselben Artikels teilen sich eine groupId und werden überall
   // als EIN Artikel dargestellt (Übersicht, Shop, Detailseite). Intern bleibt jede
@@ -776,16 +825,36 @@
 
   function loadProducts(){
     const serverData = fetchServerProducts();
+    const backup = readBackup();
 
     if(serverData){
       // Der Server ist die Wahrheit und enthält jetzt auch Entwürfe.
       // Fehlendes published-Feld (Altbestand) = veröffentlicht.
       const normalized = serverData.map(p => ({ ...p, published: p.published !== false }));
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized)); } catch(e){}
+
+      // WICHTIG: Nicht einfach den lokalen Speicher überschreiben. Alles, was im
+      // Notfall-Backup liegt, aber NICHT auf dem Server ist, war noch nicht
+      // gespeichert -> zurückholen, statt es zu verlieren.
+      if(backup && backup.length){
+        const serverIds = new Set(normalized.map(p => String(p.id)));
+        const missing = backup.filter(p => p && p.id != null && !serverIds.has(String(p.id)));
+        if(missing.length){
+          const merged = missing.concat(normalized);   // ungespeicherte Entwürfe vorn
+          unsyncedRecovery = missing.map(p => String(p.id));
+          hasUnsynced = true;
+          writeCache(merged);
+          writeBackup(merged);
+          return merged;
+        }
+      }
+
+      writeCache(normalized);
+      writeBackup(normalized);
       return normalized;
     }
 
-    // Fallback nur, wenn der Server nicht erreichbar ist -> lokaler Cache
+    // Server nicht erreichbar -> Backup bevorzugen (vollständiger als der alte Cache)
+    if(backup){ hasUnsynced = true; return backup; }
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw){
       saveProducts(DEFAULT_PRODUCTS);
@@ -803,8 +872,45 @@
   // dass dabei ein Artikel verloren geht. Der Shop blendet Entwürfe selbst aus.
   // Gibt zurück, ob der Server-Push geklappt hat.
   function saveProducts(products){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); } catch(e){}
-    return pushToServer(products);
+    // Immer zuerst lokal sichern (Cache + Notfall-Backup) — überlebt Neuladen.
+    writeCache(products);
+    writeBackup(products);
+    const ok = pushToServer(products);
+    if(ok){
+      hasUnsynced = false;
+      hideSaveWarning();
+    } else {
+      hasUnsynced = true;
+      showSaveWarning(products);
+    }
+    return ok;
+  }
+
+  function showSaveWarning(list){
+    const bar = document.getElementById('saveWarning');
+    const txt = document.getElementById('saveWarningText');
+    if(!bar || !txt) return;
+    const big = payloadSizeMB(list) > 4.5;
+    txt.innerHTML = '<b>⚠ NICHT auf dem Server gespeichert.</b> Deine Änderungen liegen nur auf diesem Gerät und gehen beim Neuladen verloren. '
+      + (big
+          ? 'Die Liste ist sehr groß (viele Fotos) — bitte erst <b>„Alle veröffentlichen“</b> drücken oder weniger Artikel auf einmal speichern. '
+          : 'Bitte Internetverbindung (und Admin-Passwort) prüfen. ')
+      + 'Dann auf „Erneut speichern“ tippen.';
+    bar.hidden = false;
+  }
+  function hideSaveWarning(){ const bar = document.getElementById('saveWarning'); if(bar) bar.hidden = true; }
+
+  function updateRecoveryBar(){
+    const bar = document.getElementById('recoveryBar');
+    const txt = document.getElementById('recoveryText');
+    if(!bar || !txt) return;
+    const n = (unsyncedRecovery && unsyncedRecovery.length) || 0;
+    if(n > 0){
+      txt.innerHTML = `<b>${n}</b> ${n === 1 ? 'Artikel war' : 'Artikel waren'} noch nicht auf dem Server gespeichert und ${n === 1 ? 'wurde' : 'wurden'} von diesem Gerät wiederhergestellt. Jetzt sichern?`;
+      bar.hidden = false;
+    } else {
+      bar.hidden = true;
+    }
   }
 
   const MAX_SUB_IMAGES = 6;
@@ -834,10 +940,6 @@
   const sizeRowsEl = document.getElementById('sizeRows');
   const addSizeRowBtn = document.getElementById('addSizeRowBtn');
   const fCondition = document.getElementById('fCondition');
-  const fChest = document.getElementById('fChest');
-  const fShoulderLength = document.getElementById('fShoulderLength');
-  const fPantsLength = document.getElementById('fPantsLength');
-  const fWaist = document.getElementById('fWaist');
   const fDesc = document.getElementById('fDesc');
   const fImage = document.getElementById('fImage');
   const imgPreview = document.getElementById('imgPreview');
@@ -881,15 +983,28 @@
       <option value="46">46</option>
     </optgroup>`;
 
-  function addSizeRow(size, qty){
+  function addSizeRow(size, qty, m){
+    m = m || {};
     const row = document.createElement('div');
     row.className = 'size-row';
     row.innerHTML = `
-      <select class="size-row-size">${SIZE_OPTIONS_HTML}</select>
-      <input type="number" class="size-row-qty" min="0" step="1" placeholder="1">
-      <button type="button" class="btn btn-small btn-danger size-row-remove" title="Größe entfernen" aria-label="Größe entfernen">✕</button>`;
+      <div class="size-row-top">
+        <select class="size-row-size">${SIZE_OPTIONS_HTML}</select>
+        <input type="number" class="size-row-qty" min="0" step="1" placeholder="1">
+        <button type="button" class="btn btn-small btn-danger size-row-remove" title="Größe entfernen" aria-label="Größe entfernen">✕</button>
+      </div>
+      <div class="size-row-measures">
+        <div><label class="sub-label">Brustumfang (cm)</label><input type="number" class="m-chest" min="0" step="0.5" placeholder="z. B. 56"></div>
+        <div><label class="sub-label">Länge Schulter–Bund (cm)</label><input type="number" class="m-shoulder" min="0" step="0.5" placeholder="z. B. 70"></div>
+        <div><label class="sub-label">Länge Hose (cm)</label><input type="number" class="m-pants" min="0" step="0.5" placeholder="z. B. 104"></div>
+        <div><label class="sub-label">Bundweite (cm)</label><input type="number" class="m-waist" min="0" step="0.5" placeholder="z. B. 40"></div>
+      </div>`;
     row.querySelector('.size-row-size').value = size || '';
     row.querySelector('.size-row-qty').value = (qty === null || qty === undefined) ? '' : qty;
+    row.querySelector('.m-chest').value = m.chest ?? '';
+    row.querySelector('.m-shoulder').value = m.shoulderLength ?? '';
+    row.querySelector('.m-pants').value = m.pantsLength ?? '';
+    row.querySelector('.m-waist').value = m.waist ?? '';
     row.querySelector('.size-row-remove').addEventListener('click', () => {
       row.remove();
       updateSizeRowRemoveButtons();
@@ -904,9 +1019,9 @@
     rows.forEach(r => { r.querySelector('.size-row-remove').disabled = rows.length <= 1; });
   }
 
-  function resetSizeRows(size, qty){
+  function resetSizeRows(size, qty, m){
     sizeRowsEl.innerHTML = '';
-    addSizeRow(size || '', qty === undefined ? 1 : qty);
+    addSizeRow(size || '', qty === undefined ? 1 : qty, m);
   }
 
   function setSizeRowsMultiAllowed(allowed){
@@ -925,7 +1040,17 @@
       const qtyRaw = row.querySelector('.size-row-qty').value.trim();
       if(i > 0 && !size) return;   // zusätzliche, nicht ausgefüllte Zeile -> ignorieren
       const stock = qtyRaw === '' ? null : Math.max(0, parseInt(qtyRaw, 10) || 0);
-      result.push({ size, stock });
+      // Maße je Größe
+      const measurements = {};
+      const chest = row.querySelector('.m-chest').value.trim();
+      const shoulder = row.querySelector('.m-shoulder').value.trim();
+      const pants = row.querySelector('.m-pants').value.trim();
+      const waist = row.querySelector('.m-waist').value.trim();
+      if(chest !== '') measurements.chest = parseFloat(chest);
+      if(shoulder !== '') measurements.shoulderLength = parseFloat(shoulder);
+      if(pants !== '') measurements.pantsLength = parseFloat(pants);
+      if(waist !== '') measurements.waist = parseFloat(waist);
+      result.push({ size, stock, measurements });
     });
     return result;
   }
@@ -963,6 +1088,45 @@
   }
 
   if(publishBtn) publishBtn.addEventListener('click', publishDrafts);
+
+  // ----- Sicherheitsnetz: Buttons der Warn-/Wiederherstellungs-Banner -----
+  const saveRetryBtn = document.getElementById('saveRetryBtn');
+  if(saveRetryBtn) saveRetryBtn.addEventListener('click', () => {
+    const ok = saveProducts(products);
+    if(ok) showToast('Auf dem Server gespeichert');
+  });
+
+  const recoverBtn = document.getElementById('recoverBtn');
+  if(recoverBtn) recoverBtn.addEventListener('click', () => {
+    const ok = saveProducts(products);
+    if(ok){
+      unsyncedRecovery = null;
+      updateRecoveryBar();
+      showToast('Auf dem Server gesichert');
+    }
+    // bei Fehler bleibt das Banner und die rote Warnung erscheint zusätzlich
+  });
+
+  const discardRecoveryBtn = document.getElementById('discardRecoveryBtn');
+  if(discardRecoveryBtn) discardRecoveryBtn.addEventListener('click', () => {
+    if(!unsyncedRecovery || !unsyncedRecovery.length) return;
+    if(!confirm(`${unsyncedRecovery.length} wiederhergestellte Artikel endgültig verwerfen?`)) return;
+    const drop = new Set(unsyncedRecovery.map(String));
+    products = products.filter(p => !drop.has(String(p.id)));
+    unsyncedRecovery = null;
+    saveProducts(products);
+    updateRecoveryBar();
+    renderList();
+    showToast('Verworfen');
+  });
+
+  // Vor dem Verlassen/Neuladen warnen, wenn etwas nur lokal liegt
+  window.addEventListener('beforeunload', (e) => {
+    if(hasUnsynced || (unsyncedRecovery && unsyncedRecovery.length)){
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 
   function showToast(msg){
     toast.textContent = msg;
@@ -1156,10 +1320,6 @@
     catsGrid.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
     resetSizeRows('', 1);
     setSizeRowsMultiAllowed(true);
-    fChest.value = '';
-    fShoulderLength.value = '';
-    fPantsLength.value = '';
-    fWaist.value = '';
     formTitle.textContent = 'Neues Produkt';
     submitBtn.textContent = 'Produkt speichern';
     cancelEditBtn.style.display = 'none';
@@ -1176,17 +1336,12 @@
     fOldPrice.value = rep.oldPrice || '';
     fFeatured.checked = rep.featured === true;
     fAlsoShop.checked = rep.alsoInShop === true;
-    // je eine Größen-Zeile pro vorhandener Variante; Größen dürfen ergänzt/entfernt werden
+    // je eine Größen-Zeile pro vorhandener Variante (inkl. eigener Maße); Größen dürfen ergänzt/entfernt werden
     sizeRowsEl.innerHTML = '';
-    (group.length ? group : [product]).forEach(v => addSizeRow(v.size || '', v.stock ?? null));
+    (group.length ? group : [product]).forEach(v => addSizeRow(v.size || '', v.stock ?? null, v.measurements));
     updateSizeRowRemoveButtons();
     setSizeRowsMultiAllowed(true);
     fCondition.value = rep.condition || '';
-    const m = rep.measurements || {};
-    fChest.value = m.chest ?? '';
-    fShoulderLength.value = m.shoulderLength ?? '';
-    fPantsLength.value = m.pantsLength ?? '';
-    fWaist.value = m.waist ?? '';
     fDesc.value = rep.desc || '';
     currentImage = rep.image || '';
     currentSubImages = (rep.images || []).slice();
@@ -1214,13 +1369,7 @@
     const cats = Array.from(catsGrid.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
     const condition = fCondition.value;
     const desc = fDesc.value.trim();
-    const sizeRows = getSizeRows();
-
-    const measurements = {};
-    if(fChest.value.trim() !== '') measurements.chest = parseFloat(fChest.value);
-    if(fShoulderLength.value.trim() !== '') measurements.shoulderLength = parseFloat(fShoulderLength.value);
-    if(fPantsLength.value.trim() !== '') measurements.pantsLength = parseFloat(fPantsLength.value);
-    if(fWaist.value.trim() !== '') measurements.waist = parseFloat(fWaist.value);
+    const sizeRows = getSizeRows();   // enthält je Größe: { size, stock, measurements }
 
     if(!name || isNaN(price)){
       showToast('Bitte Name und Preis angeben');
@@ -1231,6 +1380,7 @@
       return;
     }
 
+    let successMsg = '';
     if(editingId){
       // editingId = groupKey der bearbeiteten Gruppe. Größen abgleichen:
       // vorhandene Größe -> aktualisieren (id/verkauft-Status bleiben erhalten),
@@ -1242,7 +1392,7 @@
       const anyPublished = existing.some(p => p.published !== false);
       const bySize = {};
       existing.forEach(p => { if(bySize[p.size || ''] === undefined) bySize[p.size || ''] = p; });
-      const newVariants = sizeRows.map(({ size, stock }, i) => {
+      const newVariants = sizeRows.map(({ size, stock, measurements }, i) => {
         const prev = bySize[size || ''];
         return {
           ...(prev || {}),
@@ -1255,27 +1405,30 @@
       });
       products = products.filter(p => groupKey(p) !== gid);
       products.splice(firstIdx < 0 ? 0 : firstIdx, 0, ...newVariants);
-      showToast('Produkt aktualisiert');
+      successMsg = 'Produkt aktualisiert';
     } else {
       // Eine Zeile je Größe -> eine eigene Variante je Größe, aber alle mit
       // derselben groupId: im Shop erscheinen sie als EIN Artikel, bei dem der
       // Käufer die Größe wählt. So muss nur einmal alles ausgefüllt werden.
       const gid = newGroupId();
-      const newVariants = sizeRows.map(({ size, stock }, i) => ({
+      const newVariants = sizeRows.map(({ size, stock, measurements }, i) => ({
         id: 'p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,8),
         groupId: gid,
         name, price, oldPrice, stock, featured, alsoInShop, cats, size, condition, desc, measurements, image: currentImage, images: currentSubImages.slice(),
         published: false   // erst mal Entwurf – geht erst online, wenn du „Alle veröffentlichen“ klickst
       }));
       products.unshift(...newVariants);
-      showToast(sizeRows.length > 1
+      successMsg = sizeRows.length > 1
         ? `${sizeRows.length} Größen als 1 Artikel gespeichert — noch nicht online`
-        : 'Als Entwurf gespeichert — noch nicht online');
+        : 'Als Entwurf gespeichert — noch nicht online';
     }
 
-    saveProducts(products);
+    const ok = saveProducts(products);
     resetForm();
     renderList();
+    // Erfolgsmeldung nur zeigen, wenn es WIRKLICH auf dem Server ankam.
+    // Bei Fehler übernimmt die rote Warnung (showSaveWarning) das Sagen.
+    if(ok) showToast(successMsg);
   });
 
   // Reihenfolge der Gruppen (erste Erscheinung je groupKey)
@@ -1575,6 +1728,7 @@
   updateImgPreview();
   resetSizeRows('', 1);
   renderList();
+  updateRecoveryBar();   // beim Start: „ungespeicherte Artikel wiederhergestellt“-Banner
 </script>
 
 </body>

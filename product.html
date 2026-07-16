@@ -644,24 +644,27 @@
         </div>`
       : '';
 
-    // Archiv-Metadaten als Spezifikationszeilen
-    const specs = [];
-    specs.push({ label:'Archiv-Nr.', text:'No. ' + no, mono:true });
-    if(cats.length) specs.push({ label:'Kollektion', text:cats.map(escapeHtml).join(', '), mono:true });
-    // Bei mehreren Größen übernimmt der Größen-Wähler oben die Anzeige; bei einer Größe hier zeigen.
-    if(!multiSize && rep.size) specs.push({ label:'Größe', text:escapeHtml(rep.size) });
-    if(rep.condition) specs.push({ label:'Zustand', text:escapeHtml(rep.condition) });
-    const m = rep.measurements || {};
-    if(m.chest) specs.push({ label:'Brustumfang', text:m.chest + ' cm', mono:true });
-    if(m.shoulderLength) specs.push({ label:'Länge (Schulter–Bund)', text:m.shoulderLength + ' cm', mono:true });
-    if(m.pantsLength) specs.push({ label:'Länge', text:m.pantsLength + ' cm', mono:true });
-    if(m.waist) specs.push({ label:'Bundweite', text:m.waist + ' cm', mono:true });
-    specs.push({ label:'Status', text: soldOut ? 'Verkauft — archiviert' : (isUnikat ? 'Unikat — Einzelstück' : 'Verfügbar'), mono:true });
-    const specsHtml = `<dl class="spec-rows">${specs.map(s => `
-      <div class="spec-row">
-        <dt>${s.label}</dt>
-        <dd${s.mono ? ' class="mono-val"' : ''}>${s.text}</dd>
-      </div>`).join('')}</dl>`;
+    // Archiv-Metadaten als Spezifikationszeilen. Die Maße hängen von der gewählten
+    // Größe ab -> die Liste wird pro Größe neu gebaut (buildSpecsHtml) und in refresh()
+    // aktualisiert, wenn der Käufer eine andere Größe wählt.
+    function buildSpecsHtml(v){
+      const specs = [];
+      specs.push({ label:'Archiv-Nr.', text:'No. ' + no, mono:true });
+      if(cats.length) specs.push({ label:'Kollektion', text:cats.map(escapeHtml).join(', '), mono:true });
+      if(!multiSize && rep.size) specs.push({ label:'Größe', text:escapeHtml(rep.size) });
+      if(rep.condition) specs.push({ label:'Zustand', text:escapeHtml(rep.condition) });
+      const m = (v && v.measurements) || {};
+      if(m.chest) specs.push({ label:'Brustumfang', text:m.chest + ' cm', mono:true });
+      if(m.shoulderLength) specs.push({ label:'Länge (Schulter–Bund)', text:m.shoulderLength + ' cm', mono:true });
+      if(m.pantsLength) specs.push({ label:'Länge', text:m.pantsLength + ' cm', mono:true });
+      if(m.waist) specs.push({ label:'Bundweite', text:m.waist + ' cm', mono:true });
+      specs.push({ label:'Status', text: soldOut ? 'Verkauft — archiviert' : (isUnikat ? 'Unikat — Einzelstück' : 'Verfügbar'), mono:true });
+      return `<dl class="spec-rows">${specs.map(s => `
+        <div class="spec-row">
+          <dt>${s.label}</dt>
+          <dd${s.mono ? ' class="mono-val"' : ''}>${s.text}</dd>
+        </div>`).join('')}</dl>`;
+    }
 
     const storyHtml = rep.desc
       ? `<div class="detail-story"><p>${escapeHtml(rep.desc)}</p></div>`
@@ -679,7 +682,7 @@
         <div class="detail-info">
           <div class="detail-no"><span>Archiv No. ${no}</span><span class="unikat">${soldOut ? 'Archiviert' : (isUnikat ? 'Unikat' : 'Verfügbar')}</span></div>
           <h1 class="detail-name">${escapeHtml(rep.name || '')}</h1>
-          ${specsHtml}
+          <div id="specSlot">${buildSpecsHtml(active)}</div>
           ${storyHtml}
           <div class="purchase-area">
             ${sizeSelectorHtml}
@@ -810,6 +813,9 @@
             c.classList.toggle('active', c.dataset.id === active.id);
           });
         }
+        // Maße/Spezifikationen der gewählten Größe anzeigen
+        const specSlot = document.getElementById('specSlot');
+        if(specSlot) specSlot.innerHTML = buildSpecsHtml(active);
         stockSlot.innerHTML = stockLineFor(active);
         renderQty();
         renderPaypalButtons(paypalGetter, document.getElementById('paypalButtonContainerProduct'));
