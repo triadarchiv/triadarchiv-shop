@@ -1142,6 +1142,36 @@
     return file.type.startsWith('image/') && file.type !== 'image/heic' && file.type !== 'image/heif';
   }
 
+  // Handy-Kamerafotos sind oft 3-8 MB pro Bild — unkomprimiert gespeichert reicht das
+  // schon bei einem einzigen Produkt, um den Speicher-Upload zu sprengen. Deshalb wird
+  // jedes Bild vor dem Speichern verkleinert und als JPEG neu kodiert (typisch < 400 KB
+  // bei voller Web-Qualität).
+  const IMG_MAX_DIM = 1800;
+  const IMG_QUALITY = 0.85;
+  function compressImageFile(fileOrBlob){
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(fileOrBlob);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        const scale = Math.min(1, IMG_MAX_DIM / Math.max(width, height));
+        width = Math.max(1, Math.round(width * scale));
+        height = Math.max(1, Math.round(height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';           // transparente PNGs -> weißer statt schwarzer Hintergrund
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', IMG_QUALITY));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Bild konnte nicht gelesen werden')); };
+      img.src = url;
+    });
+  }
+
   function updateImgPreview(){
     if(currentImage){
       imgPreview.innerHTML = `<img src="${currentImage}" alt="" onerror="this.parentElement.textContent='Format nicht unterstützt';">`;
@@ -1167,15 +1197,9 @@
       fImage.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onerror = () => {
-      showToast('Bild konnte nicht gelesen werden');
-    };
-    reader.onload = () => {
-      currentImage = reader.result;
-      updateImgPreview();
-    };
-    reader.readAsDataURL(file);
+    compressImageFile(file)
+      .then(dataUrl => { currentImage = dataUrl; updateImgPreview(); })
+      .catch(() => showToast('Bild konnte nicht verarbeitet werden'));
   });
   removeImgBtn.addEventListener('click', () => {
     currentImage = '';
@@ -1190,21 +1214,14 @@
       showToast('Maximal ' + MAX_SUB_IMAGES + ' zusätzliche Bilder');
       return;
     }
-    files.forEach(file => {
-      if(!isSupportedImage(file)){
-        showToast('Format nicht unterstützt — bitte JPG oder PNG verwenden');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onerror = () => {
-        showToast('Bild konnte nicht gelesen werden');
-      };
-      reader.onload = () => {
-        currentSubImages.push(reader.result);
-        updateSubImagesPreview();
-      };
-      reader.readAsDataURL(file);
-    });
+    const valid = files.filter(isSupportedImage);
+    if(valid.length < files.length) showToast('Format nicht unterstützt — bitte JPG oder PNG verwenden');
+    // nacheinander verarbeiten, damit die Auswahl-Reihenfolge erhalten bleibt
+    valid.reduce((chain, file) => chain.then(() =>
+      compressImageFile(file)
+        .then(dataUrl => { currentSubImages.push(dataUrl); updateSubImagesPreview(); })
+        .catch(() => showToast('Bild konnte nicht verarbeitet werden'))
+    ), Promise.resolve());
   });
 
   subImagesPreview.addEventListener('click', (e) => {
@@ -1238,10 +1255,9 @@
       showToast('Format nicht unterstützt — bitte JPG oder PNG');
       return;
     }
-    const reader = new FileReader();
-    reader.onerror = () => showToast('Bild konnte nicht gelesen werden');
-    reader.onload = () => ingestImageDataUrl(reader.result);
-    reader.readAsDataURL(file);
+    compressImageFile(file)
+      .then(ingestImageDataUrl)
+      .catch(() => showToast('Bild konnte nicht verarbeitet werden'));
   }
 
   // Fallback: eine Bild-URL (z. B. beim Direkt-Ziehen aus dem Browser) laden
@@ -1250,10 +1266,9 @@
       .then(res => res.blob())
       .then(blob => {
         if(!blob.type.startsWith('image/')) throw new Error('kein Bild');
-        const reader = new FileReader();
-        reader.onload = () => ingestImageDataUrl(reader.result);
-        reader.readAsDataURL(blob);
+        return compressImageFile(blob);
       })
+      .then(ingestImageDataUrl)
       .catch(() => showToast('Direkt-Ziehen aus Instagram klappt nicht — Bild rechtsklicken → „Bild kopieren", dann Strg + V'));
   }
 
