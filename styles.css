@@ -305,6 +305,7 @@ header{
   padding-top:12px;
   border-top:1px solid var(--line-strong);
   transition:transform .35s cubic-bezier(.2,.6,.2,1);
+  min-width:0;   /* Grid-Item darf unter die Textbreite schrumpfen — sonst zwingt nowrap-Meta die Spalte breiter → Überlauf rechts */
 }
 .product:hover{ transform:translateY(-4px); }
 
