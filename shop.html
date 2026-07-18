@@ -827,6 +827,157 @@
   }
   /* im Kollektions-Modus (man ist ja schon drin) ausblenden */
   body.collection-mode .collection-band{ display:none; }
+
+  /* ================= Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ================= */
+  .drop-overlay{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(8,7,6,0.72);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .4s ease, visibility .4s ease;
+  }
+  .drop-overlay.open{ opacity:1; visibility:visible; }
+  .drop-modal{
+    position:relative;
+    width:100%;
+    max-width:440px;
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    padding:clamp(28px, 5vw, 48px);
+    transform:translateY(14px) scale(.985);
+    transition:transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .drop-overlay.open .drop-modal{ transform:none; }
+  .drop-close{
+    position:absolute;
+    top:14px; right:14px;
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    cursor:pointer;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .drop-close:hover{ border-color:var(--text); color:var(--text); }
+  .drop-close svg{ width:14px; height:14px; }
+  .drop-eyebrow{ display:block; margin-bottom:var(--s3); }
+  .drop-modal h2{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(34px, 7vw, 52px);
+    line-height:1.0;              /* genug Raum, damit Umlaut-Pünktchen (Ü/Ä/Ö) nicht abgeschnitten werden */
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+    padding-top:2px;
+  }
+  .drop-modal h2 .accent{ color:var(--accent); }
+  .drop-text{
+    margin-top:var(--s3);
+    color:var(--muted);
+    font-size:14px;
+    font-weight:300;
+    line-height:1.75;
+    max-width:40ch;
+  }
+  .drop-form{ display:flex; flex-direction:column; gap:10px; margin-top:var(--s4); }
+  .drop-form input{
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:0.5px;
+    padding:16px 18px;
+    outline:none;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .drop-form input::placeholder{ color:var(--faint); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; }
+  .drop-form input:focus{ border-color:var(--text); background:var(--surface-2); }
+  .drop-form button{
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:16px 20px;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease;
+  }
+  .drop-form button:hover{ background:transparent; color:var(--text); }
+  .drop-form button:disabled{ opacity:.6; cursor:wait; }
+  .drop-note{
+    min-height:16px;
+    margin-top:12px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.3px;
+    line-height:1.5;
+  }
+  .drop-note.error{ color:var(--accent); }
+  .drop-note.success{ color:var(--muted); }
+  .drop-fine{
+    margin-top:var(--s3);
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:1px;
+    line-height:1.6;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .drop-fine a{ color:var(--faint); }
+  /* Erfolg: Code-Enthüllung */
+  .drop-success{ display:none; }
+  .drop-modal.is-done .drop-form,
+  .drop-modal.is-done .drop-intro{ display:none; }
+  .drop-modal.is-done .drop-success{ display:block; }
+  .drop-code{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-top:var(--s3);
+    padding:16px 18px;
+    border:1px dashed var(--accent);
+    background:var(--accent-soft);
+  }
+  .drop-code code{
+    font-family:var(--font-mono);
+    font-size:20px;
+    font-weight:500;
+    letter-spacing:3px;
+    color:var(--text);
+  }
+  .drop-copy{
+    flex:0 0 auto;
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:9px 12px;
+    cursor:pointer;
+    transition:border-color .2s ease;
+  }
+  .drop-copy:hover{ border-color:var(--text); }
+  @media(prefers-reduced-motion: reduce){
+    .drop-overlay, .drop-modal{ transition:opacity .4s ease, visibility .4s ease; }
+    .drop-modal{ transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -1013,6 +1164,34 @@
   </div>
   <div class="foot-copy">© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.</div>
 </footer>
+
+<!-- ================= Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ================= -->
+<div class="drop-overlay" id="dropOverlay" role="dialog" aria-modal="true" aria-labelledby="dropTitle" hidden>
+  <div class="drop-modal" id="dropModal">
+    <button class="drop-close" id="dropClose" type="button" aria-label="Schließen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="drop-intro">
+      <span class="eyebrow drop-eyebrow">Archiv-Zugang</span>
+      <h2 id="dropTitle"><span class="accent">10%</span> auf dein<br>erstes Stück</h2>
+      <p class="drop-text">Trag dich ein und sei als Erste:r dabei, wenn neue handverlesene Unikate ins Archiv kommen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung.</p>
+    </div>
+    <form class="drop-form" id="dropForm" novalidate>
+      <input type="email" id="dropEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
+      <button type="submit">Zugang sichern</button>
+    </form>
+    <p class="drop-note" id="dropNote" role="status" aria-live="polite"></p>
+    <div class="drop-success">
+      <p class="drop-text">Willkommen im Archiv. Dein Willkommensrabatt:</p>
+      <div class="drop-code">
+        <code id="dropCodeValue">ARCHIV10</code>
+        <button class="drop-copy" id="dropCopy" type="button">Kopieren</button>
+      </div>
+      <p class="drop-fine" id="dropDoiHint"></p>
+    </div>
+    <p class="drop-fine">Ein Rabatt pro Kunde · jederzeit abbestellbar · <a href="datenschutz.html">Datenschutz</a></p>
+  </div>
+</div>
 
 <script>
   if(location.protocol === 'file:'){
@@ -1597,6 +1776,126 @@
         .finally(() => {
           btn.disabled = false;
         });
+    });
+  })();
+
+  /* ---------- Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ----------
+     Wandelt Besucher in Newsletter-Abonnenten um — verzögert, dezent,
+     einmal pro Besucher. Nutzt denselben /api/newsletter-Endpunkt wie
+     das Formular unten (mit lokalem Fallback). */
+  (function initDropPopup(){
+    const overlay = document.getElementById('dropOverlay');
+    if(!overlay) return;
+    const modal   = document.getElementById('dropModal');
+    const form    = document.getElementById('dropForm');
+    const input   = document.getElementById('dropEmail');
+    const note    = document.getElementById('dropNote');
+    const closeBtn= document.getElementById('dropClose');
+    const copyBtn = document.getElementById('dropCopy');
+    const codeEl  = document.getElementById('dropCodeValue');
+    const doiHint = document.getElementById('dropDoiHint');
+    const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    const SEEN_KEY = 'triadDropSeen';       // Zeitpunkt der letzten Anzeige
+    const DONE_KEY = 'triadNewsletterDone'; // hat sich bereits eingetragen
+    const COOLDOWN = 30 * 24 * 60 * 60 * 1000;  // 30 Tage nicht erneut anzeigen
+
+    function alreadyHandled(){
+      try{
+        if(localStorage.getItem(DONE_KEY)) return true;
+        const seen = Number(localStorage.getItem(SEEN_KEY) || 0);
+        if(seen && (Date.now() - seen) < COOLDOWN) return true;
+      }catch(e){}
+      return false;
+    }
+
+    let opened = false;
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    function open(){
+      if(opened || alreadyHandled()) return;
+      opened = true;
+      cleanupTriggers();
+      overlay.hidden = false;
+      requestAnimationFrame(() => overlay.classList.add('open'));
+      try{ localStorage.setItem(SEEN_KEY, String(Date.now())); }catch(e){}
+      document.addEventListener('keydown', onKey);
+      setTimeout(() => { try{ input.focus(); }catch(e){} }, 460);
+    }
+    function close(){
+      overlay.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(() => { overlay.hidden = true; }, 420);
+    }
+
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
+
+    /* Auslöser: nach 14 s ODER 45 % Scrolltiefe ODER Exit-Intent (Desktop) */
+    const timer = setTimeout(open, 14000);
+    function onScroll(){
+      const reached = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+      if(reached > 0.45) open();
+    }
+    function onExit(e){ if(e.clientY <= 0) open(); }
+    function cleanupTriggers(){
+      clearTimeout(timer);
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('mouseout', onExit);
+    }
+    if(!alreadyHandled()){
+      window.addEventListener('scroll', onScroll, { passive:true });
+      document.addEventListener('mouseout', onExit);
+    }
+
+    if(copyBtn){
+      copyBtn.addEventListener('click', () => {
+        const code = codeEl.textContent.trim();
+        const done = () => { copyBtn.textContent = 'Kopiert'; setTimeout(() => { copyBtn.textContent = 'Kopieren'; }, 1600); };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(code).then(done).catch(done);
+        } else { done(); }
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if(!isEmail(email)){
+        note.className = 'drop-note error';
+        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        return;
+      }
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      note.className = 'drop-note';
+      note.textContent = '';
+
+      const finishSuccess = (doi) => {
+        try{ localStorage.setItem(DONE_KEY, '1'); }catch(err){}
+        modal.classList.add('is-done');
+        if(doiHint){
+          doiHint.textContent = doi
+            ? 'Wir haben dir eine Bestätigungs-Mail geschickt — bitte bestätige den Link darin (auch im Spam-Ordner nachsehen).'
+            : 'Gültig für deine erste Bestellung.';
+        }
+      };
+
+      fetch('/api/newsletter', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ email, source:'popup' })
+      })
+        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(data => finishSuccess(data && data.doi))
+        .catch(() => {
+          try{
+            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
+            list.push({ email, date:new Date().toISOString(), source:'popup' });
+            localStorage.setItem('triadNewsletter', JSON.stringify(list));
+          }catch(err){}
+          finishSuccess(false);
+        })
+        .finally(() => { btn.disabled = false; });
     });
   })();
 </script>

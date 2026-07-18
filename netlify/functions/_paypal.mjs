@@ -25,7 +25,12 @@ export async function getAccessToken() {
   return data.access_token;
 }
 
-// Gleiche Logik wie checkout.mjs (Stripe): Zwischensumme + Versand (6,19 EUR, gratis ab 80 EUR).
+// Gleiche Logik wie checkout.mjs (Stripe): Zwischensumme + Versand, gratis ab 90 EUR.
+// PayPal fragt die Lieferadresse erst NACH der Bestell-Erstellung ab (shipping_preference:
+// GET_FROM_FILE), der Versandpreis muss also schon vorher feststehen. Da die meisten
+// Bestellungen aus Deutschland kommen, wird der DE-Satz als Standard berechnet; ein
+// EU-Ausland-Aufschlag lässt sich hier technisch nicht vorab je Bestellung unterscheiden
+// (anders als bei Stripe, wo der Kunde selbst zwischen zwei Versandoptionen wählt).
 // discountPercent (z. B. 10) reduziert die Zwischensumme; der Versand bleibt gleich.
 export function cartTotals(cart, discountPercent = 0) {
   let subtotal = 0;
@@ -40,7 +45,7 @@ export function cartTotals(cart, discountPercent = 0) {
   });
   const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
   const discount = discountPercent > 0 ? round2(subtotal * discountPercent / 100) : 0;
-  const shipping = subtotal >= 80 ? 0 : 6.19;
+  const shipping = subtotal >= 90 ? 0 : 6.19;
   const total = round2(subtotal - discount + shipping);
   return { items, ids, subtotal: round2(subtotal), discount, shipping, total };
 }

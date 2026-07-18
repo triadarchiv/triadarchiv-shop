@@ -62,8 +62,14 @@ export default async (req) => {
   params.append('success_url', `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`);
   params.append('cancel_url', `${origin}/cart.html`);
 
-  // Lieferadresse abfragen (Versand nach Deutschland) + Rechnungsadresse
-  params.append('shipping_address_collection[allowed_countries][0]', 'DE');
+  // Lieferadresse abfragen (Versand DE + EU-Ausland) + Rechnungsadresse
+  const EU_COUNTRIES = [
+    'DE', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'GR',
+    'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+  ];
+  EU_COUNTRIES.forEach((code, i) => {
+    params.append(`shipping_address_collection[allowed_countries][${i}]`, code);
+  });
   params.append('billing_address_collection', 'auto');
 
   let subtotal = 0;
@@ -81,14 +87,23 @@ export default async (req) => {
     params.append(`line_items[${i}][quantity]`, String(qty));
   });
 
-  // Versandkosten: 6,19 EUR, gratis ab 80 EUR (Basis = Warenwert vor Rabatt)
-  let shippingCents = 619;
-  if (subtotal >= 80) shippingCents = 0;
-  const shipName = shippingCents === 0 ? 'Kostenloser Versand' : 'Versand (DHL)';
-  params.append('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
-  params.append('shipping_options[0][shipping_rate_data][fixed_amount][amount]', String(shippingCents));
-  params.append('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'eur');
-  params.append('shipping_options[0][shipping_rate_data][display_name]', shipName);
+  // Versandkosten: 6,19 EUR (DE) / 12,90 EUR (EU-Ausland), beide gratis ab 90 EUR
+  // Warenwert (Basis = Warenwert vor Rabatt). Stripe Checkout kann Versandoptionen
+  // nicht automatisch nach Land filtern -> beide Optionen werden klar benannt
+  // angeboten, der Kunde wählt die zu seiner Adresse passende selbst aus.
+  const freeShipping = subtotal >= 90;
+  const shippingTiers = freeShipping
+    ? [{ name: 'Kostenloser Versand', cents: 0 }]
+    : [
+        { name: 'Versand Deutschland (DHL)', cents: 619 },
+        { name: 'Versand EU-Ausland (DHL)', cents: 1290 },
+      ];
+  shippingTiers.forEach((tier, i) => {
+    params.append(`shipping_options[${i}][shipping_rate_data][type]`, 'fixed_amount');
+    params.append(`shipping_options[${i}][shipping_rate_data][fixed_amount][amount]`, String(tier.cents));
+    params.append(`shipping_options[${i}][shipping_rate_data][fixed_amount][currency]`, 'eur');
+    params.append(`shipping_options[${i}][shipping_rate_data][display_name]`, tier.name);
+  });
 
   // Produkt-IDs als Metadaten -> nach Zahlung als verkauft markieren (order-complete)
   params.append('metadata[product_ids]', ids.join(','));

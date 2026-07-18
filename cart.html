@@ -311,6 +311,16 @@
     font-variant-numeric:tabular-nums;
   }
 
+  .ship-note{
+    margin-top:-6px;
+    padding-bottom:6px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    line-height:1.6;
+    letter-spacing:0.3px;
+    color:var(--faint);
+  }
+
   /* Button-Gruppe unter dem Warenkorb */
   .cart-cta{
     display:flex;
@@ -423,9 +433,11 @@
 <script>
   const cartWrap = document.getElementById('cartWrap');
 
-  // Versandkosten (muss mit checkout.js und versand.html übereinstimmen)
+  // Versandkosten (muss mit checkout.mjs und versand.html übereinstimmen).
+  // Anzeige hier ist der DE-Richtwert; bei Lieferung ins EU-Ausland wählt der Kunde
+  // beim Bezahlvorgang (Stripe) die passende, teurere Option selbst aus.
   const SHIPPING = 6.19;
-  const FREE_FROM = 80;
+  const FREE_FROM = 90;
 
   function fmt(n){ return n.toFixed(2).replace('.', ',') + '€'; }
   function round2(n){ return Math.round((Number(n)||0) * 100) / 100; }
@@ -649,6 +661,7 @@
         ${discountRow}
         <div class="summary-row"><span>Versand${shipping === 0 ? '' : ` (gratis ab ${FREE_FROM}€)`}</span><span>${shippingLabel}</span></div>
       </div>
+      ${shipping !== 0 ? '<p class="ship-note">Bei Lieferung ins EU-Ausland wählst du beim Bezahlen die passende Versandoption (12,90€) — die Endsumme wird dort angepasst.</p>' : ''}
       ${discountBox}
       <div class="cart-total">
         <span>Gesamt</span>
