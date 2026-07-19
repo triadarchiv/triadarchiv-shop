@@ -4,6 +4,7 @@
 import { getStore } from '@netlify/blobs';
 import { getAccessToken, PAYPAL_API } from './_paypal.mjs';
 import { markUsed } from './_discount.mjs';
+import { sendOrderConfirmation } from './_order-email.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -78,7 +79,7 @@ export default async (req) => {
     const payerName = payer.name ? [payer.name.given_name, payer.name.surname].filter(Boolean).join(' ') : '';
 
     // Bestellung protokollieren (gleiches Schema wie order-complete.mjs, fürs Admin-Panel)
-    orders.push({
+    const orderRecord = {
       date: new Date().toISOString(),
       sessionId: orderID,
       provider: 'paypal',
@@ -98,8 +99,12 @@ export default async (req) => {
         },
       },
       customer: { email: payer.email_address || '', name: payerName },
-    });
+    };
+    orders.push(orderRecord);
     await store.setJSON('orders', orders);
+
+    // Gebrandete Bestellbestätigung an den Kunden (+ Kopie an den Shop). Wirft nie.
+    await sendOrderConfirmation(orderRecord);
 
     // Wurde diese Bestellung mit Rabattcode angelegt? Dann die vorgemerkte E-Mail
     // als "verbraucht" markieren (einmal pro Kunde) und den Merker aufräumen.

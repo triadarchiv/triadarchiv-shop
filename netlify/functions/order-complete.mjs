@@ -3,6 +3,7 @@
 
 import { getStore } from "@netlify/blobs";
 import { markUsed } from "./_discount.mjs";
+import { sendOrderConfirmation } from "./_order-email.mjs";
 
 export default async (req) => {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -58,7 +59,7 @@ export default async (req) => {
     }));
 
     // Bestellung protokollieren (inkl. Lieferadresse fürs Versandlabel)
-    orders.push({
+    const orderRecord = {
       date: new Date().toISOString(),
       sessionId,
       email: (session.customer_details && session.customer_details.email) || "",
@@ -68,8 +69,13 @@ export default async (req) => {
       productIds: idsRaw,
       shipping: session.shipping_details || null,
       customer: session.customer_details || null,
-    });
+    };
+    orders.push(orderRecord);
     await store.setJSON("orders", orders);
+
+    // Gebrandete Bestellbestätigung an den Kunden (+ Kopie an den Shop). Fehler
+    // hierbei dürfen die Bestellung nicht scheitern lassen -> Helfer wirft nie.
+    await sendOrderConfirmation(orderRecord);
 
     // Wurde ein Rabattcode genutzt? Dann die E-Mail als "verbraucht" markieren,
     // damit dieser Kunde den Code kein zweites Mal einlösen kann.
