@@ -27,6 +27,12 @@
   to = "/.netlify/functions/order-complete"
   status = 200
 
+# Stripe-Webhook: meldet bezahlte Bestellungen direkt (browserunabhängig).
+[[redirects]]
+  from = "/api/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
+
 [[redirects]]
   from = "/api/validate-code"
   to = "/.netlify/functions/validate-code"
