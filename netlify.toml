@@ -53,6 +53,12 @@
   to = "/.netlify/functions/orders"
   status = 200
 
+# Bestellung als versendet markieren + "Paket unterwegs"-Mail (Admin, POST).
+[[redirects]]
+  from = "/api/order-ship"
+  to = "/.netlify/functions/order-ship"
+  status = 200
+
 # Der Shop lädt Produkte über products.json -> auf die Funktion umleiten,
 # damit immer der aktuelle Online-Stand (Blobs) kommt. force=true überschreibt die Datei.
 [[redirects]]

@@ -162,3 +162,153 @@ triadarchiv.de · triadarchiv@web.de`;
     return false;
   }
 }
+
+// Interner Versand-Helfer (Brevo). Wirft nie. bccShop=true legt eine Kopie ans
+// Shop-Postfach (für die Bestellbestätigung sinnvoll, für die Versand-Mail nicht,
+// da der Shop den Versand ja selbst ausgelöst hat).
+async function sendMail({ to, subject, html, text, bccShop = false }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "newsletter@triadarchiv.de";
+  const replyToEmail = process.env.BREVO_REPLYTO_EMAIL || "triadarchiv@web.de";
+  const shopCopy = process.env.ORDER_NOTIFY_EMAIL != null ? process.env.ORDER_NOTIFY_EMAIL : replyToEmail;
+
+  const email = (to || "").trim();
+  if (!apiKey || !email) return false;
+
+  const payload = {
+    sender: { email: senderEmail, name: SHOP_NAME },
+    replyTo: { email: replyToEmail, name: SHOP_NAME },
+    to: [{ email }],
+    subject,
+    htmlContent: html,
+    textContent: text,
+  };
+  if (bccShop && shopCopy && shopCopy.trim() && shopCopy.trim().toLowerCase() !== email.toLowerCase()) {
+    payload.bcc = [{ email: shopCopy.trim() }];
+  }
+
+  try {
+    const resp = await fetch(SEND_URL, {
+      method: "POST",
+      headers: { "api-key": apiKey, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) {
+      console.error("Brevo-Fehler:", resp.status, await resp.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("Mailversand Ausnahme:", err && err.message);
+    return false;
+  }
+}
+
+// Baut aus Versanddienst + Sendungsnummer eine Tracking-URL (leer, wenn unbekannt).
+function trackingUrl(carrier, tracking) {
+  if (!tracking) return "";
+  const t = encodeURIComponent(tracking);
+  switch ((carrier || "").toLowerCase()) {
+    case "dhl": return `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=${t}`;
+    case "hermes": return `https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#${t}`;
+    case "dpd": return `https://tracking.dpd.de/status/de_DE/parcel/${t}`;
+    case "deutsche post":
+    case "post": return `https://www.deutschepost.de/sendung/simpleQuery.html?form.sendungsnummer=${t}`;
+    case "gls": return `https://gls-group.com/DE/de/paketverfolgung?match=${t}`;
+    case "ups": return `https://www.ups.com/track?tracknum=${t}`;
+    default: return "";
+  }
+}
+
+// Versandbestätigung an den Kunden ("Dein Paket ist unterwegs"), optional mit
+// Sendungsnummer + Tracking-Link. Wird von order-ship.mjs ausgelöst. Wirft nie.
+export async function sendShippingConfirmation(order) {
+  const email = (order.email || "").trim();
+  if (!email) return false;
+
+  const ref = orderRef(order.sessionId);
+  const items = Array.isArray(order.items) ? order.items : [];
+  const addr = addressLines(order);
+  const tracking = (order.tracking || "").trim();
+  const carrier = (order.carrier || "").trim();
+  const url = trackingUrl(carrier, tracking);
+
+  const itemsHtml = items
+    .map(
+      (it) => `
+        <tr><td style="padding:8px 0;border-bottom:1px solid #2a2a2a;color:#e8e8e8;">${esc(it.name)}${
+        (Number(it.qty) || 1) > 1 ? ` <span style="color:#888;">× ${esc(it.qty)}</span>` : ""
+      }</td></tr>`
+    )
+    .join("");
+  const itemsText = items.map((it) => `- ${it.name}${(Number(it.qty) || 1) > 1 ? ` × ${it.qty}` : ""}`).join("\n");
+  const addrHtml = addr.map((l) => esc(l)).join("<br>");
+  const addrText = addr.join("\n");
+
+  const trackingHtml = tracking
+    ? `<div style="margin:24px 0 0;padding:18px 20px;background:#111111;border:1px solid #2a2a2a;border-radius:8px;">
+         <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px;">Sendungsverfolgung${
+           carrier ? ` · ${esc(carrier)}` : ""
+         }</div>
+         <div style="color:#e8e8e8;font-family:monospace;font-size:15px;letter-spacing:1px;">${esc(tracking)}</div>
+         ${
+           url
+             ? `<a href="${url}" style="display:inline-block;margin-top:14px;background:#f4f1ea;color:#111111;padding:11px 22px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:14px;">Sendung verfolgen</a>`
+             : ""
+         }
+       </div>`
+    : "";
+  const trackingText = tracking
+    ? `\nSendungsverfolgung${carrier ? ` (${carrier})` : ""}: ${tracking}${url ? `\n${url}` : ""}\n`
+    : "";
+
+  const html = `
+  <div style="background:#111111;padding:32px 0;">
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;background:#181818;border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;">
+      <div style="padding:28px 32px 20px;border-bottom:1px solid #2a2a2a;">
+        <div style="font-size:13px;letter-spacing:3px;color:#e8e8e8;font-weight:bold;">/// ${SHOP_NAME}</div>
+      </div>
+      <div style="padding:28px 32px;color:#cfcfcf;line-height:1.65;">
+        <p style="font-size:19px;font-weight:bold;color:#ffffff;margin:0 0 8px;">Dein Paket ist unterwegs.</p>
+        <p style="margin:0 0 4px;">Gute Nachrichten – deine Bestellung <strong style="color:#cfcfcf;">${ref}</strong> wurde verschickt und ist jetzt auf dem Weg zu dir.</p>
+
+        <table style="width:100%;border-collapse:collapse;margin:22px 0 0;">
+          ${itemsHtml}
+        </table>
+
+        ${trackingHtml}
+
+        ${
+          addr.length
+            ? `<div style="margin:24px 0 0;padding:18px 20px;background:#111111;border:1px solid #2a2a2a;border-radius:8px;">
+                 <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px;">Lieferadresse</div>
+                 <div style="color:#e8e8e8;line-height:1.6;">${addrHtml}</div>
+               </div>`
+            : ""
+        }
+
+        <p style="margin:26px 0 0;color:#888;font-size:13px;">Fragen? Antworte einfach auf diese E-Mail.</p>
+      </div>
+      <div style="padding:20px 32px;border-top:1px solid #2a2a2a;color:#777;font-size:11px;line-height:1.6;">
+        ${SHOP_NAME} · Fabian Müller<br>
+        Schubertstraße 11, 71277 Rutesheim, Deutschland<br>
+        <a href="https://triadarchiv.de" style="color:#999;">triadarchiv.de</a> · <a href="mailto:triadarchiv@web.de" style="color:#999;">triadarchiv@web.de</a>
+      </div>
+    </div>
+  </div>`;
+
+  const text = `Dein Paket ist unterwegs.
+
+Gute Nachrichten – deine Bestellung ${ref} wurde verschickt und ist jetzt auf dem Weg zu dir.
+
+${itemsText}
+${trackingText}${addr.length ? `\nLieferadresse:\n${addrText}\n` : ""}
+Fragen? Antworte einfach auf diese E-Mail.
+
+—
+${SHOP_NAME} · Fabian Müller
+Schubertstraße 11, 71277 Rutesheim, Deutschland
+triadarchiv.de · triadarchiv@web.de`;
+
+  return sendMail({ to: email, subject: `Dein Paket ist unterwegs (${ref}) – ${SHOP_NAME}`, html, text, bccShop: false });
+}

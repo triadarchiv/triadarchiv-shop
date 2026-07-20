@@ -104,6 +104,23 @@
   .order-email{ font-size:12px; color:var(--grey); }
   .order-muted{ color:var(--grey); }
 
+  /* Versand-Status / "als versendet markieren" */
+  .order-ship{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+  }
+  .order-ship select, .order-ship input[type=text]{ margin:0; }
+  .order-ship select{ flex:0 0 auto; width:auto; }
+  .order-ship input[type=text]{ flex:1 1 160px; min-width:120px; }
+  .order-ship .ship-btn{ flex:0 0 auto; white-space:nowrap; }
+  .order-shipped{
+    display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+    font-size:13px; color:#5fd08a;
+  }
+  .order-shipped .track{ color:var(--grey); font-family:monospace; }
+  .order-shipped a{ color:var(--grey); }
+
   .header-titel{
     text-align:center;
     font-family:var(--font-display);
@@ -1692,6 +1709,25 @@
       ].filter(s => s && String(s).trim()).map(escapeHtml).join('<br>');
       const d = o.date ? new Date(o.date).toLocaleString('de-DE') : '';
       const betrag = o.amount ? (String(o.amount).replace('.', ',') + ' ' + (o.currency || 'EUR')) : '';
+
+      // Versand-Status: entweder "versendet"-Anzeige oder das Markier-Formular.
+      const shipped = o.shipped === true;
+      const shipDate = o.shippedDate ? new Date(o.shippedDate).toLocaleDateString('de-DE') : '';
+      const trackTxt = o.tracking
+        ? `${o.carrier ? escapeHtml(o.carrier) + ' · ' : ''}<span class="track">${escapeHtml(o.tracking)}</span>`
+        : '';
+      const shipSection = shipped
+        ? `<div class="order-shipped">✓ Versendet${shipDate ? ' am ' + escapeHtml(shipDate) : ''}${trackTxt ? ' · ' + trackTxt : ''}</div>`
+        : `<div class="order-ship" data-session="${escapeHtml(o.sessionId || '')}">
+             <select class="ship-carrier" aria-label="Versanddienst">
+               <option value="">Versanddienst …</option>
+               <option>DHL</option><option>Hermes</option><option>DPD</option>
+               <option>Deutsche Post</option><option>GLS</option><option>UPS</option>
+             </select>
+             <input type="text" class="ship-tracking" placeholder="Sendungsnummer (optional)">
+             <button type="button" class="btn ship-btn">Als versendet markieren</button>
+           </div>`;
+
       return `
         <div class="order-card">
           <div class="order-head">
@@ -1704,8 +1740,42 @@
             ${adrLines || '<span class="order-muted">keine Adresse hinterlegt</span>'}
           </div>
           <div class="order-email">${escapeHtml(o.email || '')}</div>
+          ${shipSection}
         </div>`;
     }).join('');
+
+    ordersList.querySelectorAll('.order-ship .ship-btn').forEach(btn => {
+      btn.addEventListener('click', () => markShipped(btn));
+    });
+  }
+
+  async function markShipped(btn){
+    const wrap = btn.closest('.order-ship');
+    if(!wrap) return;
+    const sessionId = wrap.dataset.session;
+    const tracking = wrap.querySelector('.ship-tracking').value.trim();
+    const carrier = wrap.querySelector('.ship-carrier').value;
+    if(!confirm('Bestellung als versendet markieren und dem Kunden eine „Paket unterwegs"-E-Mail schicken?')) return;
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Wird gesendet …';
+    try{
+      const res = await fetch('/api/order-ship', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+        body: JSON.stringify({ sessionId, tracking, carrier })
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if(data && data.mailed === false){
+        alert('Als versendet markiert – aber die Benachrichtigungs-Mail konnte nicht gesendet werden (siehe Netlify-Logs). Bitte den Kunden ggf. selbst informieren.');
+      }
+      loadOrders();   // Ansicht aktualisieren -> zeigt jetzt "Versendet"
+    }catch(e){
+      btn.disabled = false;
+      btn.textContent = orig;
+      alert('Konnte nicht als versendet markiert werden: ' + e.message);
+    }
   }
 
   async function loadOrders(){
