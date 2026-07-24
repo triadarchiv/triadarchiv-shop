@@ -182,9 +182,14 @@ header{
 .header-icons span:hover,
 .header-icons a:hover{ color:var(--text); }
 
-/* Mobile: Logo + Warenkorb in einer Zeile, Suche darunter in voller Breite */
+/* Mobile: Logo + Warenkorb in einer Zeile, Suche darunter in voller Breite.
+   Kompakter als auf Desktop — der Header soll auf kleinen Screens wenig
+   Sichtfläche kosten. Eingaben ab 16px, sonst zoomt iOS beim Fokussieren. */
 @media(max-width:640px){
+  header{ padding:14px var(--pad-x) 12px; gap:8px 20px; }
   .header-search{ order:3; flex-basis:100%; max-width:none; }
+  .search-input{ font-size:16px; padding:8px 2px; }
+  .search-input::placeholder{ font-size:11px; }
 }
 
 /* ---------- Kapitel-/Kategorieleiste (editorial) ---------- */

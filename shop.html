@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRIAD ARCHIV — Vintage Adidas</title>
-<meta name="description" content="Kuratiertes Vintage-Adidas-Archiv. Handverlesene Y2K- & Retro-Unikate — Firebird, Adibreak, Velours. Jedes Teil ein Einzelstück.">
+<meta name="description" content="Kuratiertes Vintage-Adidas-Archiv. Erster Drop Mitte August — danach wöchentlich neue Unikate. Handverlesen, geprüft, jedes Teil 1/1.">
 <meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
@@ -62,8 +62,8 @@
     grid-template-columns:1fr;
     gap:var(--s5);
     align-items:end;
-    padding-top:var(--s6);
-    padding-bottom:var(--s6);
+    padding-top:clamp(40px, 7vw, 72px);
+    padding-bottom:clamp(40px, 7vw, 72px);
   }
   @media(min-width:920px){
     .hero-inner{
@@ -79,7 +79,7 @@
   .hero-title{
     font-family:var(--font-display);
     font-weight:400;
-    font-size:clamp(80px, 15.5vw, 216px);
+    font-size:clamp(64px, 15vw, 200px);
     line-height:0.84;
     letter-spacing:0.005em;
     text-transform:uppercase;
@@ -112,11 +112,13 @@
     margin-top:var(--s4);
   }
 
-  /* rechte Hero-Spalte: auffälliger Drop-Hinweis statt Produktkachel */
+  /* rechte Hero-Spalte: der Drop-Termin als ruhiges Panel — DIE Kerninfo der Seite.
+     Bewusst als einziges gerahmtes Element im Hero, damit der Blick hier landet. */
   .hero-drop{
     align-self:end;
-    border-top:1px solid var(--line-strong);
-    padding-top:var(--s4);
+    background:var(--surface);
+    border:1px solid var(--line-strong);
+    padding:clamp(24px, 3vw, 40px);
   }
   .hero-drop-kicker{
     display:inline-flex;
@@ -147,96 +149,49 @@
     font-family:var(--font-display);
     font-weight:400;
     text-transform:uppercase;
-    font-size:clamp(52px, 7.4vw, 104px);
-    line-height:0.88;
+    font-size:clamp(40px, 5.2vw, 76px);
+    line-height:1.0;               /* Umlaute (Ü/Ö/Ä) brauchen Luft nach oben */
     letter-spacing:0.01em;
     color:var(--text);
-    margin-top:var(--s3);
+    margin-top:var(--s2);
   }
   .hero-drop-headline .accent{ color:var(--accent); }
   .hero-drop-sub{
-    max-width:34ch;
+    max-width:36ch;
+    margin-top:var(--s2);
+    font-family:var(--font-sans);
+    font-size:15px;
+    font-weight:300;
+    line-height:1.6;
+    color:var(--muted);
+  }
+  /* CTA-Hierarchie im Panel: EIN Hauptbutton, darunter der stille Zweitweg */
+  .hero-drop .hero-ctas{
+    flex-direction:column;
+    align-items:stretch;
+    gap:16px;
+    margin-top:var(--s4);
+  }
+  .hero-drop .hero-ctas .link-quiet{ align-self:flex-start; }
+  /* Die drei Drop-Fakten, kompakt im Panel (ersetzen die frühere eigene Sektion) */
+  .hero-drop-points{
+    list-style:none;
     margin-top:var(--s3);
+    border-top:1px solid var(--line);
+  }
+  .hero-drop-points li{
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
     font-family:var(--font-mono);
     font-size:11px;
-    letter-spacing:2px;
-    line-height:1.7;
+    font-weight:500;
+    letter-spacing:1.5px;
     text-transform:uppercase;
-    color:var(--faint);
+    color:var(--muted);
   }
   @media(prefers-reduced-motion: reduce){
     .hero-drop-kicker .pulse,
     .buildup-kicker .pulse{ animation:none; }
-  }
-
-  /* ---------- Aufbau-Hinweis (Bestandsaufbau) ----------
-     Sichtbarkeit wird über AUFBAU_MODUS im Skript gesteuert. */
-  .buildup{
-    border-top:1px solid var(--line-strong);
-    border-bottom:1px solid var(--line-strong);
-    padding-block:clamp(26px, 4vw, 44px);
-  }
-  .buildup-inner{ display:grid; gap:var(--s3); }
-  @media(min-width:820px){
-    .buildup-inner{
-      grid-template-columns:1.4fr 0.6fr;
-      gap:clamp(32px, 5vw, 80px);
-      align-items:center;
-    }
-  }
-  .buildup-kicker{
-    display:inline-flex; align-items:center; gap:10px;
-    font-family:var(--font-mono); font-size:11px; font-weight:500;
-    letter-spacing:3px; text-transform:uppercase; color:var(--muted);
-    margin-bottom:14px;
-  }
-  .buildup-kicker .pulse{
-    flex:0 0 auto; width:7px; height:7px; border-radius:50%;
-    background:var(--accent);
-    box-shadow:0 0 0 0 rgba(255,61,120,0.45);
-    animation:dropPulse 2.4s ease-out infinite;
-  }
-  .buildup h2{
-    font-size:clamp(21px, 3vw, 32px);
-    line-height:1.18; font-weight:400; letter-spacing:-0.01em;
-    color:var(--text); margin-bottom:12px; text-wrap:balance;
-  }
-  .buildup p{ color:var(--muted); line-height:1.65; font-size:15px; max-width:58ch; }
-  .buildup p b{ color:var(--text); font-weight:500; }
-  .buildup-side{ display:flex; flex-direction:column; gap:8px; }
-  @media(min-width:820px){
-    .buildup-side{ align-items:flex-end; text-align:right; }
-  }
-  .buildup-label{
-    font-family:var(--font-mono); font-size:12px; letter-spacing:2.5px;
-    text-transform:uppercase; color:var(--muted);
-  }
-  .buildup-when{
-    font-size:clamp(30px, 4.6vw, 46px);
-    line-height:1.05; letter-spacing:-0.01em; color:var(--text);
-  }
-  /* Die Kernaussage – bewusst groß und ohne Versalien, damit sie gelesen wird. */
-  .buildup-after{
-    font-size:clamp(16px, 1.8vw, 19px);
-    line-height:1.4; color:var(--text); max-width:22ch;
-  }
-  .buildup-cta{
-    margin-top:10px; font-family:var(--font-mono); font-size:12px;
-    letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--muted); text-decoration:none;
-    border-bottom:1px solid var(--line-strong); padding-bottom:4px;
-    transition:color .2s ease, border-color .2s ease;
-    align-self:start;
-  }
-  @media(min-width:820px){ .buildup-cta{ align-self:end; } }
-  .buildup-cta:hover{ color:var(--text); border-color:var(--text); }
-
-  /* Hero-Unterzeile im Aufbau-Modus: lesbar statt 11px-Versalien. */
-  .hero-drop-sub.is-buildup{
-    font-family:var(--font-sans);
-    font-size:clamp(15px, 1.6vw, 17px);
-    letter-spacing:0; line-height:1.5;
-    text-transform:none; color:var(--text);
   }
 
   /* ---------- Abschnittskopf über dem Bestand ---------- */
@@ -252,7 +207,7 @@
     border-bottom:1px solid var(--line);
     scroll-margin-top:100px;
   }
-  .intro h1{
+  .intro h2{
     font-family:var(--font-display);
     font-weight:400;
     font-size:clamp(30px, 5vw, 56px);
@@ -261,6 +216,10 @@
     text-transform:uppercase;
     color:var(--text);
   }
+
+  /* Kategorieleiste sitzt jetzt direkt beim Bestand (statt ganz oben über dem Hero):
+     erst die Geschichte, dann die Werkzeuge. */
+  #bestand .filters{ padding:0; margin-bottom:6px; }
 
   /* ---------- Shop-Bereich ---------- */
   .shop{ margin:var(--s4) auto var(--s6); }
@@ -483,61 +442,34 @@
     line-height:1.8;
   }
 
-  /* ---------- Zustand & Transparenz ---------- */
-  .condition-box{
-    max-width:var(--container);
-    margin:var(--s7) auto 0;
-    padding:var(--s5) var(--pad-x) 0;
+  /* ---------- Zustand & Transparenz (kompakte Zeile unterm Bestand) ---------- */
+  .condition-strip{
+    margin-top:var(--s6);
+    padding-top:var(--s4);
     border-top:1px solid var(--line);
     display:grid;
     grid-template-columns:1fr;
-    gap:var(--s4);
+    gap:var(--s2) clamp(32px, 5vw, 96px);
   }
   @media(min-width:820px){
-    .condition-box{ grid-template-columns:0.8fr 1.2fr; gap:clamp(32px, 5vw, 96px); }
+    .condition-strip{ grid-template-columns:0.8fr 1.2fr; }
   }
-  .condition-box h2{
-    font-family:var(--font-display);
-    font-weight:400;
-    font-size:clamp(26px, 3.6vw, 44px);
-    line-height:0.95;
-    letter-spacing:0.01em;
-    text-transform:uppercase;
-    color:var(--text);
-  }
-  .condition-box .cond-body p{
-    font-family:var(--font-sans);
-    font-size:15px;
-    font-weight:300;
-    line-height:1.9;
-    color:var(--muted);
-    margin-bottom:var(--s3);
-  }
-  .condition-box ul{
-    list-style:none;
-    display:flex;
-    flex-direction:column;
-    gap:var(--s3);
-  }
-  .condition-box li{
-    font-size:15px;
-    font-weight:300;
-    line-height:1.9;
-    color:var(--muted);
-    padding-left:var(--s3);
-    border-left:1px solid var(--line-strong);
-  }
-  .condition-box li strong{
-    display:block;
-    color:var(--text);
-    font-weight:600;
-    letter-spacing:0.3px;
-    margin-bottom:4px;
+  .condition-strip h2{
     font-family:var(--font-mono);
+    font-weight:500;
     font-size:11px;
+    letter-spacing:2.5px;
     text-transform:uppercase;
-    letter-spacing:2px;
+    color:var(--text);
   }
+  .condition-strip p{
+    font-size:15px;
+    font-weight:300;
+    line-height:1.85;
+    color:var(--muted);
+    max-width:64ch;
+  }
+  .condition-strip b{ color:var(--text); font-weight:500; }
 
   /* ---------- Kollektions-Ansicht (eigener Auftritt) ---------- */
   .collection-hero{
@@ -582,11 +514,13 @@
   /* im Kollektions-Modus die Shop-typischen Elemente ausblenden */
   body.collection-mode .filters,
   body.collection-mode .intro,
+  body.collection-mode .warum,
   body.collection-mode .shop > .toolbar,
   body.collection-mode .shop > .filter-panel{ display:none; }
 
-  /* bei gewählter Kategorie (≠ „Alle“) den großen Hero ausblenden – nur Artikel zeigen */
+  /* bei gewählter Kategorie (≠ „Alle“) direkt zu den Artikeln — Erzähl-Sektionen weichen */
   body.category-view .hero,
+  body.category-view .warum,
   body.category-view .intro{ display:none; }
 
   .collection-footer{
@@ -612,17 +546,22 @@
   }
   .collection-back-btn:hover{ border-color:var(--text); }
 
-  /* ---------- Newsletter ---------- */
+  /* ---------- Newsletter (die Conversion-Bühne der Seite) ---------- */
   .newsletter{
-    max-width:var(--container);
-    margin:var(--s6) auto 0;
-    padding:0 var(--pad-x);
+    margin-top:clamp(72px, 10vw, 112px);
+    background:var(--surface);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .newsletter-inner{
     display:grid;
     grid-template-columns:1fr;
     gap:var(--s4);
+    padding-top:clamp(48px, 7vw, 88px);
+    padding-bottom:clamp(48px, 7vw, 88px);
   }
   @media(min-width:820px){
-    .newsletter{ grid-template-columns:1fr 1fr; gap:clamp(32px, 5vw, 96px); align-items:start; }
+    .newsletter-inner{ grid-template-columns:1fr 1fr; gap:clamp(32px, 5vw, 96px); align-items:center; }
   }
   .newsletter .eyebrow{ display:block; margin-bottom:var(--s2); }
   .newsletter h2{
@@ -642,6 +581,7 @@
     line-height:1.8;
     max-width:48ch;
   }
+  .newsletter p.nl-text b{ color:var(--text); font-weight:500; white-space:nowrap; }
   .newsletter-form{
     display:flex;
     gap:10px;
@@ -651,7 +591,7 @@
   .newsletter-form input{
     flex:1;
     min-width:220px;
-    background:var(--surface);
+    background:var(--bg);          /* dunkler als das Surface-Band, damit das Feld klar hervortritt */
     border:1px solid var(--line-strong);
     color:var(--text);
     font-family:var(--font-mono);
@@ -696,11 +636,29 @@
     font-size:11px;
   }
 
+  /* ---------- Warum Triad Archiv: ein Kopf, darunter Fakten + Stimmen ---------- */
+  .warum{ margin-top:clamp(72px, 10vw, 112px); }
+  .sect-head{
+    max-width:var(--container);
+    margin:0 auto var(--s4);
+    padding:0 var(--pad-x);
+  }
+  .sect-head .eyebrow{ display:block; margin-bottom:var(--s2); }
+  .sect-head h2{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(30px, 5vw, 60px);
+    line-height:1.0;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+
   /* ---------- Vertrauen / Assurance (prominent) ---------- */
   .assurance{
     border-top:1px solid var(--line);
     border-bottom:1px solid var(--line);
-    margin-top:var(--s7);
+    margin-top:var(--s5);
   }
   .assurance-inner{
     display:grid;
@@ -752,32 +710,19 @@
   }
 
   /* ---------- Kundenstimmen (rotierend, Vinted) ---------- */
-  .testimonials{ margin-top:var(--s7); }
-  .testimonials-head{ max-width:760px; }
-  .testimonials-head .eyebrow{ display:block; margin-bottom:var(--s2); }
-  .testimonials-head h2{
-    font-family:var(--font-display);
-    font-weight:400;
-    font-size:clamp(30px, 5vw, 60px);
-    line-height:0.95;
-    letter-spacing:0.01em;
+  .testimonials{ margin-top:var(--s5); }
+  .testimonials-note{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:2px;
     text-transform:uppercase;
-    color:var(--text);
-  }
-  .testimonials-head h2 .tstar{ color:var(--accent); }
-  .testimonials-head p{
-    margin-top:var(--s3);
-    font-size:15px;
-    font-weight:300;
-    line-height:1.7;
-    color:var(--muted);
-    max-width:54ch;
+    color:var(--faint);
   }
   .testimonial-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(215px, 1fr));
     gap:16px;
-    margin-top:var(--s5);
+    margin-top:var(--s3);
     transition:opacity .45s ease;
   }
   .testimonial-grid.is-fading{ opacity:0; }
@@ -898,6 +843,22 @@
   }
   /* im Kollektions-Modus (man ist ja schon drin) ausblenden */
   body.collection-mode .collection-band{ display:none; }
+
+  /* ---------- Sprungziele: Platz für den Sticky-Header lassen ----------
+     Ohne scroll-margin landen Anker-Sprünge UNTER dem fixierten Header. */
+  #warum, #bestand, .newsletter{ scroll-margin-top:88px; }
+  @media(max-width:640px){
+    #warum, #bestand, .newsletter{ scroll-margin-top:132px; }  /* Header + Suchzeile */
+  }
+
+  /* ---------- Mobile-Feinschliff ---------- */
+  @media(max-width:640px){
+    .grid{ gap:40px 14px; }
+    .product .add-btn{ letter-spacing:1.2px; padding:13px 10px; }
+    .newsletter-form input,
+    .drop-form input{ font-size:16px; }   /* ab 16px zoomt iOS beim Fokussieren nicht mehr rein */
+    .newsletter-form button{ width:100%; }
+  }
 
   /* ================= Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ================= */
   .drop-overlay{
@@ -1066,57 +1027,34 @@
   </div>
 </header>
 
-<nav class="filters" id="filters" aria-label="Kategorien">
-  <button class="filter-btn active" data-filter="all">Alle</button>
-  <button class="filter-btn" data-filter="trainingsjacken">Trainingsjacken</button>
-  <button class="filter-btn" data-filter="trainingshosen">Trainingshosen</button>
-  <button class="filter-btn" data-filter="jeanshosen">Jeanshosen</button>
-  <button class="filter-btn" data-filter="oberteile">Oberteile</button>
-  <button class="filter-btn" data-filter="shorts">Shorts</button>
-  <button class="filter-btn" data-filter="tracksuits">Tracksuits</button>
-  <button class="filter-btn" data-filter="accessoires">Accessoires</button>
-  <button class="filter-btn" data-filter="designer">Designer</button>
-</nav>
-
 <section class="hero" aria-label="TRIAD ARCHIV">
   <div class="hero-inner container">
     <div class="hero-copy">
-      <p class="eyebrow">Kuratiertes Archiv für Vintage Adidas — Deutschland</p>
+      <p class="eyebrow">Kuratiertes Vintage-adidas-Archiv — Deutschland</p>
       <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
-      <p class="hero-statement">Handverlesene Unikate aus drei Jahrzehnten adidas — Firebird, Adibreak, Velours &amp; Designerstücke. <b>Jedes Teil ein Einzelstück. Kein Restock.</b></p>
+      <p class="hero-statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
+    </div>
+    <aside class="hero-drop" aria-label="Erster Drop Mitte August">
+      <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span>Archiv im Aufbau</span>
+      <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte August</p>
+      <p class="hero-drop-sub" id="heroDropSub">Danach wöchentlich neue Vintage-Unikate.</p>
+      <ul class="hero-drop-points" aria-label="Was den Drop besonders macht">
+        <li>Streng limitiert — jedes Teil 1/1</li>
+        <li>Geprüft &amp; dokumentiert</li>
+        <li>Abonnenten erfahren es zuerst</li>
+      </ul>
       <div class="hero-ctas">
-        <a class="btn-solid" href="#grid">Ganzen Bestand ansehen</a>
+        <a class="btn-solid" href="#newsletter">Drop nicht verpassen</a>
+        <a class="link-quiet" href="#bestand">Bestand ansehen</a>
       </div>
-    </div>
-    <aside class="hero-drop" aria-label="Jede Woche neue Stücke">
-      <span class="hero-drop-kicker"><span class="pulse" aria-hidden="true"></span>Neuer Drop · Jede Woche</span>
-      <p class="hero-drop-headline">Jede Woche<br><span class="accent">neue Unikate</span></p>
-      <p class="hero-drop-sub">Frisch kuratiert · streng limitiert · nie nachbestellt</p>
     </aside>
-  </div>
-</section>
-
-<!-- Aufbau-Hinweis: wird nur eingeblendet, wenn AUFBAU_MODUS unten true ist. -->
-<section class="buildup" id="buildupNote" aria-label="Hinweis zum Archiv-Aufbau" hidden>
-  <div class="buildup-inner container">
-    <div>
-      <span class="buildup-kicker"><span class="pulse" aria-hidden="true"></span>Archiv im Aufbau</span>
-      <h2>Das Archiv wächst.</h2>
-      <p>Ein Teil des Bestands ist schon online — stöber gern. Woche für Woche kommen neue Stücke herein, die geprüft, vermessen und fotografiert werden, bis genug für den ersten großen Drop zusammen ist.</p>
-    </div>
-    <div class="buildup-side">
-      <span class="buildup-label">Erster großer Drop</span>
-      <span class="buildup-when" id="buildupWhen">Mitte August</span>
-      <span class="buildup-after">danach wöchentlich neue Unikate</span>
-      <a class="buildup-cta" href="#newsletter">Nicht verpassen →</a>
-    </div>
   </div>
 </section>
 
 <script>
   /* ---------- Aufbau-Modus ----------
-     true  = Hinweis-Band sichtbar, Hero zeigt den Aufbau-Status
-     false = normaler Betrieb, Hero zeigt wieder "Jede Woche neue Unikate"
+     true  = Hero-Panel zeigt "Erster Drop <Termin>"
+     false = normaler Betrieb: Hero-Panel zeigt "Jede Woche neue Unikate"
 
      Sobald die wöchentlichen Drops regelmäßig laufen: einfach auf false setzen.
      Den Termin nur an EINER Stelle pflegen: AUFBAU_DROP_TERMIN. */
@@ -1124,34 +1062,40 @@
   const AUFBAU_DROP_TERMIN = 'Mitte August';
 
   (function(){
-    if(!AUFBAU_MODUS) return;
-
-    var note = document.getElementById('buildupNote');
-    if(note) note.hidden = false;
-
-    var when = document.getElementById('buildupWhen');
-    if(when) when.textContent = AUFBAU_DROP_TERMIN;
-
-    // Der Hero verspricht sonst "Neuer Drop · Jede Woche" – während des
-    // Aufbaus ehrlich halten, sonst enttäuscht der leere Bestand.
-    var kicker   = document.querySelector('.hero-drop-kicker');
-    var headline = document.querySelector('.hero-drop-headline');
-    var sub      = document.querySelector('.hero-drop-sub');
-    if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>Archiv im Aufbau';
-    if(headline) headline.innerHTML = 'Erster Drop<br><span class="accent">' + AUFBAU_DROP_TERMIN + '</span>';
-    if(sub){
-      sub.textContent = 'danach wöchentlich neue Unikate';
-      sub.classList.add('is-buildup');   // größer/lesbar statt 11px-Versalien
+    if(AUFBAU_MODUS){
+      // Termin zentral pflegen: das Hero-Panel übernimmt ihn automatisch.
+      var hl = document.getElementById('heroDropHeadline');
+      if(hl) hl.innerHTML = 'Erster Drop<br>' + AUFBAU_DROP_TERMIN;
+      return;
     }
+    // Normalbetrieb: Hero auf den Wochen-Rhythmus umstellen.
+    var kicker   = document.getElementById('heroDropKicker');
+    var headline = document.getElementById('heroDropHeadline');
+    var sub      = document.getElementById('heroDropSub');
+    if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>Neuer Drop · Jede Woche';
+    if(headline) headline.innerHTML = 'Jede Woche<br>neue Unikate';
+    if(sub)      sub.textContent = 'Frisch kuratiert · streng limitiert · kein Restock.';
   })();
 </script>
 
+<section id="bestand" aria-label="Aktueller Bestand">
 <div class="intro">
-  <h1>Aktueller Bestand</h1>
-  <span class="eyebrow">Handverlesen · Geprüft · Unikate</span>
+  <h2>Aktueller Bestand</h2>
+  <span class="eyebrow">Bereits verfügbar · Sofort bestellbar</span>
 </div>
 
 <div class="shop container">
+  <nav class="filters" id="filters" aria-label="Kategorien">
+    <button class="filter-btn active" data-filter="all">Alle</button>
+    <button class="filter-btn" data-filter="trainingsjacken">Trainingsjacken</button>
+    <button class="filter-btn" data-filter="trainingshosen">Trainingshosen</button>
+    <button class="filter-btn" data-filter="jeanshosen">Jeanshosen</button>
+    <button class="filter-btn" data-filter="oberteile">Oberteile</button>
+    <button class="filter-btn" data-filter="shorts">Shorts</button>
+    <button class="filter-btn" data-filter="tracksuits">Tracksuits</button>
+    <button class="filter-btn" data-filter="accessoires">Accessoires</button>
+    <button class="filter-btn" data-filter="designer">Designer</button>
+  </nav>
   <section class="collection-hero" id="collectionHero" hidden>
     <a class="collection-back" id="collectionBack" href="#">← Zurück zum Archiv</a>
     <span class="eyebrow">Ausgewählte Kollektion</span>
@@ -1196,6 +1140,11 @@
   <div class="collection-footer" id="collectionFooter" hidden>
     <button type="button" class="collection-back-btn" id="collectionBackBottom">← Zurück zu allen Stücken</button>
   </div>
+
+  <div class="condition-strip">
+    <h2>Zustand &amp; Transparenz</h2>
+    <p>Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.</p>
+  </div>
 </div>
 
 <section class="collection-band" id="collectionBand" aria-label="Ausgewählte Kollektion" hidden>
@@ -1211,59 +1160,54 @@
     </div>
   </div>
 </section>
+</section><!-- /#bestand -->
 
-<div class="condition-box">
-  <h2>Zustand &amp;<br>Transparenz</h2>
-  <div class="cond-body">
-    <p>Unser Archiv besteht aus handverlesenen Vintage-Stücken — jedes Teil ist ein Unikat. Wir legen Wert auf Ehrlichkeit:</p>
-    <ul>
-      <li><strong>Individuelle Beschreibung</strong> Bei jedem Stück findest du eine genaue Angabe zum Zustand (z. B. Neu mit Etikett, Neu ohne Etikett, oder Vintage/Gebraucht).</li>
-      <li><strong>Foto-Garantie</strong> Wir dokumentieren alle sichtbaren Gebrauchsspuren oder Besonderheiten so detailliert wie möglich in unseren Produktfotos. Du siehst genau, was du kaufst.</li>
-    </ul>
+<!-- Warum Triad Archiv: Vertrauen als Bestätigung nach dem Stöbern,
+     direkt vor der Newsletter-Entscheidung. -->
+<section class="warum" id="warum" aria-label="Warum TRIAD ARCHIV">
+  <div class="sect-head">
+    <span class="eyebrow">Warum Triad Archiv</span>
+    <h2>Worauf du dich<br>verlassen kannst</h2>
   </div>
-</div>
-
-<section class="assurance" aria-label="Warum TRIAD ARCHIV">
-  <div class="assurance-inner container">
-    <div class="assure-item">
-      <div class="assure-key">100%</div>
-      <div class="assure-val">Geprüfte Originalware</div>
-      <p class="assure-sub">Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.</p>
-    </div>
-    <div class="assure-item">
-      <div class="assure-key">5,0<span class="assure-star">★</span></div>
-      <div class="assure-val">600+ Verkäufe auf Vinted</div>
-      <p class="assure-sub">Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.</p>
-    </div>
-    <div class="assure-item">
-      <div class="assure-key">1–3 T.</div>
-      <div class="assure-val">Versand aus Deutschland</div>
-      <p class="assure-sub">Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.</p>
+  <div class="assurance">
+    <div class="assurance-inner container">
+      <div class="assure-item">
+        <div class="assure-key">100%</div>
+        <div class="assure-val">Geprüfte Originalware</div>
+        <p class="assure-sub">Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.</p>
+      </div>
+      <div class="assure-item">
+        <div class="assure-key">5,0<span class="assure-star">★</span></div>
+        <div class="assure-val">600+ Verkäufe auf Vinted</div>
+        <p class="assure-sub">Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.</p>
+      </div>
+      <div class="assure-item">
+        <div class="assure-key">1–3 T.</div>
+        <div class="assure-val">Versand aus Deutschland</div>
+        <p class="assure-sub">Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.</p>
+      </div>
     </div>
   </div>
-</section>
-
-<section class="testimonials container" aria-label="Kundenstimmen">
-  <div class="testimonials-head">
-    <span class="eyebrow">Bewertungen · Vinted</span>
-    <h2>5,0<span class="tstar">★</span> aus 600+ Verkäufen</h2>
-    <p>Echte Käuferstimmen aus über 600 abgeschlossenen Verkäufen auf Vinted — durchweg 5 Sterne.</p>
+  <div class="testimonials container" aria-label="Kundenstimmen">
+    <p class="testimonials-note">Echte Käuferstimmen aus über 600 Vinted-Verkäufen — durchweg 5 Sterne</p>
+    <div class="testimonial-grid" id="testimonialGrid"></div>
   </div>
-  <div class="testimonial-grid" id="testimonialGrid"></div>
 </section>
 
 <section class="newsletter" id="newsletter" aria-label="Newsletter">
-  <div>
-    <span class="eyebrow">Neuzugänge</span>
-    <h2>Neue Stücke zuerst sehen</h2>
-    <p class="nl-text">Trag dich ein und erfahre als Erste:r, wenn neue handverlesene Vintage-Stücke ins Archiv kommen.</p>
-  </div>
-  <div>
-    <form class="newsletter-form" id="newsletterForm" novalidate>
-      <input type="email" id="newsletterEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
-      <button type="submit">Eintragen</button>
-    </form>
-    <p class="newsletter-note" id="newsletterNote" role="status" aria-live="polite"></p>
+  <div class="newsletter-inner container">
+    <div>
+      <span class="eyebrow">Newsletter</span>
+      <h2>Keinen Drop<br>verpassen</h2>
+      <p class="nl-text">Trag dich ein und erfahre zuerst, wenn neue Stücke online kommen — inklusive <b>10&nbsp;% Willkommensrabatt</b> auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
+    </div>
+    <div>
+      <form class="newsletter-form" id="newsletterForm" novalidate>
+        <input type="email" id="newsletterEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
+        <button type="submit">Eintragen</button>
+      </form>
+      <p class="newsletter-note" id="newsletterNote" role="status" aria-live="polite"></p>
+    </div>
   </div>
 </section>
 
@@ -1553,6 +1497,10 @@
       activeFilter = btn.dataset.filter;
       exitCollection(false);          // Kategorie-Wechsel verlässt die Highlight-Kollektion
       applyFilters();
+      // Beim Kategorie-Wechsel blenden Sektionen über dem Bestand ein/aus —
+      // damit die Seite dabei nicht "springt", bleibt der Bestand im Blick.
+      const bestand = document.getElementById('bestand');
+      if(bestand) bestand.scrollIntoView({ behavior:'auto', block:'start' });
     });
   });
 
@@ -1655,7 +1603,17 @@
     filterToggle.setAttribute('aria-expanded', String(open));
   });
 
-  searchInput.addEventListener('input', applyFilters);
+  searchInput.addEventListener('input', () => {
+    applyFilters();
+    // Wer im Header sucht, will Treffer sehen: liegt der Bestand außerhalb
+    // des Blickfelds, sanft dorthin scrollen (nur bei echter Eingabe).
+    if(searchInput.value.trim() !== ''){
+      const bestand = document.getElementById('bestand');
+      if(bestand && bestand.getBoundingClientRect().top > window.innerHeight * 0.6){
+        bestand.scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+    }
+  });
 
   applyFilters();
 
@@ -1802,7 +1760,7 @@
     const grid = document.getElementById('testimonialGrid');
     if(!grid || !REVIEWS.length) return;
     const PER_PAGE = 5;
-    const INTERVAL = 6500;
+    const INTERVAL = 9000;   // ruhiger Rhythmus — Bewegung soll nicht ablenken
     let start = 0;
 
     function cardHtml(r){
@@ -1900,6 +1858,49 @@
     });
   })();
 
+  /* ---------- In-Page-Links: exakt landen, auch auf dem Handy ----------
+     Problem vorher: Während des sanften Scrollens laden Schriften/Inhalte nach
+     und verschieben das Layout — der Browser landete neben dem Ziel (v. a. beim
+     "Nicht verpassen"-Link zum Newsletter). Lösung: nach dem Scrollen einmal
+     präzise nachsetzen; greift der Nutzer ein (Wischen/Scrollen), unterbleibt das. */
+  (function initAnchorScroll(){
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const id = (link.getAttribute('href') || '').slice(1);
+        const target = id && document.getElementById(id);
+        if(!target) return;               // z. B. href="#" — hat eigene Handler
+        e.preventDefault();
+        // Dem Popup mitteilen: Nutzer ist gerade bewusst unterwegs (bzw. beim
+        // Newsletter) — in dem Moment nicht dazwischenfunken.
+        window.__triadAnchorTs = Date.now();
+        if(id === 'newsletter') window.__triadNlTs = Date.now();
+        let cancelled = false;
+        const cancel = () => { cancelled = true; };
+        target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block:'start' });
+        const finish = () => {
+          window.removeEventListener('scrollend', finish);
+          window.removeEventListener('wheel', cancel);
+          window.removeEventListener('touchstart', cancel);
+          clearTimeout(fallback);
+          if(cancelled) return;
+          target.scrollIntoView({ behavior:'auto', block:'start' });
+          // Ziel Newsletter: E-Mail-Feld direkt aktivieren — der Cursor blinkt
+          // schon im Feld, man kann sofort lostippen. preventScroll, damit der
+          // Fokus die gerade gelandete Seite nicht wieder verschiebt.
+          if(id === 'newsletter'){
+            const mail = document.getElementById('newsletterEmail');
+            if(mail){ try{ mail.focus({ preventScroll:true }); }catch(e){ try{ mail.focus(); }catch(e2){} } }
+          }
+        };
+        const fallback = setTimeout(finish, reduce ? 80 : 1200);
+        window.addEventListener('wheel', cancel, { once:true, passive:true });
+        window.addEventListener('touchstart', cancel, { once:true, passive:true });
+        if('onscrollend' in window) window.addEventListener('scrollend', finish, { once:true });
+      });
+    });
+  })();
+
   /* ---------- Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ----------
      Wandelt Besucher in Newsletter-Abonnenten um — verzögert, dezent,
      einmal pro Besucher. Nutzt denselben /api/newsletter-Endpunkt wie
@@ -1934,13 +1935,18 @@
     function onKey(e){ if(e.key === 'Escape') close(); }
     function open(){
       if(opened || alreadyHandled()) return;
+      // Wer gerade bewusst zum Newsletter unterwegs ist, trägt sich dort ein —
+      // das Popup wäre in dem Moment nur Konkurrenz zum eigenen Formular.
+      if(Date.now() - (window.__triadNlTs || 0) < 60000) return;
       opened = true;
       cleanupTriggers();
       overlay.hidden = false;
       requestAnimationFrame(() => overlay.classList.add('open'));
       try{ localStorage.setItem(SEEN_KEY, String(Date.now())); }catch(e){}
       document.addEventListener('keydown', onKey);
-      setTimeout(() => { try{ input.focus(); }catch(e){} }, 460);
+      // preventScroll: Fokus darf die Seite NICHT zurückspringen lassen
+      // (das Overlay ist fixiert — die Seite dahinter soll stehen bleiben).
+      setTimeout(() => { try{ input.focus({ preventScroll:true }); }catch(e){ try{ input.focus(); }catch(e2){} } }, 460);
     }
     function close(){
       overlay.classList.remove('open');
@@ -1954,6 +1960,8 @@
     /* Auslöser: nach 14 s ODER 45 % Scrolltiefe ODER Exit-Intent (Desktop) */
     const timer = setTimeout(open, 14000);
     function onScroll(){
+      // Kein Popup mitten in einer bewussten Sprung-Navigation (CTA-Klick)
+      if(Date.now() - (window.__triadAnchorTs || 0) < 2500) return;
       const reached = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
       if(reached > 0.45) open();
     }
