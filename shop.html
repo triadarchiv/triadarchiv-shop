@@ -191,6 +191,50 @@
     text-transform:uppercase;
     color:var(--muted);
   }
+
+  /* Countdown zum ersten Drop — ruhige Mono-Kästchen, kein Akzent (bleibt sparsam) */
+  .hero-countdown{
+    display:flex;
+    gap:8px;
+    margin-top:var(--s3);
+  }
+  .cd-unit{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    padding:12px 4px 9px;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+  }
+  .cd-num{
+    font-family:var(--font-mono);
+    font-size:clamp(22px, 4.5vw, 30px);
+    font-weight:500;
+    letter-spacing:0.5px;
+    line-height:1;
+    color:var(--text);
+    font-variant-numeric:tabular-nums;
+  }
+  .cd-lab{
+    font-family:var(--font-mono);
+    font-size:9px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .cd-done{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
   @media(prefers-reduced-motion: reduce){
     .hero-drop-kicker .pulse,
     .buildup-kicker .pulse{ animation:none; }
@@ -1039,6 +1083,12 @@
     <aside class="hero-drop" aria-label="Erster Drop Mitte August">
       <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span>Archiv im Aufbau</span>
       <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte August</p>
+      <div class="hero-countdown" id="heroCountdown" role="timer" aria-label="Countdown bis zum ersten Drop" hidden>
+        <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab">Tage</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab">Std</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-lab">Min</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdSecs">00</span><span class="cd-lab">Sek</span></div>
+      </div>
       <p class="hero-drop-sub" id="heroDropSub">Danach wöchentlich neue Vintage-Unikate.</p>
       <ul class="hero-drop-points" aria-label="Was den Drop besonders macht">
         <li>Streng limitiert — jedes Teil 1/1</li>
@@ -1059,9 +1109,12 @@
      false = normaler Betrieb: Hero-Panel zeigt "Jede Woche neue Unikate"
 
      Sobald die wöchentlichen Drops regelmäßig laufen: einfach auf false setzen.
-     Den Termin nur an EINER Stelle pflegen: AUFBAU_DROP_TERMIN. */
+     Den Termin nur an EINER Stelle pflegen: AUFBAU_DROP_TERMIN + DROP_DATE_ISO. */
   const AUFBAU_MODUS = true;
   const AUFBAU_DROP_TERMIN = 'Mitte August';
+  // Zieltermin des Countdowns. Format: Jahr-Monat-Tag'T'Stunde:Minute + Zeitzone.
+  // +02:00 = deutsche Sommerzeit (MESZ). Uhrzeit hier bei Bedarf anpassen.
+  const DROP_DATE_ISO = '2026-08-15T19:00:00+02:00';
 
   (function(){
     if(AUFBAU_MODUS){
@@ -1077,6 +1130,42 @@
     if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>Neuer Drop · Jede Woche';
     if(headline) headline.innerHTML = 'Jede Woche<br>neue Unikate';
     if(sub)      sub.textContent = 'Frisch kuratiert · streng limitiert · kein Restock.';
+  })();
+
+  /* ---------- Countdown bis zum ersten Drop ----------
+     Läuft nur im Aufbau-Modus. Zählt live auf DROP_DATE_ISO herunter; ist der
+     Termin erreicht, wird stattdessen "Der erste Drop ist da" angezeigt. */
+  (function initCountdown(){
+    if(!AUFBAU_MODUS) return;
+    var cd = document.getElementById('heroCountdown');
+    if(!cd) return;
+    var target = new Date(DROP_DATE_ISO).getTime();
+    if(isNaN(target)) return;   // ungültiges Datum -> Countdown bleibt aus
+    var dEl = document.getElementById('cdDays');
+    var hEl = document.getElementById('cdHours');
+    var mEl = document.getElementById('cdMins');
+    var sEl = document.getElementById('cdSecs');
+    var timer = null;
+    function pad(n){ return String(n).padStart(2, '0'); }
+    function tick(){
+      var diff = target - Date.now();
+      if(diff <= 0){
+        cd.innerHTML = '<span class="cd-done"><span class="pulse" aria-hidden="true"></span>Der erste Drop ist da</span>';
+        if(timer) clearInterval(timer);
+        return;
+      }
+      var s = Math.floor(diff / 1000);
+      var days = Math.floor(s / 86400); s -= days * 86400;
+      var hrs  = Math.floor(s / 3600);  s -= hrs * 3600;
+      var mins = Math.floor(s / 60);    s -= mins * 60;
+      dEl.textContent = pad(days);
+      hEl.textContent = pad(hrs);
+      mEl.textContent = pad(mins);
+      sEl.textContent = pad(s);
+    }
+    cd.hidden = false;
+    tick();
+    timer = setInterval(tick, 1000);
   })();
 </script>
 
