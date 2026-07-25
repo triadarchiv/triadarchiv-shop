@@ -77,7 +77,7 @@ async function sendWelcome(email, origin) {
         <span style="font-family:'Courier New',monospace;font-size:22px;font-weight:bold;letter-spacing:3px;color:#111;">ARCHIV10</span><br>
         <span style="font-size:13px;color:#555;">10 % auf deine erste Bestellung</span>
       </div>
-      <p><strong>Der erste große Drop: 15. August, 19:00 Uhr.</strong><br>
+      <p><strong>Der erste große Drop: 19. September, 19:00 Uhr.</strong><br>
       Streng limitiert, jedes Teil 1 von 1 – und du bist von Anfang an dabei.</p>
       <p style="margin:24px 0;">
         <a href="${shopUrl}" style="display:inline-block;background:#111111;color:#ffffff;padding:13px 26px;border-radius:6px;text-decoration:none;font-weight:bold;">Zum Archiv</a>
@@ -98,7 +98,7 @@ Schön, dass du dabei bist. Ab jetzt erfährst du als Erste:r, wenn neue handver
 Dein Willkommensgeschenk für die erste Bestellung:
 ARCHIV10 – 10 % auf deine erste Bestellung
 
-Der erste große Drop: 15. August, 19:00 Uhr.
+Der erste große Drop: 19. September, 19:00 Uhr.
 Streng limitiert, jedes Teil 1 von 1 – und du bist von Anfang an dabei.
 
 Zum Archiv: ${shopUrl}
