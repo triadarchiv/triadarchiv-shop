@@ -1056,6 +1056,759 @@
     .drop-overlay, .drop-modal{ transition:opacity .4s ease, visibility .4s ease; }
     .drop-modal{ transform:none; }
   }
+
+  /* ================================================================
+     CONVERSION-AUSBAU 08/2026 — neue Elemente in bestehender
+     Formensprache (Anton-Caps, Mono, Hairlines, Akzent sparsam).
+     Kein Farbwechsel, keine neuen Fonts, keine Gimmicks.
+     ================================================================ */
+
+  /* ---------- Vertrauensleiste (unter dem Header, über dem Hero) ----------
+     Vier ruhige Fakten in Mono-Kapitälchen; Hairline-Trenner statt Icons. */
+  .trustbar{
+    border-bottom:1px solid var(--line);
+    background:var(--bg-deep);
+  }
+  .trustbar-inner{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+  }
+  .trust-item{
+    flex:1 1 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    padding:11px 18px;
+    font-family:var(--font-mono);
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+    border-left:1px solid var(--line);
+  }
+  .trust-item:first-child{ border-left:none; }
+  .trust-item svg{ width:13px; height:13px; flex:0 0 auto; color:var(--faint); }
+  @media(max-width:720px){
+    /* Auf dem Handy als ruhig durchlaufendes Band — kein Umbruch-Chaos */
+    .trustbar-inner{
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .trustbar-inner::-webkit-scrollbar{ display:none; }
+    .trust-item{ flex:0 0 auto; padding:10px 16px; font-size:9px; letter-spacing:1.5px; }
+  }
+
+  /* ---------- Hero: VIP-Zugang (E-Mail-Capture direkt im Panel) ---------- */
+  .hero-drop-headline{ margin-bottom:var(--s1); }
+
+  /* Countdown fetter, aber weiter monochrom & ruhig */
+  .hero-countdown{ gap:6px; margin-top:var(--s3); margin-bottom:var(--s3); }
+  .cd-unit{
+    padding:14px 4px 10px;
+    background:var(--bg-deep);
+    border:1px solid var(--line-strong);
+  }
+  .cd-num{
+    font-size:clamp(26px, 5.6vw, 38px);
+    font-weight:500;
+    letter-spacing:1px;
+  }
+  .cd-lab{ font-size:9px; letter-spacing:2.5px; color:var(--faint); }
+  /* Sekunden-Kästchen tickt bei jedem Wechsel dezent auf */
+  .cd-unit.cd-secbox .cd-num{ transition:none; }
+  .cd-unit.cd-secbox.tick{ animation:cdTick .5s ease; }
+  @keyframes cdTick{
+    0%{ border-color:var(--text); }
+    100%{ border-color:var(--line-strong); }
+  }
+
+  /* VIP-Formular: markantes Feld + breiter, klarer CTA */
+  .hero-vip{ margin-top:var(--s3); }
+  .hero-vip-label{
+    display:block;
+    margin-bottom:12px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .hero-vip-form{ display:flex; flex-direction:column; gap:10px; }
+  .hero-vip-form input{
+    width:100%;
+    background:var(--bg-deep);
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:14px;
+    letter-spacing:0.5px;
+    padding:17px 18px;
+    outline:none;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .hero-vip-form input::placeholder{ color:var(--faint); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; }
+  .hero-vip-form input:focus{ border-color:var(--text); background:var(--surface-2); }
+  .hero-vip-form button{
+    width:100%;
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    padding:17px 24px;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease, transform .1s ease;
+  }
+  .hero-vip-form button:hover{ background:transparent; color:var(--text); }
+  .hero-vip-form button:active{ transform:translateY(1px); }
+  .hero-vip-form button:disabled{ opacity:.6; cursor:wait; }
+  .hero-vip-note{
+    min-height:16px;
+    margin-top:12px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.3px;
+    line-height:1.5;
+  }
+  .hero-vip-note.error{ color:var(--accent); }
+  .hero-vip-note.success{ color:var(--muted); }
+  .hero-vip-note.success b{ color:var(--text); font-weight:500; }
+  /* Live-/Verknappungs-Zeile: ehrlicher Standard, Zahl nur wenn echt gesetzt */
+  .hero-live{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1px;
+    line-height:1.5;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .hero-live .pulse{
+    flex:0 0 auto;
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 0 rgba(255,61,120,0.45);
+    animation:dropPulse 2.4s ease-out infinite;
+  }
+  .hero-live b{ color:var(--muted); font-weight:500; }
+  @media(prefers-reduced-motion: reduce){ .hero-live .pulse{ animation:none; } }
+  /* der stille Zweitweg unter dem Formular */
+  .hero-vip .link-quiet{ margin-top:16px; }
+
+  /* ---------- Produktkachel: Tags auf dem Bild + Hover-Zweitbild ---------- */
+  .tile-tags{
+    position:absolute;
+    top:10px; left:10px; right:10px;
+    z-index:3;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    pointer-events:none;
+  }
+  .tile-tag{
+    font-family:var(--font-mono);
+    font-size:9px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    padding:5px 9px;
+    background:rgba(12,11,10,0.82);
+    -webkit-backdrop-filter:blur(3px);
+    backdrop-filter:blur(3px);
+    border:1px solid var(--line-strong);
+    color:var(--muted);
+    line-height:1;
+  }
+  .tile-tag--rare{ color:var(--text); border-color:var(--text); }
+  .tile-tag--new{ color:var(--text); }
+  .tile-tag--sale{ color:var(--accent); border-color:var(--accent); }
+  /* Hover-Zweitbild liegt über dem Hauptbild und blendet weich ein */
+  .product-img .img-hover{
+    position:absolute;
+    inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:center;
+    opacity:0;
+    transition:opacity .5s ease;
+    z-index:1;
+  }
+  .product:hover .product-img .img-hover{ opacity:1; }
+  .product.is-sold .product-img .img-hover{ display:none; }
+  /* Klon der Fly-Animation und Warenkorb-Thumbnails bleiben sauber */
+  .fly-clone .tile-tags{ display:none; }
+  @media(prefers-reduced-motion: reduce){
+    .product-img .img-hover{ transition:none; }
+  }
+
+  /* ---------- Sortierung (neben dem Filter in der Toolbar) ---------- */
+  .toolbar-tools{ display:flex; align-items:center; gap:12px; }
+  .sort-control{ position:relative; display:inline-flex; align-items:center; }
+  .sort-select{
+    -webkit-appearance:none;
+    appearance:none;
+    background:transparent;
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:10px 34px 10px 16px;
+    cursor:pointer;
+    border-radius:0;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  .sort-select:hover{ border-color:var(--text); }
+  .sort-select:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .sort-select option{ background:var(--surface); color:var(--text); }
+  .sort-control::after{
+    content:'';
+    position:absolute;
+    right:14px;
+    top:50%;
+    width:7px; height:7px;
+    border-right:1.5px solid var(--muted);
+    border-bottom:1.5px solid var(--muted);
+    transform:translateY(-65%) rotate(45deg);
+    pointer-events:none;
+  }
+  @media(max-width:520px){
+    /* Zähler oben, Sortierung + Filter darunter in voller Breite — kein Überlauf */
+    .toolbar{ flex-wrap:wrap; gap:14px; }
+    .toolbar-tools{ width:100%; }
+    .sort-control{ flex:1 1 auto; min-width:0; }
+    .sort-select{ width:100%; padding:11px 30px 11px 14px; letter-spacing:1.2px; }
+    .filter-toggle{ flex:0 0 auto; }
+  }
+
+  /* ================= Slide-Over Warenkorb (Schublade) ================= */
+  .drawer-overlay{
+    position:fixed;
+    inset:0;
+    z-index:210;
+    background:rgba(8,7,6,0.6);
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .35s ease, visibility .35s ease;
+  }
+  .drawer-overlay.open{ opacity:1; visibility:visible; }
+  .drawer{
+    position:fixed;
+    top:0; right:0;
+    z-index:220;
+    height:100%;
+    width:min(420px, 92vw);
+    display:flex;
+    flex-direction:column;
+    background:var(--surface);
+    border-left:1px solid var(--line-strong);
+    transform:translateX(100%);
+    transition:transform .42s cubic-bezier(.2,.7,.2,1);
+    will-change:transform;
+  }
+  .drawer-overlay.open .drawer{ transform:none; }
+  .drawer-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:22px var(--s3);
+    border-bottom:1px solid var(--line);
+    flex:0 0 auto;
+  }
+  .drawer-title{
+    font-family:var(--font-mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .drawer-title span{ color:var(--faint); }
+  .drawer-close{
+    width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--muted);
+    cursor:pointer;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .drawer-close:hover{ border-color:var(--text); color:var(--text); }
+  .drawer-close svg{ width:14px; height:14px; }
+
+  /* Gratisversand-Fortschritt */
+  .ship-progress{
+    flex:0 0 auto;
+    padding:16px var(--s3);
+    border-bottom:1px solid var(--line);
+    background:var(--bg-deep);
+  }
+  .ship-progress-text{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.5px;
+    line-height:1.5;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .ship-progress-text b{ color:var(--text); font-weight:500; }
+  .ship-progress-text .done{ color:var(--text); text-transform:uppercase; letter-spacing:1.5px; }
+  .ship-bar{
+    position:relative;
+    height:4px;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .ship-bar-fill{
+    position:absolute;
+    inset:0 auto 0 0;
+    width:0%;
+    background:var(--text);
+    transition:width .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .ship-bar-fill.full{ background:var(--accent); }
+
+  .drawer-body{
+    flex:1 1 auto;
+    overflow-y:auto;
+    padding:8px var(--s3);
+  }
+  .drawer-empty{
+    padding:64px 12px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:300;
+    line-height:1.8;
+  }
+  .drawer-empty .eyebrow{ display:block; margin-bottom:14px; }
+  .drawer-item{
+    display:flex;
+    gap:14px;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .drawer-item-thumb{
+    flex:0 0 auto;
+    width:58px; height:72px;
+    background:var(--tile);
+    border:1px solid var(--line);
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .drawer-item-thumb img{ width:100%; height:100%; object-fit:contain; }
+  .drawer-item-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .drawer-item-name{
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:500;
+    line-height:1.4;
+    color:var(--text);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .drawer-item-size{
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .drawer-item-row{
+    margin-top:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .drawer-qty{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .drawer-qty button{
+    width:24px; height:24px;
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    cursor:pointer;
+    font-size:13px;
+    line-height:1;
+    transition:border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .drawer-qty button:hover{ background:var(--text); border-color:var(--text); color:var(--bg); }
+  .drawer-item-price{
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:500;
+    color:var(--text);
+    font-variant-numeric:tabular-nums;
+  }
+  .drawer-item-remove{
+    align-self:flex-start;
+    background:none; border:none;
+    color:var(--faint);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    padding:0 0 0 4px;
+    transition:color .15s ease;
+  }
+  .drawer-item-remove:hover{ color:var(--text); }
+
+  .drawer-foot{
+    flex:0 0 auto;
+    padding:18px var(--s3) 22px;
+    border-top:1px solid var(--line);
+    background:var(--surface);
+  }
+  .drawer-sum{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:14px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .drawer-sum .amount{
+    color:var(--text);
+    font-size:20px;
+    font-weight:500;
+    letter-spacing:0.5px;
+    font-variant-numeric:tabular-nums;
+  }
+  .drawer-checkout{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:100%;
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:17px 20px;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease, transform .1s ease;
+  }
+  .drawer-checkout:hover{ background:transparent; color:var(--text); }
+  .drawer-checkout:active{ transform:translateY(1px); }
+  .drawer-continue{
+    display:block;
+    width:100%;
+    margin-top:10px;
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    text-align:center;
+    padding:10px;
+    cursor:pointer;
+    transition:color .2s ease;
+  }
+  .drawer-continue:hover{ color:var(--text); }
+  /* Zahlungs-Vertrauen: nur was wirklich angeboten wird (Stripe/Karte, PayPal) */
+  .pay-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px 12px;
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+  .pay-mark{
+    font-family:var(--font-mono);
+    font-size:9px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+    border:1px solid var(--line);
+    padding:5px 9px;
+    line-height:1;
+  }
+  .pay-note{
+    flex-basis:100%;
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:9px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+
+  /* ================= FAQ (Akkordeon) ================= */
+  .faq{ margin-top:clamp(72px, 10vw, 112px); }
+  .faq-list{
+    max-width:var(--container);
+    margin:var(--s4) auto 0;
+    padding:0 var(--pad-x);
+    border-top:1px solid var(--line);
+  }
+  .faq-item{ border-bottom:1px solid var(--line); }
+  .faq-q{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    background:none;
+    border:none;
+    text-align:left;
+    color:var(--text);
+    font-family:var(--font-sans);
+    font-size:clamp(15px, 2vw, 18px);
+    font-weight:500;
+    letter-spacing:0.2px;
+    padding:24px 0;
+    cursor:pointer;
+  }
+  .faq-q:hover{ color:var(--muted); }
+  .faq-icon{
+    flex:0 0 auto;
+    position:relative;
+    width:15px; height:15px;
+  }
+  .faq-icon::before, .faq-icon::after{
+    content:'';
+    position:absolute;
+    background:var(--muted);
+    transition:transform .3s ease, opacity .3s ease;
+  }
+  .faq-icon::before{ top:7px; left:0; width:15px; height:1.5px; }
+  .faq-icon::after{ left:7px; top:0; width:1.5px; height:15px; }
+  .faq-item.open .faq-icon::after{ transform:scaleY(0); opacity:0; }
+  .faq-item.open .faq-q{ color:var(--text); }
+  .faq-a{
+    overflow:hidden;
+    max-height:0;
+    transition:max-height .38s cubic-bezier(.4,0,.2,1);
+  }
+  .faq-a-inner{
+    padding:0 0 26px;
+    max-width:70ch;
+    font-family:var(--font-sans);
+    font-size:15px;
+    font-weight:300;
+    line-height:1.85;
+    color:var(--muted);
+  }
+  .faq-a-inner b{ color:var(--text); font-weight:500; }
+  .faq-a-inner a{ color:var(--text); text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--line-strong); }
+  @media(prefers-reduced-motion: reduce){ .faq-a{ transition:none; } }
+
+  /* ================= Instagram-Vorschau ================= */
+  .ig{ margin-top:clamp(72px, 10vw, 112px); }
+  .ig-head{
+    max-width:var(--container);
+    margin:0 auto var(--s4);
+    padding:0 var(--pad-x);
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:var(--s3);
+  }
+  .ig-head .eyebrow{ display:block; margin-bottom:var(--s2); }
+  .ig-head h2{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(30px, 5vw, 56px);
+    line-height:0.95;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .ig-handle{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text);
+    text-decoration:none;
+    border-bottom:1px solid var(--line-strong);
+    padding-bottom:5px;
+    transition:border-color .2s ease;
+    white-space:nowrap;
+  }
+  .ig-handle:hover{ border-color:var(--text); }
+  .ig-grid{
+    max-width:var(--container);
+    margin:0 auto;
+    padding:0 var(--pad-x);
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
+  }
+  @media(min-width:640px){ .ig-grid{ grid-template-columns:repeat(3, 1fr); gap:14px; } }
+  @media(min-width:1000px){ .ig-grid{ grid-template-columns:repeat(6, 1fr); } }
+  .ig-tile{
+    position:relative;
+    aspect-ratio:1/1;
+    overflow:hidden;
+    background:var(--tile);
+    border:1px solid var(--line);
+    text-decoration:none;
+    display:block;
+  }
+  .ig-tile img{
+    width:100%; height:100%;
+    object-fit:cover;
+    transition:transform .6s cubic-bezier(.2,.6,.2,1), opacity .3s ease;
+  }
+  .ig-tile:hover img{ transform:scale(1.06); opacity:0.85; }
+  .ig-tile-ph{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    color:var(--faint);
+  }
+  .ig-tile-ph .stripes{ opacity:0.5; }
+  .ig-tile-follow{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    height:100%;
+    background:var(--surface);
+    color:var(--muted);
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    text-align:center;
+    padding:10px;
+  }
+  .ig-tile-follow svg{ width:22px; height:22px; color:var(--text); }
+
+  /* ================= Sekundärer Newsletter (im Footer-Bereich) ================= */
+  .foot-nl{
+    border-top:1px solid var(--line);
+    background:var(--bg-deep);
+  }
+  .foot-nl-inner{
+    max-width:var(--container);
+    margin:0 auto;
+    padding:var(--s5) var(--pad-x);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:var(--s3);
+    align-items:center;
+  }
+  @media(min-width:820px){
+    .foot-nl-inner{ grid-template-columns:1fr auto; gap:clamp(24px, 5vw, 72px); }
+  }
+  .foot-nl-copy .eyebrow{ display:block; margin-bottom:10px; }
+  .foot-nl-copy h3{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(22px, 3.4vw, 34px);
+    line-height:1.0;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  .foot-nl-copy p{
+    margin-top:10px;
+    max-width:46ch;
+    font-size:14px;
+    font-weight:300;
+    line-height:1.7;
+    color:var(--muted);
+  }
+  .foot-nl-form{ display:flex; gap:10px; flex-wrap:wrap; min-width:min(420px, 100%); }
+  .foot-nl-form input{
+    flex:1;
+    min-width:200px;
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:0.5px;
+    padding:15px 16px;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  .foot-nl-form input::placeholder{ color:var(--faint); text-transform:uppercase; letter-spacing:1.5px; font-size:11px; }
+  .foot-nl-form input:focus{ border-color:var(--text); }
+  .foot-nl-form button{
+    flex:0 0 auto;
+    background:var(--text);
+    border:1px solid var(--text);
+    color:var(--bg);
+    font-family:var(--font-sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:15px 24px;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease;
+  }
+  .foot-nl-form button:hover{ background:transparent; color:var(--text); }
+  .foot-nl-form button:disabled{ opacity:.6; cursor:wait; }
+  .foot-nl-note{
+    grid-column:1 / -1;
+    min-height:16px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.3px;
+    line-height:1.5;
+  }
+  .foot-nl-note.error{ color:var(--accent); }
+  .foot-nl-note.success{ color:var(--muted); }
+  .foot-nl-note.success b{ color:var(--text); font-weight:500; }
+
+  @media(max-width:640px){
+    .hero-vip-form input,
+    .foot-nl-form input{ font-size:16px; }   /* iOS-Zoom beim Fokus vermeiden */
+    .foot-nl-form button{ width:100%; }
+  }
 </style>
 </head>
 <body>
@@ -1073,6 +1826,28 @@
   </div>
 </header>
 
+<!-- Vertrauensleiste: vier ruhige Fakten, keine schreienden Badges -->
+<div class="trustbar" aria-label="Warum TRIAD ARCHIV">
+  <div class="trustbar-inner container">
+    <span class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+      100% Original-Vintage
+    </span>
+    <span class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/></svg>
+      Handverlesen &amp; geprüft
+    </span>
+    <span class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>
+      Versand aus Deutschland
+    </span>
+    <span class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M6 7l12 10M18 7L6 17"/></svg>
+      Jedes Teil ein Unikat · 1/1
+    </span>
+  </div>
+</div>
+
 <section class="hero" aria-label="TRIAD ARCHIV">
   <div class="hero-inner container">
     <div class="hero-copy">
@@ -1087,16 +1862,26 @@
         <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab">Tage</span></div>
         <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab">Std</span></div>
         <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-lab">Min</span></div>
-        <div class="cd-unit"><span class="cd-num" id="cdSecs">00</span><span class="cd-lab">Sek</span></div>
+        <div class="cd-unit cd-secbox" id="cdSecBox"><span class="cd-num" id="cdSecs">00</span><span class="cd-lab">Sek</span></div>
       </div>
-      <p class="hero-drop-sub" id="heroDropSub">Danach wöchentlich neue Vintage-Unikate.</p>
+      <p class="hero-drop-sub" id="heroDropSub">VIP-Abonnenten sehen jeden Drop zuerst — und sichern die Unikate, bevor der Shop öffentlich geht.</p>
       <ul class="hero-drop-points" aria-label="Was den Drop besonders macht">
         <li>Streng limitiert — jedes Teil 1/1</li>
         <li>Geprüft &amp; dokumentiert</li>
-        <li>Abonnenten erfahren es zuerst</li>
+        <li>Früher Zugriff nur für Abonnenten</li>
       </ul>
-      <div class="hero-ctas">
-        <a class="btn-solid" href="#newsletter">Drop nicht verpassen</a>
+      <!-- VIP-Zugang: E-Mail-Capture direkt im Hero (nutzt denselben Newsletter-Endpunkt) -->
+      <div class="hero-vip">
+        <span class="hero-vip-label">VIP-Zugang · Early Access sichern</span>
+        <form class="hero-vip-form" id="heroVipForm" novalidate>
+          <input type="email" id="heroVipEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse für den VIP-Zugang">
+          <button type="submit">Early Access sichern →</button>
+        </form>
+        <p class="hero-vip-note" id="heroVipNote" role="status" aria-live="polite"></p>
+        <div class="hero-live" id="heroLive">
+          <span class="pulse" aria-hidden="true"></span>
+          <span id="heroLiveText">VIP-Liste ist offen — sei vor dem ersten Drop dabei.</span>
+        </div>
         <a class="link-quiet" href="#bestand">Bestand ansehen</a>
       </div>
     </aside>
@@ -1145,6 +1930,8 @@
     var hEl = document.getElementById('cdHours');
     var mEl = document.getElementById('cdMins');
     var sEl = document.getElementById('cdSecs');
+    var secBox = document.getElementById('cdSecBox');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var timer = null;
     function pad(n){ return String(n).padStart(2, '0'); }
     function tick(){
@@ -1162,10 +1949,81 @@
       hEl.textContent = pad(hrs);
       mEl.textContent = pad(mins);
       sEl.textContent = pad(s);
+      // dezenter Sekunden-Tick: das Sekunden-Kästchen blitzt bei jedem Wechsel kurz auf
+      if(secBox && !reduceMotion){
+        secBox.classList.remove('tick');
+        void secBox.offsetWidth;   // Reflow → Animation neu starten
+        secBox.classList.add('tick');
+      }
     }
     cd.hidden = false;
     tick();
     timer = setInterval(tick, 1000);
+  })();
+
+  /* ---------- VIP-Zugang: Live-Anzeige + E-Mail-Capture im Hero ----------
+     EHRLICHKEIT: Es wird KEINE erfundene Zahl gezeigt. Erst wenn du eine
+     echte Abonnentenzahl hast, trag sie unten bei VIP_LIST_COUNT ein
+     (z. B. 320) — dann erscheint automatisch "320 Collector auf der VIP-Liste".
+     Bleibt der Wert null, steht dort nur der neutrale, wahre Hinweis. */
+  const VIP_LIST_COUNT = null;
+
+  (function initVipCapture(){
+    // Live-Zeile ggf. mit echter Zahl anreichern
+    if(typeof VIP_LIST_COUNT === 'number' && VIP_LIST_COUNT > 0){
+      const t = document.getElementById('heroLiveText');
+      if(t){
+        const n = VIP_LIST_COUNT.toLocaleString('de-DE');
+        t.innerHTML = '<b>' + n + '</b> Collector bereits auf der VIP-Liste · jedes Teil 1/1';
+      }
+    }
+
+    const form = document.getElementById('heroVipForm');
+    if(!form) return;
+    const input = document.getElementById('heroVipEmail');
+    const note  = document.getElementById('heroVipNote');
+    const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if(!isEmail(email)){
+        note.className = 'hero-vip-note error';
+        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        return;
+      }
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      note.className = 'hero-vip-note';
+      note.textContent = '';
+
+      const done = (doi) => {
+        try{ localStorage.setItem('triadNewsletterDone', '1'); }catch(err){}
+        note.className = 'hero-vip-note success';
+        note.innerHTML = doi
+          ? 'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann bist du auf der VIP-Liste.'
+          : 'Willkommen auf der VIP-Liste — du erfährst jeden Drop <b>zuerst</b>.';
+        form.reset();
+      };
+
+      fetch('/api/newsletter', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ email, source:'hero-vip' })
+      })
+        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(data => done(data && data.doi))
+        .catch(() => {
+          // Fallback ohne Server: lokal merken, nichts geht verloren
+          try{
+            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
+            list.push({ email, date:new Date().toISOString(), source:'hero-vip' });
+            localStorage.setItem('triadNewsletter', JSON.stringify(list));
+          }catch(err){}
+          done(false);
+        })
+        .finally(() => { btn.disabled = false; });
+    });
   })();
 </script>
 
@@ -1196,11 +2054,21 @@
 
   <div class="toolbar">
     <span class="count" id="resultCount">Produkte</span>
-    <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h13M20 7h1M3 12h5M12 12h9M3 17h9M16 17h5"/><circle cx="18" cy="7" r="1.9"/><circle cx="10" cy="12" r="1.9"/><circle cx="14" cy="17" r="1.9"/></svg>
-      Filter
-      <span class="filter-count" id="filterCount">0</span>
-    </button>
+    <div class="toolbar-tools">
+      <div class="sort-control">
+        <select class="sort-select" id="sortSelect" aria-label="Sortierung">
+          <option value="new">Neueste zuerst</option>
+          <option value="price-asc">Preis · aufsteigend</option>
+          <option value="price-desc">Preis · absteigend</option>
+          <option value="name">Name · A–Z</option>
+        </select>
+      </div>
+      <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h13M20 7h1M3 12h5M12 12h9M3 17h9M16 17h5"/><circle cx="18" cy="7" r="1.9"/><circle cx="10" cy="12" r="1.9"/><circle cx="14" cy="17" r="1.9"/></svg>
+        Filter
+        <span class="filter-count" id="filterCount">0</span>
+      </button>
+    </div>
   </div>
 
   <div class="filter-panel" id="filterPanel">
@@ -1302,6 +2170,89 @@
   </div>
 </section>
 
+<!-- ================= FAQ (Akkordeon) ================= -->
+<section class="faq" id="faq" aria-label="Häufige Fragen">
+  <div class="sect-head">
+    <span class="eyebrow">Häufige Fragen</span>
+    <h2>Gut zu<br>wissen</h2>
+  </div>
+  <div class="faq-list" id="faqList">
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Sind die Teile wirklich original?
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Ja. Jedes Stück ist <b>originale Vintage-adidas-Ware</b> — handverlesen und einzeln auf Echtheit geprüft, bevor es ins Archiv kommt. Keine Fälschungen, keine Massenware, keine Reproduktionen. Woran wir Echtheit erkennen: Verarbeitung, Nähte, Labels und Trefoil-Details.
+      </div></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Was bedeuten die Zustandsangaben?
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Wir geben den Zustand ehrlich pro Teil an: <b>Neu mit Etikett</b> (ungetragenes Deadstock), <b>Neu ohne Etikett</b>, <b>Sehr guter Zustand</b> und so weiter. Jedes Stück ist einzeln beschrieben, und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert — du siehst genau, was du bekommst.
+      </div></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Wie finde ich meine Größe?
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Vintage-Größen fallen oft anders aus als heutige. Deshalb findest du bei jedem Teil die <b>flach gemessenen Maße in cm</b> (z. B. Brust, Schulter, Länge, Bund). Miss am besten ein gut sitzendes Teil von dir aus und vergleiche — das ist zuverlässiger als das eingenähte Etikett.
+      </div></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Wie läuft der Versand?
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Versand mit DHL <b>aus Deutschland</b>, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen. Innerhalb Deutschlands <b>6,19 €</b> — und <b>versandkostenfrei ab 90 €</b>. Ins EU-Ausland wählst du beim Bezahlen die passende Option (12,90 €). Details unter <a href="versand.html">Versand</a>.
+      </div></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Kann ich ein Teil zurückgeben?
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner">
+        Ja. Du hast das gesetzliche <b>14-tägige Widerrufsrecht</b>. Passt etwas nicht, sende es einfach im Originalzustand zurück. Alles Wichtige dazu steht im <a href="widerruf.html">Widerruf</a>. Da jedes Teil ein Unikat ist, empfehlen wir vorab einen kurzen Blick auf die Maße.
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Instagram-Vorschau ================= -->
+<section class="ig" id="ig" aria-label="Instagram">
+  <div class="ig-head">
+    <div>
+      <span class="eyebrow">Aus dem Archiv</span>
+      <h2>Folge dem<br>Drop</h2>
+    </div>
+    <a class="ig-handle" href="https://instagram.com/triadarchiv" target="_blank" rel="noopener">@triadarchiv →</a>
+  </div>
+  <div class="ig-grid" id="igGrid" aria-label="Aktuelle Stücke"></div>
+</section>
+
+<!-- ================= Sekundärer Newsletter (über dem Footer) ================= -->
+<div class="foot-nl" aria-label="Newsletter">
+  <div class="foot-nl-inner">
+    <div class="foot-nl-copy">
+      <span class="eyebrow">VIP-Liste</span>
+      <h3>Jeden Drop zuerst</h3>
+      <p>Neue Unikate zuerst sehen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
+    </div>
+    <form class="foot-nl-form" id="footNlForm" novalidate>
+      <input type="email" id="footNlEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
+      <button type="submit">Eintragen</button>
+    </form>
+    <p class="foot-nl-note" id="footNlNote" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
 <footer>
   <div class="foot-inner">
     <div class="foot-logo">
@@ -1320,6 +2271,34 @@
   </div>
   <div class="foot-copy">© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.</div>
 </footer>
+
+<!-- ================= Slide-Over Warenkorb (Schublade) ================= -->
+<div class="drawer-overlay" id="drawerOverlay" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <aside class="drawer" id="drawer" aria-label="Warenkorb">
+    <div class="drawer-head">
+      <span class="drawer-title" id="drawerTitle">Warenkorb <span id="drawerCountLabel">(0)</span></span>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Warenkorb schließen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="ship-progress" id="shipProgress" hidden>
+      <p class="ship-progress-text" id="shipProgressText"></p>
+      <div class="ship-bar"><div class="ship-bar-fill" id="shipBarFill"></div></div>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot" id="drawerFoot" hidden>
+      <div class="drawer-sum"><span>Zwischensumme</span><span class="amount" id="drawerSubtotal">0,00€</span></div>
+      <a class="drawer-checkout" href="cart.html" id="drawerCheckout">Zur Kasse →</a>
+      <button class="drawer-continue" id="drawerContinue" type="button">← Weiter stöbern</button>
+      <div class="pay-row">
+        <span class="pay-mark">Visa</span>
+        <span class="pay-mark">Mastercard</span>
+        <span class="pay-mark">PayPal</span>
+        <span class="pay-note">Sichere Bezahlung · SSL-verschlüsselt</span>
+      </div>
+    </div>
+  </aside>
+</div>
 
 <!-- ================= Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ================= -->
 <div class="drop-overlay" id="dropOverlay" role="dialog" aria-modal="true" aria-labelledby="dropTitle" hidden>
@@ -1440,10 +2419,19 @@
       const isLead = !leadAssigned && !soldOut;
       if(isLead) leadAssigned = true;
 
-      const badge = (!soldOut && p.oldPrice) ? `<div class="badge">Sale</div>` : '';
+      // Tags auf dem Bild: Sale (falls reduziert), echter Zustand, Unikat-Verknappung.
+      // Zustand kommt 1:1 aus den Produktdaten — nichts erfunden.
+      const condTxt = (p.condition || '').trim();
+      const tagParts = [];
+      if(!soldOut && p.oldPrice) tagParts.push('<span class="tile-tag tile-tag--sale">Sale</span>');
+      if(!soldOut && condTxt) tagParts.push(`<span class="tile-tag">${escapeHtml(condTxt)}</span>`);
+      if(!soldOut && !multi) tagParts.push('<span class="tile-tag tile-tag--rare">Unikat · 1/1</span>');
+      const tagsHtml = tagParts.length ? `<div class="tile-tags">${tagParts.join('')}</div>` : '';
       const stamp = soldOut ? `<span class="stamp">Verkauft — Archiviert</span>` : '';
+      // Zweitbild für den Hover-Wechsel: erstes zusätzliches Bild, das sich vom Hauptbild unterscheidet
+      const hoverSrc = (p.image && Array.isArray(p.images)) ? (p.images.find(s => s && s !== p.image) || '') : '';
       const imgContent = p.image
-        ? `<img src="${p.image}" alt="${escapeHtml(p.name || 'Vintage-Adidas-Stück')}" loading="lazy">`
+        ? `<img src="${p.image}" alt="${escapeHtml(p.name || 'Vintage-Adidas-Stück')}" loading="lazy">${hoverSrc ? `<img class="img-hover" src="${escapeHtml(hoverSrc)}" alt="" loading="lazy" aria-hidden="true">` : ''}`
         : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
       const priceHtml = p.oldPrice
         ? `<span class="old">${p.oldPrice}€</span><span class="now">${p.price}€</span>`
@@ -1471,9 +2459,9 @@
           : `<button class="add-btn">In den Warenkorb</button>`;
 
       return `
-        <article class="product${soldOut ? ' is-sold' : ''}${isLead ? ' is-lead' : ''}" data-id="${escapeHtml(rep.id)}" data-cat="${cats.map(escapeHtml).join(' ')}" data-name="${escapeHtml(p.name || '')}" data-price="${p.price}" data-size="${escapeHtml(allSizes.join(' '))}" data-available="${!soldOut}" data-featured="${p.featured === true}" data-alsoshop="${p.alsoInShop === true}">
+        <article class="product${soldOut ? ' is-sold' : ''}${isLead ? ' is-lead' : ''}" data-id="${escapeHtml(rep.id)}" data-cat="${cats.map(escapeHtml).join(' ')}" data-name="${escapeHtml(p.name || '')}" data-price="${p.price}" data-size="${escapeHtml(allSizes.join(' '))}" data-available="${!soldOut}" data-featured="${p.featured === true}" data-alsoshop="${p.alsoInShop === true}" data-added="${p.addedAt || ''}">
           <div class="tile-meta"><span class="tile-no">No. ${no}</span><span class="tile-cat">${escapeHtml(catLabel)}</span></div>
-          <div class="product-img">${badge}${imgContent}${stamp}</div>
+          <div class="product-img">${tagsHtml}${imgContent}${stamp}</div>
           <div class="product-info">
             <h3 class="name">${escapeHtml(p.name || '')}</h3>
             ${metaHtml}
@@ -1708,6 +2696,28 @@
 
   applyFilters();
 
+  /* ---------- Sortierung ---------- */
+  (function initSort(){
+    const sortSelect = document.getElementById('sortSelect');
+    if(!sortSelect) return;
+    const gridEl = document.getElementById('grid');
+    const anchor = document.getElementById('emptyState');
+    const originalOrder = products.slice();                          // Render-Reihenfolge = neueste zuerst
+    const leadNode = products.find(p => p.classList.contains('is-lead')) || null;
+
+    function apply(mode){
+      let ordered = originalOrder.slice();
+      if(mode === 'price-asc')  ordered.sort((a,b) => (Number(a.dataset.price)||0) - (Number(b.dataset.price)||0));
+      else if(mode === 'price-desc') ordered.sort((a,b) => (Number(b.dataset.price)||0) - (Number(a.dataset.price)||0));
+      else if(mode === 'name')  ordered.sort((a,b) => (a.dataset.name||'').localeCompare(b.dataset.name||'', 'de', { sensitivity:'base' }));
+      // Die Lead-Bühne ergibt nur in der Standard-Reihenfolge Sinn; beim Sortieren einheitliches Raster.
+      if(leadNode) leadNode.classList.toggle('is-lead', mode === 'new');
+      ordered.forEach(node => { if(anchor) gridEl.insertBefore(node, anchor); else gridEl.appendChild(node); });
+    }
+
+    sortSelect.addEventListener('change', () => apply(sortSelect.value));
+  })();
+
   /* ---------- cart ---------- */
   const cartCount = document.getElementById('cartCount');
 
@@ -1731,6 +2741,7 @@
     }
     saveCart(cart);
     updateCartCount();
+    window.dispatchEvent(new Event('triad-cart-changed'));
   }
 
   /* ---------- Fly-to-Cart Animation ---------- */
@@ -1798,7 +2809,11 @@
       }
       flyToCart(product.querySelector('.product-img'));
       const size = (product.dataset.size || '').trim() || 'Onesize';
-      addToCart(product.dataset.id, product.dataset.name, Number(product.dataset.price), size, product.querySelector('.product-img').innerHTML);
+      // Thumbnail nur aus dem Hauptbild (ohne Tags/Hover-Bild) — sonst landen die
+      // On-Image-Tags im Warenkorb- und Drawer-Thumbnail.
+      const mainImg = product.querySelector('.product-img img:not(.img-hover)');
+      const thumb = mainImg ? mainImg.outerHTML : '';
+      addToCart(product.dataset.id, product.dataset.name, Number(product.dataset.price), size, thumb);
       const originalLabel = btn.textContent;
       btn.textContent = 'Hinzugefügt';
       btn.classList.add('added');
@@ -2114,6 +3129,229 @@
             localStorage.setItem('triadNewsletter', JSON.stringify(list));
           }catch(err){}
           finishSuccess(false);
+        })
+        .finally(() => { btn.disabled = false; });
+    });
+  })();
+
+  /* ================= Slide-Over Warenkorb (Schublade) =================
+     Öffnet sich über das Warenkorb-Icon; zeigt Positionen, Mengen und
+     einen Gratisversand-Fortschritt (echte Schwelle: 90 € — deckungsgleich
+     mit cart.html / checkout). "Zur Kasse" führt auf cart.html, wo Rabatt-
+     code + Bezahlung (Stripe/PayPal) liegen. */
+  (function initDrawer(){
+    const FREE_FROM = 90;   // muss mit cart.html (FREE_FROM) übereinstimmen
+    const overlay = document.getElementById('drawerOverlay');
+    if(!overlay) return;
+    const body      = document.getElementById('drawerBody');
+    const foot      = document.getElementById('drawerFoot');
+    const closeBtn  = document.getElementById('drawerClose');
+    const continueBtn = document.getElementById('drawerContinue');
+    const countLabel  = document.getElementById('drawerCountLabel');
+    const subtotalEl  = document.getElementById('drawerSubtotal');
+    const shipWrap  = document.getElementById('shipProgress');
+    const shipText  = document.getElementById('shipProgressText');
+    const shipFill  = document.getElementById('shipBarFill');
+    const cartLink  = document.getElementById('cartLink');
+
+    function fmt(n){ return (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + '€'; }
+
+    function render(){
+      const cart = loadCart();
+      const totalQty = cart.reduce((s, it) => s + it.qty, 0);
+      if(countLabel) countLabel.textContent = '(' + totalQty + ')';
+
+      if(cart.length === 0){
+        body.innerHTML = `
+          <div class="drawer-empty">
+            <span class="eyebrow">Warenkorb</span>
+            Noch nichts ausgewählt.<br>Jedes Teil im Archiv ist ein Unikat — ist es weg, ist es weg.
+          </div>`;
+        foot.hidden = true;
+        shipWrap.hidden = true;
+        return;
+      }
+
+      const subtotal = cart.reduce((s, it) => s + it.price * it.qty, 0);
+
+      body.innerHTML = cart.map((it, i) => `
+        <div class="drawer-item">
+          <div class="drawer-item-thumb">${it.thumb || ''}</div>
+          <div class="drawer-item-main">
+            <div class="drawer-item-name">${escapeHtml(it.name || '')}</div>
+            <div class="drawer-item-size">Größe: ${escapeHtml(it.size || 'Onesize')}</div>
+            <div class="drawer-item-row">
+              <div class="drawer-qty">
+                <button data-act="dec" data-i="${i}" aria-label="Menge verringern">–</button>
+                <span>${it.qty}</span>
+                <button data-act="inc" data-i="${i}" aria-label="Menge erhöhen">+</button>
+              </div>
+              <span class="drawer-item-price">${fmt(it.price * it.qty)}</span>
+            </div>
+          </div>
+          <button class="drawer-item-remove" data-act="remove" data-i="${i}" aria-label="Artikel entfernen">✕</button>
+        </div>`).join('');
+
+      subtotalEl.textContent = fmt(subtotal);
+      foot.hidden = false;
+
+      // Gratisversand-Fortschritt
+      shipWrap.hidden = false;
+      const pct = Math.max(0, Math.min(100, (subtotal / FREE_FROM) * 100));
+      shipFill.style.width = pct + '%';
+      if(subtotal >= FREE_FROM){
+        shipFill.classList.add('full');
+        shipText.innerHTML = '<span class="done">✓ Kostenloser Versand freigeschaltet</span>';
+      } else {
+        shipFill.classList.remove('full');
+        shipText.innerHTML = 'Noch <b>' + fmt(FREE_FROM - subtotal) + '</b> bis zum <b>kostenlosen Versand</b>';
+      }
+    }
+
+    let lastFocus = null;
+    function open(){
+      render();
+      lastFocus = document.activeElement;
+      overlay.hidden = false;
+      void overlay.offsetWidth;             // Reflow erzwingen, damit die Einblend-Transition zuverlässig greift
+      overlay.classList.add('open');
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('keydown', onKey);
+      setTimeout(() => { try{ closeBtn.focus({ preventScroll:true }); }catch(e){} }, 200);
+    }
+    function close(){
+      overlay.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      document.documentElement.style.overflow = '';
+      setTimeout(() => { overlay.hidden = true; }, 420);
+      if(lastFocus){ try{ lastFocus.focus({ preventScroll:true }); }catch(e){} }
+    }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+
+    // Warenkorb-Icon öffnet die Schublade (Link auf cart.html bleibt als Fallback ohne JS)
+    if(cartLink){
+      cartLink.addEventListener('click', (e) => { e.preventDefault(); open(); });
+    }
+    closeBtn.addEventListener('click', close);
+    continueBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
+
+    // Mengen ändern / entfernen
+    body.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-act]');
+      if(!btn) return;
+      const cart = loadCart();
+      const i = Number(btn.dataset.i);
+      const item = cart[i];
+      if(!item) return;
+      if(btn.dataset.act === 'inc') item.qty += 1;
+      if(btn.dataset.act === 'dec') item.qty = Math.max(1, item.qty - 1);
+      if(btn.dataset.act === 'remove') cart.splice(i, 1);
+      saveCart(cart);
+      updateCartCount();
+      render();
+    });
+
+    // Nach jedem "In den Warenkorb" die Zählanzeige der Schublade aktuell halten,
+    // falls sie gerade offen ist.
+    window.addEventListener('triad-cart-changed', () => { if(!overlay.hidden) render(); });
+  })();
+
+  /* ================= FAQ-Akkordeon ================= */
+  (function initFaq(){
+    const list = document.getElementById('faqList');
+    if(!list) return;
+    list.querySelectorAll('.faq-item').forEach(item => {
+      const q = item.querySelector('.faq-q');
+      const a = item.querySelector('.faq-a');
+      if(!q || !a) return;
+      q.addEventListener('click', () => {
+        const open = item.classList.toggle('open');
+        q.setAttribute('aria-expanded', String(open));
+        a.style.maxHeight = open ? (a.firstElementChild.scrollHeight + 'px') : '0px';
+      });
+    });
+    // Bei Größenänderung offene Antworten neu vermessen
+    window.addEventListener('resize', () => {
+      list.querySelectorAll('.faq-item.open .faq-a').forEach(a => {
+        a.style.maxHeight = a.firstElementChild.scrollHeight + 'px';
+      });
+    });
+  })();
+
+  /* ================= Instagram-Vorschau: echte Produktbilder ================= */
+  (function initIgGrid(){
+    const grid = document.getElementById('igGrid');
+    if(!grid) return;
+    const IG_URL = 'https://instagram.com/triadarchiv';
+    const followTile = `
+      <a class="ig-tile" href="${IG_URL}" target="_blank" rel="noopener" aria-label="TRIAD ARCHIV auf Instagram folgen">
+        <span class="ig-tile-follow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          Folgen
+        </span>
+      </a>`;
+    const imgs = [...new Set((typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [])
+      .filter(p => p && p.image).map(p => p.image))].slice(0, 11);
+
+    if(imgs.length){
+      grid.innerHTML = imgs.map(src => `
+        <a class="ig-tile" href="${IG_URL}" target="_blank" rel="noopener">
+          <img src="${escapeHtml(src)}" alt="" loading="lazy">
+        </a>`).join('') + followTile;
+    } else {
+      // Noch keine Produkte: ruhige Platzhalter + Folgen-Kachel
+      let ph = '';
+      for(let k = 0; k < 5; k++){
+        ph += `<a class="ig-tile" href="${IG_URL}" target="_blank" rel="noopener"><span class="ig-tile-ph"><span class="stripes"><span></span><span></span><span></span></span></span></a>`;
+      }
+      grid.innerHTML = followTile + ph;
+    }
+  })();
+
+  /* ================= Sekundärer Newsletter (Footer-Bereich) ================= */
+  (function initFooterNewsletter(){
+    const form = document.getElementById('footNlForm');
+    if(!form) return;
+    const input = document.getElementById('footNlEmail');
+    const note  = document.getElementById('footNlNote');
+    const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if(!isEmail(email)){
+        note.className = 'foot-nl-note error';
+        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        return;
+      }
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      note.className = 'foot-nl-note';
+      note.textContent = '';
+
+      const done = (doi) => {
+        note.className = 'foot-nl-note success';
+        note.innerHTML = doi
+          ? 'Fast geschafft — bitte bestätige den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner).'
+          : 'Danke, du bist dabei. Wir melden uns bei neuen Stücken.';
+        form.reset();
+      };
+
+      fetch('/api/newsletter', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ email, source:'footer' })
+      })
+        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(data => done(data && data.doi))
+        .catch(() => {
+          try{
+            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
+            list.push({ email, date:new Date().toISOString(), source:'footer' });
+            localStorage.setItem('triadNewsletter', JSON.stringify(list));
+          }catch(err){}
+          done(false);
         })
         .finally(() => { btn.disabled = false; });
     });
