@@ -1063,6 +1063,28 @@
      Kein Farbwechsel, keine neuen Fonts, keine Gimmicks.
      ================================================================ */
 
+  /* ---------- Sprachumschalter DE/EN ---------- */
+  .lang-toggle{
+    display:inline-flex;
+    align-items:center;
+    background:none;
+    border:1px solid var(--line-strong);
+    padding:0;
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:1.5px;
+    line-height:1;
+  }
+  .lang-toggle .lang-opt{
+    padding:6px 8px;
+    color:var(--faint);
+    transition:background .2s ease, color .2s ease;
+  }
+  .lang-toggle .lang-opt.active{ background:var(--text); color:var(--bg); }
+  .lang-toggle:hover .lang-opt:not(.active){ color:var(--text); }
+
   /* ---------- Vertrauensleiste (unter dem Header, über dem Hero) ----------
      Vier ruhige Fakten in Mono-Kapitälchen; Hairline-Trenner statt Icons. */
   .trustbar{
@@ -1813,16 +1835,190 @@
 </head>
 <body>
 
+<script>
+/* ================= i18n: DE/EN Sprachumschaltung =================
+   Deutsch ist Standard, EN kommt über den Schalter im Header dazu.
+   Statische Texte tragen data-i18n / data-i18n-ph / data-i18n-aria.
+   Dynamische Texte (Produktkacheln, Warenkorb-Schublade, Meldungen)
+   laufen über t(key). Beim Umschalten wird die Seite neu geladen,
+   damit auch dynamisch erzeugte Texte sofort in der neuen Sprache stehen. */
+window.LANG = (function(){ try{ return localStorage.getItem('triadLang') === 'en' ? 'en' : 'de'; }catch(e){ return 'de'; } })();
+
+const I18N = {
+  de: {
+    nav_cart:'Warenkorb', search_ph:'Archiv durchsuchen', search_aria:'Produkte durchsuchen',
+    trust1:'100% Original-Vintage', trust2:'Handverlesen & geprüft', trust3:'Versand aus Deutschland', trust4:'Jedes Teil ein Unikat · 1/1',
+    hero_eyebrow:'Kuratiertes Vintage-adidas-Archiv — Deutschland',
+    hero_statement:'Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b>',
+    drop_kicker:'Archiv im Aufbau', drop_kicker_normal:'Neuer Drop · Jede Woche',
+    drop_headline_prefix:'Erster Drop', drop_termin:'Mitte September', drop_headline_normal:'Jede Woche<br>neue Unikate',
+    drop_sub:'Melde dich kostenlos für den Newsletter an und sieh jeden Drop zuerst — bevor die Unikate öffentlich online gehen.',
+    drop_sub_normal:'Frisch kuratiert · streng limitiert · kein Restock.',
+    cd_days:'Tage', cd_hours:'Std', cd_mins:'Min', cd_secs:'Sek', cd_done:'Der erste Drop ist da',
+    point1:'Streng limitiert — jedes Teil 1/1', point2:'Geprüft & dokumentiert', point3:'Kostenloser Newsletter — Drop zuerst sehen',
+    vip_label:'Newsletter · kostenlos anmelden', vip_email_ph:'Deine E-Mail-Adresse', vip_email_aria:'E-Mail-Adresse für den Newsletter',
+    vip_btn:'Kostenlos eintragen →', vip_live:'Kostenlos & jederzeit abbestellbar — trag dich vor dem ersten Drop ein.',
+    vip_count:'<b>{n}</b> Sammler:innen im Newsletter · jedes Teil 1/1', vip_link_shop:'Bestand ansehen',
+    vip_err:'Bitte gib eine gültige E-Mail-Adresse ein.',
+    vip_ok_doi:'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann erfährst du jeden Drop zuerst.',
+    vip_ok:'Eingetragen — du erfährst jeden Drop jetzt <b>zuerst</b>. Kostenlos, jederzeit abbestellbar.',
+    bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
+    cat_all:'Alle', cat_trainingsjacken:'Trainingsjacken', cat_trainingshosen:'Trainingshosen', cat_jeanshosen:'Jeanshosen', cat_oberteile:'Oberteile', cat_shorts:'Shorts', cat_tracksuits:'Tracksuits', cat_accessoires:'Accessoires', cat_designer:'Designer',
+    rc_products:'Produkte', sort_new:'Neueste zuerst', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
+    fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
+    cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
+    warum_eyebrow:'Warum Triad Archiv', warum_h2:'Worauf du dich<br>verlassen kannst',
+    assure1_val:'Geprüfte Originalware', assure1_sub:'Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.',
+    assure2_val:'600+ Verkäufe auf Vinted', assure2_sub:'Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.',
+    assure3_key:'1–3 T.', assure3_val:'Versand aus Deutschland', assure3_sub:'Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.',
+    testimonials_note:'Echte Käuferstimmen aus über 600 Vinted-Verkäufen — durchweg 5 Sterne', t_verified:'Verifiziert · Vinted',
+    nl_eyebrow:'Newsletter', nl_h2:'Keinen Drop<br>verpassen',
+    nl_text:'Trag dich ein und erfahre zuerst, wenn neue Stücke online kommen — inklusive <b>10 % Willkommensrabatt</b> auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.',
+    nl_email_ph:'Deine E-Mail-Adresse', nl_email_aria:'E-Mail-Adresse', nl_btn:'Eintragen', nl_err:'Bitte gib eine gültige E-Mail-Adresse ein.',
+    nl_ok_doi:'Fast geschafft! Wir haben dir eine <b>Bestätigungs-E-Mail</b> geschickt — bitte klick auf den Link darin, dann bist du dabei.<span class="spam-hint">Keine Mail bekommen? Schau bitte auch im <b>Spam-</b> oder <b>Werbung-Ordner</b> nach.</span>',
+    nl_ok:'Danke, du bist eingetragen. Wir melden uns bei neuen Stücken.',
+    faq_eyebrow:'Häufige Fragen', faq_h2:'Gut zu<br>wissen',
+    faq_q1:'Sind die Teile wirklich original?',
+    faq_a1:'Ja. Jedes Stück ist <b>originale Vintage-adidas-Ware</b> — handverlesen und einzeln auf Echtheit geprüft, bevor es ins Archiv kommt. Keine Fälschungen, keine Massenware, keine Reproduktionen. Woran wir Echtheit erkennen: Verarbeitung, Nähte, Labels und Trefoil-Details.',
+    faq_q2:'Was bedeuten die Zustandsangaben?',
+    faq_a2:'Wir geben den Zustand ehrlich pro Teil an: <b>Neu mit Etikett</b> (ungetragenes Deadstock), <b>Neu ohne Etikett</b>, <b>Sehr guter Zustand</b> und so weiter. Jedes Stück ist einzeln beschrieben, und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert — du siehst genau, was du bekommst.',
+    faq_q3:'Wie finde ich meine Größe?',
+    faq_a3:'Vintage-Größen fallen oft anders aus als heutige. Deshalb findest du bei jedem Teil die <b>flach gemessenen Maße in cm</b> (z. B. Brust, Schulter, Länge, Bund). Miss am besten ein gut sitzendes Teil von dir aus und vergleiche — das ist zuverlässiger als das eingenähte Etikett.',
+    faq_q4:'Wie läuft der Versand?',
+    faq_a4:'Versand mit DHL <b>aus Deutschland</b>, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen. Innerhalb Deutschlands <b>6,19 €</b> — und <b>versandkostenfrei ab 90 €</b>. Ins EU-Ausland wählst du beim Bezahlen die passende Option (12,90 €). Details unter <a href="versand.html">Versand</a>.',
+    faq_q5:'Kann ich ein Teil zurückgeben?',
+    faq_a5:'Ja. Du hast das gesetzliche <b>14-tägige Widerrufsrecht</b>. Passt etwas nicht, sende es einfach im Originalzustand zurück. Alles Wichtige dazu steht im <a href="widerruf.html">Widerruf</a>. Da jedes Teil ein Unikat ist, empfehlen wir vorab einen kurzen Blick auf die Maße.',
+    ig_eyebrow:'Aus dem Archiv', ig_h2:'Folge dem<br>Drop', ig_follow:'Folgen',
+    fnl_eyebrow:'Newsletter', fnl_h3:'Jeden Drop zuerst', fnl_p:'Neue Unikate zuerst sehen — plus 10 % Willkommensrabatt auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.',
+    fnl_email_ph:'Deine E-Mail-Adresse', fnl_email_aria:'E-Mail-Adresse', fnl_btn:'Eintragen', fnl_err:'Bitte gib eine gültige E-Mail-Adresse ein.',
+    fnl_ok_doi:'Fast geschafft — bitte bestätige den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner).', fnl_ok:'Danke, du bist dabei. Wir melden uns bei neuen Stücken.',
+    foot_versand:'Versand', foot_kontakt:'Kontakt', foot_impressum:'Impressum', foot_datenschutz:'Datenschutz', foot_widerruf:'Widerruf', foot_agb:'AGB', foot_instagram:'Instagram', foot_copy:'© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.',
+    drawer_title:'Warenkorb', drawer_close_aria:'Warenkorb schließen', drawer_sub:'Zwischensumme', drawer_checkout:'Zur Kasse →', drawer_continue:'← Weiter stöbern', pay_note:'Sichere Bezahlung · SSL-verschlüsselt',
+    drawer_empty:'Noch nichts ausgewählt.<br>Jedes Teil im Archiv ist ein Unikat — ist es weg, ist es weg.', drawer_size:'Größe',
+    ship_left:'Noch <b>{x}</b> bis zum <b>kostenlosen Versand</b>', ship_done:'✓ Kostenloser Versand freigeschaltet',
+    dw_dec_aria:'Menge verringern', dw_inc_aria:'Menge erhöhen', dw_remove_aria:'Artikel entfernen',
+    card_soon_eyebrow:'Archiv im Aufbau', card_soon_h2:'Die ersten Stücke<br>kommen bald', card_soon_p:'Handverlesene Vintage-Adidas-Unikate sind auf dem Weg. Trag dich unten in den Newsletter ein — dann erfährst du es zuerst.',
+    empty_state:'Keine Treffer — versuch einen anderen Filter oder Suchbegriff.',
+    tag_sale:'Sale', tag_unikat:'Unikat · 1/1', stamp_sold:'Verkauft — Archiviert',
+    meta_archived:'Archiviert', meta_size:'Gr.', meta_unikat:'Unikat — 1/1', meta_avail:'verfügbar',
+    btn_add:'In den Warenkorb', btn_added:'Hinzugefügt', btn_choose:'Größe wählen', btn_sold:'Verkauft',
+    rc_soon:'Bald im Archiv', rc_one:'Stück', rc_many:'Stücke',
+    dp_eyebrow:'Archiv-Zugang', dp_h2:'<span class="accent">10%</span> auf dein<br>erstes Stück', dp_text:'Trag dich ein und sei als Erste:r dabei, wenn neue handverlesene Unikate ins Archiv kommen — plus 10 % Willkommensrabatt auf deine erste Bestellung.',
+    dp_email_ph:'Deine E-Mail-Adresse', dp_email_aria:'E-Mail-Adresse', dp_btn:'Zugang sichern', dp_success_text:'Willkommen im Archiv. Dein Willkommensrabatt:', dp_copy:'Kopieren', dp_copied:'Kopiert',
+    dp_fine:'Ein Rabatt pro Kunde · jederzeit abbestellbar · <a href="datenschutz.html">Datenschutz</a>', dp_close_aria:'Schließen', dp_err:'Bitte gib eine gültige E-Mail-Adresse ein.',
+    dp_doi:'Wir haben dir eine Bestätigungs-Mail geschickt — bitte bestätige den Link darin (auch im Spam-Ordner nachsehen).', dp_nodoi:'Gültig für deine erste Bestellung.'
+  },
+  en: {
+    nav_cart:'Cart', search_ph:'Search the archive', search_aria:'Search products',
+    trust1:'100% original vintage', trust2:'Handpicked & checked', trust3:'Ships from Germany', trust4:'Every piece unique · 1/1',
+    hero_eyebrow:'Curated vintage adidas archive — Germany',
+    hero_statement:'Handpicked one-of-a-kind pieces from three decades of adidas. <b>Every piece is unique.</b>',
+    drop_kicker:'Archive in the making', drop_kicker_normal:'New drop · every week',
+    drop_headline_prefix:'First drop', drop_termin:'mid-September', drop_headline_normal:'New pieces<br>every week',
+    drop_sub:'Sign up for the free newsletter and see every drop first — before the pieces go public online.',
+    drop_sub_normal:'Freshly curated · strictly limited · no restock.',
+    cd_days:'Days', cd_hours:'Hrs', cd_mins:'Min', cd_secs:'Sec', cd_done:'The first drop is live',
+    point1:'Strictly limited — every piece 1/1', point2:'Checked & documented', point3:'Free newsletter — see the drop first',
+    vip_label:'Newsletter · sign up free', vip_email_ph:'Your email address', vip_email_aria:'Email address for the newsletter',
+    vip_btn:'Sign up free →', vip_live:'Free & unsubscribe anytime — sign up before the first drop.',
+    vip_count:'<b>{n}</b> collectors on the newsletter · every piece 1/1', vip_link_shop:'View the collection',
+    vip_err:'Please enter a valid email address.',
+    vip_ok_doi:'Almost done — just confirm the link in your <b>confirmation email</b> (check your spam folder too), then you’ll hear about every drop first.',
+    vip_ok:'You’re in — you’ll now hear about every drop <b>first</b>. Free, unsubscribe anytime.',
+    bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
+    cat_all:'All', cat_trainingsjacken:'Track jackets', cat_trainingshosen:'Track pants', cat_jeanshosen:'Jeans', cat_oberteile:'Tops', cat_shorts:'Shorts', cat_tracksuits:'Tracksuits', cat_accessoires:'Accessories', cat_designer:'Designer',
+    rc_products:'Products', sort_new:'Newest first', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
+    fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
+    cond_h2:'Condition & transparency', cond_p:'Every piece is described individually — from <b>new with tags</b> to <b>vintage/used</b> — and all visible wear is documented in the product photos. You see exactly what you’re buying.',
+    warum_eyebrow:'Why Triad Archiv', warum_h2:'What you<br>can rely on',
+    assure1_val:'Verified authentic goods', assure1_sub:'Every piece is inspected by hand and checked for authenticity. No fakes, no mass production.',
+    assure2_val:'600+ sales on Vinted', assure2_sub:'Over 600 completed sales, consistently with 5-star reviews.',
+    assure3_key:'1–3 d', assure3_val:'Ships from Germany', assure3_sub:'Shipped with DHL, carefully packed, usually within 1–3 business days.',
+    testimonials_note:'Real buyer reviews from over 600 Vinted sales — consistently 5 stars', t_verified:'Verified · Vinted',
+    nl_eyebrow:'Newsletter', nl_h2:'Never miss<br>a drop',
+    nl_text:'Sign up and be the first to know when new pieces go live — including a <b>10% welcome discount</b> on your first order. No spam, unsubscribe anytime.',
+    nl_email_ph:'Your email address', nl_email_aria:'Email address', nl_btn:'Sign up', nl_err:'Please enter a valid email address.',
+    nl_ok_doi:'Almost there! We’ve sent you a <b>confirmation email</b> — please click the link inside to complete your signup.<span class="spam-hint">No email? Please also check your <b>spam</b> or <b>promotions</b> folder.</span>',
+    nl_ok:'Thanks, you’re signed up. We’ll be in touch when new pieces arrive.',
+    faq_eyebrow:'FAQ', faq_h2:'Good to<br>know',
+    faq_q1:'Are the pieces really authentic?',
+    faq_a1:'Yes. Every piece is <b>original vintage adidas</b> — handpicked and individually checked for authenticity before it enters the archive. No fakes, no mass production, no reproductions. What we check: construction, stitching, labels and Trefoil details.',
+    faq_q2:'What do the condition labels mean?',
+    faq_a2:'We state the condition honestly per item: <b>New with tags</b> (unworn deadstock), <b>New without tags</b>, <b>Very good condition</b> and so on. Every piece is described individually, and all visible wear is documented in the product photos — you see exactly what you get.',
+    faq_q3:'How do I find my size?',
+    faq_a3:'Vintage sizing often differs from today’s. That’s why each item lists the <b>flat measurements in cm</b> (e.g. chest, shoulder, length, waist). It’s best to measure a garment that fits you well and compare — that’s more reliable than the sewn-in label.',
+    faq_q4:'How does shipping work?',
+    faq_a4:'Shipped with DHL <b>from Germany</b>, carefully packed, usually within 1–3 business days. Within Germany <b>€6.19</b> — and <b>free shipping from €90</b>. For other EU countries you choose the right option at checkout (€12.90). Details under <a href="versand.html">Shipping</a>.',
+    faq_q5:'Can I return an item?',
+    faq_a5:'Yes. You have the statutory <b>14-day right of withdrawal</b>. If something doesn’t fit, simply send it back in its original condition. Everything important is in the <a href="widerruf.html">Withdrawal</a> policy. Since every piece is unique, we recommend a quick look at the measurements beforehand.',
+    ig_eyebrow:'From the archive', ig_h2:'Follow the<br>drop', ig_follow:'Follow',
+    fnl_eyebrow:'Newsletter', fnl_h3:'Every drop first', fnl_p:'See new one-off pieces first — plus a 10% welcome discount on your first order. No spam, unsubscribe anytime.',
+    fnl_email_ph:'Your email address', fnl_email_aria:'Email address', fnl_btn:'Sign up', fnl_err:'Please enter a valid email address.',
+    fnl_ok_doi:'Almost there — please confirm the link in your <b>confirmation email</b> (check spam too).', fnl_ok:'Thanks, you’re in. We’ll be in touch when new pieces arrive.',
+    foot_versand:'Shipping', foot_kontakt:'Contact', foot_impressum:'Legal notice', foot_datenschutz:'Privacy', foot_widerruf:'Withdrawal', foot_agb:'Terms', foot_instagram:'Instagram', foot_copy:'© 2026 TRIAD ARCHIV — All rights reserved.',
+    drawer_title:'Cart', drawer_close_aria:'Close cart', drawer_sub:'Subtotal', drawer_checkout:'Checkout →', drawer_continue:'← Keep browsing', pay_note:'Secure payment · SSL-encrypted',
+    drawer_empty:'Nothing selected yet.<br>Every piece is one of a kind — once it’s gone, it’s gone.', drawer_size:'Size',
+    ship_left:'<b>{x}</b> to go for <b>free shipping</b>', ship_done:'✓ Free shipping unlocked',
+    dw_dec_aria:'Decrease quantity', dw_inc_aria:'Increase quantity', dw_remove_aria:'Remove item',
+    card_soon_eyebrow:'Archive in the making', card_soon_h2:'The first pieces<br>are coming soon', card_soon_p:'Handpicked vintage adidas one-offs are on the way. Sign up for the newsletter below and you’ll be the first to know.',
+    empty_state:'No matches — try another filter or search term.',
+    tag_sale:'Sale', tag_unikat:'One of one · 1/1', stamp_sold:'Sold — archived',
+    meta_archived:'Archived', meta_size:'Size', meta_unikat:'Unique — 1/1', meta_avail:'available',
+    btn_add:'Add to cart', btn_added:'Added', btn_choose:'Choose size', btn_sold:'Sold',
+    rc_soon:'Coming soon', rc_one:'piece', rc_many:'pieces',
+    dp_eyebrow:'Archive access', dp_h2:'<span class="accent">10%</span> off your<br>first piece', dp_text:'Sign up and be first when new handpicked one-offs arrive — plus a 10% welcome discount on your first order.',
+    dp_email_ph:'Your email address', dp_email_aria:'Email address', dp_btn:'Get access', dp_success_text:'Welcome to the archive. Your welcome discount:', dp_copy:'Copy', dp_copied:'Copied',
+    dp_fine:'One discount per customer · unsubscribe anytime · <a href="datenschutz.html">Privacy</a>', dp_close_aria:'Close', dp_err:'Please enter a valid email address.',
+    dp_doi:'We’ve sent you a confirmation email — please confirm the link inside (check your spam folder too).', dp_nodoi:'Valid for your first order.'
+  }
+};
+
+function t(key, vars){
+  var s = (I18N[window.LANG] && I18N[window.LANG][key]);
+  if(s == null) s = (I18N.de[key] != null ? I18N.de[key] : key);
+  if(vars){ for(var k in vars){ s = s.split('{'+k+'}').join(vars[k]); } }
+  return s;
+}
+
+function applyLang(){
+  var L = window.LANG;
+  document.documentElement.lang = L;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ var v = I18N[L][el.getAttribute('data-i18n')]; if(v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ var v = I18N[L][el.getAttribute('data-i18n-ph')]; if(v != null) el.setAttribute('placeholder', v); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){ var v = I18N[L][el.getAttribute('data-i18n-aria')]; if(v != null) el.setAttribute('aria-label', v); });
+  document.querySelectorAll('#langToggle .lang-opt').forEach(function(o){ o.classList.toggle('active', o.getAttribute('data-lang') === L); });
+}
+
+function setLang(lang){
+  if(lang !== 'de' && lang !== 'en') return;
+  if(lang === window.LANG) return;
+  try{ localStorage.setItem('triadLang', lang); }catch(e){}
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  applyLang();
+  var tog = document.getElementById('langToggle');
+  if(tog){
+    tog.addEventListener('click', function(e){
+      var opt = e.target.closest('.lang-opt');
+      setLang(opt ? opt.getAttribute('data-lang') : (window.LANG === 'de' ? 'en' : 'de'));
+    });
+  }
+});
+</script>
+
 <header>
   <a class="logo" href="shop.html">
     <span class="stripes"><span></span><span></span><span></span></span>
     TRIAD <span class="archive">ARCHIV</span>
   </a>
   <div class="header-search">
-    <input type="text" id="searchInput" class="search-input" placeholder="Archiv durchsuchen" aria-label="Produkte durchsuchen">
+    <input type="text" id="searchInput" class="search-input" placeholder="Archiv durchsuchen" aria-label="Produkte durchsuchen" data-i18n-ph="search_ph" data-i18n-aria="search_aria">
   </div>
   <div class="header-icons">
-    <a href="cart.html" id="cartLink">Warenkorb (<span id="cartCount">0</span>)</a>
+    <button id="langToggle" class="lang-toggle" type="button" aria-label="Sprache / Language"><span class="lang-opt" data-lang="de">DE</span><span class="lang-opt" data-lang="en">EN</span></button>
+    <a href="cart.html" id="cartLink"><span data-i18n="nav_cart">Warenkorb</span> (<span id="cartCount">0</span>)</a>
   </div>
 </header>
 
@@ -1831,19 +2027,19 @@
   <div class="trustbar-inner container">
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-      100% Original-Vintage
+      <span data-i18n="trust1">100% Original-Vintage</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/></svg>
-      Handverlesen &amp; geprüft
+      <span data-i18n="trust2">Handverlesen &amp; geprüft</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>
-      Versand aus Deutschland
+      <span data-i18n="trust3">Versand aus Deutschland</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M6 7l12 10M18 7L6 17"/></svg>
-      Jedes Teil ein Unikat · 1/1
+      <span data-i18n="trust4">Jedes Teil ein Unikat · 1/1</span>
     </span>
   </div>
 </div>
@@ -1851,38 +2047,38 @@
 <section class="hero" aria-label="TRIAD ARCHIV">
   <div class="hero-inner container">
     <div class="hero-copy">
-      <p class="eyebrow">Kuratiertes Vintage-adidas-Archiv — Deutschland</p>
+      <p class="eyebrow" data-i18n="hero_eyebrow">Kuratiertes Vintage-adidas-Archiv — Deutschland</p>
       <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
-      <p class="hero-statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
+      <p class="hero-statement" data-i18n="hero_statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
     </div>
     <aside class="hero-drop" aria-label="Erster Drop Mitte September">
-      <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span>Archiv im Aufbau</span>
+      <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span><span data-i18n="drop_kicker">Archiv im Aufbau</span></span>
       <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte September</p>
       <div class="hero-countdown" id="heroCountdown" role="timer" aria-label="Countdown bis zum ersten Drop" hidden>
-        <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab">Tage</span></div>
-        <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab">Std</span></div>
-        <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-lab">Min</span></div>
-        <div class="cd-unit cd-secbox" id="cdSecBox"><span class="cd-num" id="cdSecs">00</span><span class="cd-lab">Sek</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab" data-i18n="cd_days">Tage</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab" data-i18n="cd_hours">Std</span></div>
+        <div class="cd-unit"><span class="cd-num" id="cdMins">00</span><span class="cd-lab" data-i18n="cd_mins">Min</span></div>
+        <div class="cd-unit cd-secbox" id="cdSecBox"><span class="cd-num" id="cdSecs">00</span><span class="cd-lab" data-i18n="cd_secs">Sek</span></div>
       </div>
-      <p class="hero-drop-sub" id="heroDropSub">VIP-Abonnenten sehen jeden Drop zuerst — und sichern die Unikate, bevor der Shop öffentlich geht.</p>
+      <p class="hero-drop-sub" id="heroDropSub" data-i18n="drop_sub">Melde dich kostenlos für den Newsletter an und sieh jeden Drop zuerst — bevor die Unikate öffentlich online gehen.</p>
       <ul class="hero-drop-points" aria-label="Was den Drop besonders macht">
-        <li>Streng limitiert — jedes Teil 1/1</li>
-        <li>Geprüft &amp; dokumentiert</li>
-        <li>Früher Zugriff nur für Abonnenten</li>
+        <li data-i18n="point1">Streng limitiert — jedes Teil 1/1</li>
+        <li data-i18n="point2">Geprüft &amp; dokumentiert</li>
+        <li data-i18n="point3">Kostenloser Newsletter — Drop zuerst sehen</li>
       </ul>
-      <!-- VIP-Zugang: E-Mail-Capture direkt im Hero (nutzt denselben Newsletter-Endpunkt) -->
+      <!-- Kostenlose Newsletter-Anmeldung direkt im Hero (nutzt denselben Newsletter-Endpunkt) -->
       <div class="hero-vip">
-        <span class="hero-vip-label">VIP-Zugang · Early Access sichern</span>
+        <span class="hero-vip-label" data-i18n="vip_label">Newsletter · kostenlos anmelden</span>
         <form class="hero-vip-form" id="heroVipForm" novalidate>
-          <input type="email" id="heroVipEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse für den VIP-Zugang">
-          <button type="submit">Early Access sichern →</button>
+          <input type="email" id="heroVipEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse für den Newsletter" data-i18n-ph="vip_email_ph" data-i18n-aria="vip_email_aria">
+          <button type="submit" data-i18n="vip_btn">Kostenlos eintragen →</button>
         </form>
         <p class="hero-vip-note" id="heroVipNote" role="status" aria-live="polite"></p>
         <div class="hero-live" id="heroLive">
           <span class="pulse" aria-hidden="true"></span>
-          <span id="heroLiveText">VIP-Liste ist offen — sei vor dem ersten Drop dabei.</span>
+          <span id="heroLiveText" data-i18n="vip_live">Kostenlos &amp; jederzeit abbestellbar — trag dich vor dem ersten Drop ein.</span>
         </div>
-        <a class="link-quiet" href="#bestand">Bestand ansehen</a>
+        <a class="link-quiet" href="#bestand" data-i18n="vip_link_shop">Bestand ansehen</a>
       </div>
     </aside>
   </div>
@@ -1903,18 +2099,18 @@
 
   (function(){
     if(AUFBAU_MODUS){
-      // Termin zentral pflegen: das Hero-Panel übernimmt ihn automatisch.
+      // Termin zentral pflegen: das Hero-Panel übernimmt ihn automatisch (Sprache via t()).
       var hl = document.getElementById('heroDropHeadline');
-      if(hl) hl.innerHTML = 'Erster Drop<br>' + AUFBAU_DROP_TERMIN;
+      if(hl) hl.innerHTML = t('drop_headline_prefix') + '<br>' + t('drop_termin');
       return;
     }
     // Normalbetrieb: Hero auf den Wochen-Rhythmus umstellen.
     var kicker   = document.getElementById('heroDropKicker');
     var headline = document.getElementById('heroDropHeadline');
     var sub      = document.getElementById('heroDropSub');
-    if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>Neuer Drop · Jede Woche';
-    if(headline) headline.innerHTML = 'Jede Woche<br>neue Unikate';
-    if(sub)      sub.textContent = 'Frisch kuratiert · streng limitiert · kein Restock.';
+    if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>' + t('drop_kicker_normal');
+    if(headline) headline.innerHTML = t('drop_headline_normal');
+    if(sub)      sub.textContent = t('drop_sub_normal');
   })();
 
   /* ---------- Countdown bis zum ersten Drop ----------
@@ -1937,7 +2133,7 @@
     function tick(){
       var diff = target - Date.now();
       if(diff <= 0){
-        cd.innerHTML = '<span class="cd-done"><span class="pulse" aria-hidden="true"></span>Der erste Drop ist da</span>';
+        cd.innerHTML = '<span class="cd-done"><span class="pulse" aria-hidden="true"></span>' + t('cd_done') + '</span>';
         if(timer) clearInterval(timer);
         return;
       }
@@ -1971,10 +2167,10 @@
   (function initVipCapture(){
     // Live-Zeile ggf. mit echter Zahl anreichern
     if(typeof VIP_LIST_COUNT === 'number' && VIP_LIST_COUNT > 0){
-      const t = document.getElementById('heroLiveText');
-      if(t){
-        const n = VIP_LIST_COUNT.toLocaleString('de-DE');
-        t.innerHTML = '<b>' + n + '</b> Collector bereits auf der VIP-Liste · jedes Teil 1/1';
+      const liveEl = document.getElementById('heroLiveText');
+      if(liveEl){
+        const n = VIP_LIST_COUNT.toLocaleString(window.LANG === 'en' ? 'en-US' : 'de-DE');
+        liveEl.innerHTML = t('vip_count', { n: n });
       }
     }
 
@@ -1989,7 +2185,7 @@
       const email = input.value.trim();
       if(!isEmail(email)){
         note.className = 'hero-vip-note error';
-        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        note.textContent = t('vip_err');
         return;
       }
       const btn = form.querySelector('button');
@@ -2000,9 +2196,7 @@
       const done = (doi) => {
         try{ localStorage.setItem('triadNewsletterDone', '1'); }catch(err){}
         note.className = 'hero-vip-note success';
-        note.innerHTML = doi
-          ? 'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann bist du auf der VIP-Liste.'
-          : 'Willkommen auf der VIP-Liste — du erfährst jeden Drop <b>zuerst</b>.';
+        note.innerHTML = doi ? t('vip_ok_doi') : t('vip_ok');
         form.reset();
       };
 
@@ -2029,21 +2223,21 @@
 
 <section id="bestand" aria-label="Aktueller Bestand">
 <div class="intro">
-  <h2>Aktueller Bestand</h2>
-  <span class="eyebrow">Bereits verfügbar · Sofort bestellbar</span>
+  <h2 data-i18n="bestand_h2">Aktueller Bestand</h2>
+  <span class="eyebrow" data-i18n="bestand_eyebrow">Bereits verfügbar · Sofort bestellbar</span>
 </div>
 
 <div class="shop container">
   <nav class="filters" id="filters" aria-label="Kategorien">
-    <button class="filter-btn active" data-filter="all">Alle</button>
-    <button class="filter-btn" data-filter="trainingsjacken">Trainingsjacken</button>
-    <button class="filter-btn" data-filter="trainingshosen">Trainingshosen</button>
-    <button class="filter-btn" data-filter="jeanshosen">Jeanshosen</button>
-    <button class="filter-btn" data-filter="oberteile">Oberteile</button>
-    <button class="filter-btn" data-filter="shorts">Shorts</button>
-    <button class="filter-btn" data-filter="tracksuits">Tracksuits</button>
-    <button class="filter-btn" data-filter="accessoires">Accessoires</button>
-    <button class="filter-btn" data-filter="designer">Designer</button>
+    <button class="filter-btn active" data-filter="all" data-i18n="cat_all">Alle</button>
+    <button class="filter-btn" data-filter="trainingsjacken" data-i18n="cat_trainingsjacken">Trainingsjacken</button>
+    <button class="filter-btn" data-filter="trainingshosen" data-i18n="cat_trainingshosen">Trainingshosen</button>
+    <button class="filter-btn" data-filter="jeanshosen" data-i18n="cat_jeanshosen">Jeanshosen</button>
+    <button class="filter-btn" data-filter="oberteile" data-i18n="cat_oberteile">Oberteile</button>
+    <button class="filter-btn" data-filter="shorts" data-i18n="cat_shorts">Shorts</button>
+    <button class="filter-btn" data-filter="tracksuits" data-i18n="cat_tracksuits">Tracksuits</button>
+    <button class="filter-btn" data-filter="accessoires" data-i18n="cat_accessoires">Accessoires</button>
+    <button class="filter-btn" data-filter="designer" data-i18n="cat_designer">Designer</button>
   </nav>
   <section class="collection-hero" id="collectionHero" hidden>
     <a class="collection-back" id="collectionBack" href="#">← Zurück zum Archiv</a>
@@ -2056,16 +2250,16 @@
     <span class="count" id="resultCount">Produkte</span>
     <div class="toolbar-tools">
       <div class="sort-control">
-        <select class="sort-select" id="sortSelect" aria-label="Sortierung">
-          <option value="new">Neueste zuerst</option>
-          <option value="price-asc">Preis · aufsteigend</option>
-          <option value="price-desc">Preis · absteigend</option>
-          <option value="name">Name · A–Z</option>
+        <select class="sort-select" id="sortSelect" aria-label="Sortierung" data-i18n-aria="sort_aria">
+          <option value="new" data-i18n="sort_new">Neueste zuerst</option>
+          <option value="price-asc" data-i18n="sort_pa">Preis · aufsteigend</option>
+          <option value="price-desc" data-i18n="sort_pd">Preis · absteigend</option>
+          <option value="name" data-i18n="sort_name">Name · A–Z</option>
         </select>
       </div>
       <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h13M20 7h1M3 12h5M12 12h9M3 17h9M16 17h5"/><circle cx="18" cy="7" r="1.9"/><circle cx="10" cy="12" r="1.9"/><circle cx="14" cy="17" r="1.9"/></svg>
-        Filter
+        <span data-i18n="filter_btn">Filter</span>
         <span class="filter-count" id="filterCount">0</span>
       </button>
     </div>
@@ -2073,25 +2267,25 @@
 
   <div class="filter-panel" id="filterPanel">
     <div class="fp-group">
-      <span class="fp-label">Status</span>
+      <span class="fp-label" data-i18n="fp_status">Status</span>
       <div class="avail-options" id="availOptions">
-        <button type="button" class="avail-chip active" data-avail="all">Alle</button>
-        <button type="button" class="avail-chip" data-avail="in">Verfügbar</button>
-        <button type="button" class="avail-chip" data-avail="out">Archiviert</button>
+        <button type="button" class="avail-chip active" data-avail="all" data-i18n="avail_all">Alle</button>
+        <button type="button" class="avail-chip" data-avail="in" data-i18n="avail_in">Verfügbar</button>
+        <button type="button" class="avail-chip" data-avail="out" data-i18n="avail_out">Archiviert</button>
       </div>
     </div>
     <div class="fp-group">
-      <span class="fp-label">Größe</span>
+      <span class="fp-label" data-i18n="fp_size">Größe</span>
       <div class="size-options" id="sizeOptions"></div>
     </div>
     <div class="fp-group">
-      <span class="fp-label">Preis</span>
+      <span class="fp-label" data-i18n="fp_price">Preis</span>
       <div class="price-control">
-        <input type="range" class="price-slider" id="priceSlider" min="0" max="300" step="5" value="300" aria-label="Maximalpreis">
+        <input type="range" class="price-slider" id="priceSlider" min="0" max="300" step="5" value="300" aria-label="Maximalpreis" data-i18n-aria="price_aria">
         <div class="price-value"><span class="muted">0 €</span><span id="priceMaxLabel">300 €</span></div>
       </div>
     </div>
-    <button type="button" class="reset-filters" id="resetFilters">Zurücksetzen</button>
+    <button type="button" class="reset-filters" id="resetFilters" data-i18n="reset">Zurücksetzen</button>
   </div>
 
   <main class="grid" id="grid"></main>
@@ -2101,8 +2295,8 @@
   </div>
 
   <div class="condition-strip">
-    <h2>Zustand &amp; Transparenz</h2>
-    <p>Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.</p>
+    <h2 data-i18n="cond_h2">Zustand &amp; Transparenz</h2>
+    <p data-i18n="cond_p">Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.</p>
   </div>
 </div>
 
@@ -2125,30 +2319,30 @@
      direkt vor der Newsletter-Entscheidung. -->
 <section class="warum" id="warum" aria-label="Warum TRIAD ARCHIV">
   <div class="sect-head">
-    <span class="eyebrow">Warum Triad Archiv</span>
-    <h2>Worauf du dich<br>verlassen kannst</h2>
+    <span class="eyebrow" data-i18n="warum_eyebrow">Warum Triad Archiv</span>
+    <h2 data-i18n="warum_h2">Worauf du dich<br>verlassen kannst</h2>
   </div>
   <div class="assurance">
     <div class="assurance-inner container">
       <div class="assure-item">
         <div class="assure-key">100%</div>
-        <div class="assure-val">Geprüfte Originalware</div>
-        <p class="assure-sub">Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.</p>
+        <div class="assure-val" data-i18n="assure1_val">Geprüfte Originalware</div>
+        <p class="assure-sub" data-i18n="assure1_sub">Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.</p>
       </div>
       <div class="assure-item">
         <div class="assure-key">5,0<span class="assure-star">★</span></div>
-        <div class="assure-val">600+ Verkäufe auf Vinted</div>
-        <p class="assure-sub">Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.</p>
+        <div class="assure-val" data-i18n="assure2_val">600+ Verkäufe auf Vinted</div>
+        <p class="assure-sub" data-i18n="assure2_sub">Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.</p>
       </div>
       <div class="assure-item">
-        <div class="assure-key">1–3 T.</div>
-        <div class="assure-val">Versand aus Deutschland</div>
-        <p class="assure-sub">Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.</p>
+        <div class="assure-key" data-i18n="assure3_key">1–3 T.</div>
+        <div class="assure-val" data-i18n="assure3_val">Versand aus Deutschland</div>
+        <p class="assure-sub" data-i18n="assure3_sub">Verschickt mit DHL, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen.</p>
       </div>
     </div>
   </div>
   <div class="testimonials container" aria-label="Kundenstimmen">
-    <p class="testimonials-note">Echte Käuferstimmen aus über 600 Vinted-Verkäufen — durchweg 5 Sterne</p>
+    <p class="testimonials-note" data-i18n="testimonials_note">Echte Käuferstimmen aus über 600 Vinted-Verkäufen — durchweg 5 Sterne</p>
     <div class="testimonial-grid" id="testimonialGrid"></div>
   </div>
 </section>
@@ -2156,14 +2350,14 @@
 <section class="newsletter" id="newsletter" aria-label="Newsletter">
   <div class="newsletter-inner container">
     <div>
-      <span class="eyebrow">Newsletter</span>
-      <h2>Keinen Drop<br>verpassen</h2>
-      <p class="nl-text">Trag dich ein und erfahre zuerst, wenn neue Stücke online kommen — inklusive <b>10&nbsp;% Willkommensrabatt</b> auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
+      <span class="eyebrow" data-i18n="nl_eyebrow">Newsletter</span>
+      <h2 data-i18n="nl_h2">Keinen Drop<br>verpassen</h2>
+      <p class="nl-text" data-i18n="nl_text">Trag dich ein und erfahre zuerst, wenn neue Stücke online kommen — inklusive <b>10&nbsp;% Willkommensrabatt</b> auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
     </div>
     <div>
       <form class="newsletter-form" id="newsletterForm" novalidate>
-        <input type="email" id="newsletterEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
-        <button type="submit">Eintragen</button>
+        <input type="email" id="newsletterEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse" data-i18n-ph="nl_email_ph" data-i18n-aria="nl_email_aria">
+        <button type="submit" data-i18n="nl_btn">Eintragen</button>
       </form>
       <p class="newsletter-note" id="newsletterNote" role="status" aria-live="polite"></p>
     </div>
@@ -2173,52 +2367,52 @@
 <!-- ================= FAQ (Akkordeon) ================= -->
 <section class="faq" id="faq" aria-label="Häufige Fragen">
   <div class="sect-head">
-    <span class="eyebrow">Häufige Fragen</span>
-    <h2>Gut zu<br>wissen</h2>
+    <span class="eyebrow" data-i18n="faq_eyebrow">Häufige Fragen</span>
+    <h2 data-i18n="faq_h2">Gut zu<br>wissen</h2>
   </div>
   <div class="faq-list" id="faqList">
     <div class="faq-item">
       <button class="faq-q" type="button" aria-expanded="false">
-        Sind die Teile wirklich original?
+        <span data-i18n="faq_q1">Sind die Teile wirklich original?</span>
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a1">
         Ja. Jedes Stück ist <b>originale Vintage-adidas-Ware</b> — handverlesen und einzeln auf Echtheit geprüft, bevor es ins Archiv kommt. Keine Fälschungen, keine Massenware, keine Reproduktionen. Woran wir Echtheit erkennen: Verarbeitung, Nähte, Labels und Trefoil-Details.
       </div></div>
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" aria-expanded="false">
-        Was bedeuten die Zustandsangaben?
+        <span data-i18n="faq_q2">Was bedeuten die Zustandsangaben?</span>
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a2">
         Wir geben den Zustand ehrlich pro Teil an: <b>Neu mit Etikett</b> (ungetragenes Deadstock), <b>Neu ohne Etikett</b>, <b>Sehr guter Zustand</b> und so weiter. Jedes Stück ist einzeln beschrieben, und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert — du siehst genau, was du bekommst.
       </div></div>
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" aria-expanded="false">
-        Wie finde ich meine Größe?
+        <span data-i18n="faq_q3">Wie finde ich meine Größe?</span>
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a3">
         Vintage-Größen fallen oft anders aus als heutige. Deshalb findest du bei jedem Teil die <b>flach gemessenen Maße in cm</b> (z. B. Brust, Schulter, Länge, Bund). Miss am besten ein gut sitzendes Teil von dir aus und vergleiche — das ist zuverlässiger als das eingenähte Etikett.
       </div></div>
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" aria-expanded="false">
-        Wie läuft der Versand?
+        <span data-i18n="faq_q4">Wie läuft der Versand?</span>
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a4">
         Versand mit DHL <b>aus Deutschland</b>, sorgfältig verpackt, in der Regel innerhalb von 1–3 Werktagen. Innerhalb Deutschlands <b>6,19 €</b> — und <b>versandkostenfrei ab 90 €</b>. Ins EU-Ausland wählst du beim Bezahlen die passende Option (12,90 €). Details unter <a href="versand.html">Versand</a>.
       </div></div>
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" aria-expanded="false">
-        Kann ich ein Teil zurückgeben?
+        <span data-i18n="faq_q5">Kann ich ein Teil zurückgeben?</span>
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
-      <div class="faq-a"><div class="faq-a-inner">
+      <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a5">
         Ja. Du hast das gesetzliche <b>14-tägige Widerrufsrecht</b>. Passt etwas nicht, sende es einfach im Originalzustand zurück. Alles Wichtige dazu steht im <a href="widerruf.html">Widerruf</a>. Da jedes Teil ein Unikat ist, empfehlen wir vorab einen kurzen Blick auf die Maße.
       </div></div>
     </div>
@@ -2229,8 +2423,8 @@
 <section class="ig" id="ig" aria-label="Instagram">
   <div class="ig-head">
     <div>
-      <span class="eyebrow">Aus dem Archiv</span>
-      <h2>Folge dem<br>Drop</h2>
+      <span class="eyebrow" data-i18n="ig_eyebrow">Aus dem Archiv</span>
+      <h2 data-i18n="ig_h2">Folge dem<br>Drop</h2>
     </div>
     <a class="ig-handle" href="https://instagram.com/triadarchiv" target="_blank" rel="noopener">@triadarchiv →</a>
   </div>
@@ -2241,13 +2435,13 @@
 <div class="foot-nl" aria-label="Newsletter">
   <div class="foot-nl-inner">
     <div class="foot-nl-copy">
-      <span class="eyebrow">VIP-Liste</span>
-      <h3>Jeden Drop zuerst</h3>
-      <p>Neue Unikate zuerst sehen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
+      <span class="eyebrow" data-i18n="fnl_eyebrow">Newsletter</span>
+      <h3 data-i18n="fnl_h3">Jeden Drop zuerst</h3>
+      <p data-i18n="fnl_p">Neue Unikate zuerst sehen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
     </div>
     <form class="foot-nl-form" id="footNlForm" novalidate>
-      <input type="email" id="footNlEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
-      <button type="submit">Eintragen</button>
+      <input type="email" id="footNlEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse" data-i18n-ph="fnl_email_ph" data-i18n-aria="fnl_email_aria">
+      <button type="submit" data-i18n="fnl_btn">Eintragen</button>
     </form>
     <p class="foot-nl-note" id="footNlNote" role="status" aria-live="polite"></p>
   </div>
@@ -2260,24 +2454,24 @@
       Triad Archiv
     </div>
     <div class="foot-links">
-      <a href="https://instagram.com/triadarchiv" target="_blank" rel="noopener">Instagram</a>
-      <a href="versand.html">Versand</a>
-      <a href="mailto:Triadarchiv@web.de">Kontakt</a>
-      <a href="impressum.html">Impressum</a>
-      <a href="datenschutz.html">Datenschutz</a>
-      <a href="widerruf.html">Widerruf</a>
-      <a href="agb.html">AGB</a>
+      <a href="https://instagram.com/triadarchiv" target="_blank" rel="noopener" data-i18n="foot_instagram">Instagram</a>
+      <a href="versand.html" data-i18n="foot_versand">Versand</a>
+      <a href="mailto:Triadarchiv@web.de" data-i18n="foot_kontakt">Kontakt</a>
+      <a href="impressum.html" data-i18n="foot_impressum">Impressum</a>
+      <a href="datenschutz.html" data-i18n="foot_datenschutz">Datenschutz</a>
+      <a href="widerruf.html" data-i18n="foot_widerruf">Widerruf</a>
+      <a href="agb.html" data-i18n="foot_agb">AGB</a>
     </div>
   </div>
-  <div class="foot-copy">© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.</div>
+  <div class="foot-copy" data-i18n="foot_copy">© 2026 TRIAD ARCHIV — Alle Rechte vorbehalten.</div>
 </footer>
 
 <!-- ================= Slide-Over Warenkorb (Schublade) ================= -->
 <div class="drawer-overlay" id="drawerOverlay" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
   <aside class="drawer" id="drawer" aria-label="Warenkorb">
     <div class="drawer-head">
-      <span class="drawer-title" id="drawerTitle">Warenkorb <span id="drawerCountLabel">(0)</span></span>
-      <button class="drawer-close" id="drawerClose" type="button" aria-label="Warenkorb schließen">
+      <span class="drawer-title" id="drawerTitle"><span data-i18n="drawer_title">Warenkorb</span> <span id="drawerCountLabel">(0)</span></span>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="Warenkorb schließen" data-i18n-aria="drawer_close_aria">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
@@ -2287,14 +2481,14 @@
     </div>
     <div class="drawer-body" id="drawerBody"></div>
     <div class="drawer-foot" id="drawerFoot" hidden>
-      <div class="drawer-sum"><span>Zwischensumme</span><span class="amount" id="drawerSubtotal">0,00€</span></div>
-      <a class="drawer-checkout" href="cart.html" id="drawerCheckout">Zur Kasse →</a>
-      <button class="drawer-continue" id="drawerContinue" type="button">← Weiter stöbern</button>
+      <div class="drawer-sum"><span data-i18n="drawer_sub">Zwischensumme</span><span class="amount" id="drawerSubtotal">0,00€</span></div>
+      <a class="drawer-checkout" href="cart.html" id="drawerCheckout" data-i18n="drawer_checkout">Zur Kasse →</a>
+      <button class="drawer-continue" id="drawerContinue" type="button" data-i18n="drawer_continue">← Weiter stöbern</button>
       <div class="pay-row">
         <span class="pay-mark">Visa</span>
         <span class="pay-mark">Mastercard</span>
         <span class="pay-mark">PayPal</span>
-        <span class="pay-note">Sichere Bezahlung · SSL-verschlüsselt</span>
+        <span class="pay-note" data-i18n="pay_note">Sichere Bezahlung · SSL-verschlüsselt</span>
       </div>
     </div>
   </aside>
@@ -2303,28 +2497,28 @@
 <!-- ================= Drop-Zugang: E-Mail-Capture-Popup (ARCHIV10) ================= -->
 <div class="drop-overlay" id="dropOverlay" role="dialog" aria-modal="true" aria-labelledby="dropTitle" hidden>
   <div class="drop-modal" id="dropModal">
-    <button class="drop-close" id="dropClose" type="button" aria-label="Schließen">
+    <button class="drop-close" id="dropClose" type="button" aria-label="Schließen" data-i18n-aria="dp_close_aria">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
     <div class="drop-intro">
-      <span class="eyebrow drop-eyebrow">Archiv-Zugang</span>
-      <h2 id="dropTitle"><span class="accent">10%</span> auf dein<br>erstes Stück</h2>
-      <p class="drop-text">Trag dich ein und sei als Erste:r dabei, wenn neue handverlesene Unikate ins Archiv kommen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung.</p>
+      <span class="eyebrow drop-eyebrow" data-i18n="dp_eyebrow">Archiv-Zugang</span>
+      <h2 id="dropTitle" data-i18n="dp_h2"><span class="accent">10%</span> auf dein<br>erstes Stück</h2>
+      <p class="drop-text" data-i18n="dp_text">Trag dich ein und sei als Erste:r dabei, wenn neue handverlesene Unikate ins Archiv kommen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung.</p>
     </div>
     <form class="drop-form" id="dropForm" novalidate>
-      <input type="email" id="dropEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse">
-      <button type="submit">Zugang sichern</button>
+      <input type="email" id="dropEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse" data-i18n-ph="dp_email_ph" data-i18n-aria="dp_email_aria">
+      <button type="submit" data-i18n="dp_btn">Zugang sichern</button>
     </form>
     <p class="drop-note" id="dropNote" role="status" aria-live="polite"></p>
     <div class="drop-success">
-      <p class="drop-text">Willkommen im Archiv. Dein Willkommensrabatt:</p>
+      <p class="drop-text" data-i18n="dp_success_text">Willkommen im Archiv. Dein Willkommensrabatt:</p>
       <div class="drop-code">
         <code id="dropCodeValue">ARCHIV10</code>
-        <button class="drop-copy" id="dropCopy" type="button">Kopieren</button>
+        <button class="drop-copy" id="dropCopy" type="button" data-i18n="dp_copy">Kopieren</button>
       </div>
       <p class="drop-fine" id="dropDoiHint"></p>
     </div>
-    <p class="drop-fine">Ein Rabatt pro Kunde · jederzeit abbestellbar · <a href="datenschutz.html">Datenschutz</a></p>
+    <p class="drop-fine" data-i18n="dp_fine">Ein Rabatt pro Kunde · jederzeit abbestellbar · <a href="datenschutz.html">Datenschutz</a></p>
   </div>
 </div>
 
@@ -2423,11 +2617,11 @@
       // Zustand kommt 1:1 aus den Produktdaten — nichts erfunden.
       const condTxt = (p.condition || '').trim();
       const tagParts = [];
-      if(!soldOut && p.oldPrice) tagParts.push('<span class="tile-tag tile-tag--sale">Sale</span>');
+      if(!soldOut && p.oldPrice) tagParts.push('<span class="tile-tag tile-tag--sale">' + t('tag_sale') + '</span>');
       if(!soldOut && condTxt) tagParts.push(`<span class="tile-tag">${escapeHtml(condTxt)}</span>`);
-      if(!soldOut && !multi) tagParts.push('<span class="tile-tag tile-tag--rare">Unikat · 1/1</span>');
+      if(!soldOut && !multi) tagParts.push('<span class="tile-tag tile-tag--rare">' + t('tag_unikat') + '</span>');
       const tagsHtml = tagParts.length ? `<div class="tile-tags">${tagParts.join('')}</div>` : '';
-      const stamp = soldOut ? `<span class="stamp">Verkauft — Archiviert</span>` : '';
+      const stamp = soldOut ? `<span class="stamp">${t('stamp_sold')}</span>` : '';
       // Zweitbild für den Hover-Wechsel: erstes zusätzliches Bild, das sich vom Hauptbild unterscheidet
       const hoverSrc = (p.image && Array.isArray(p.images)) ? (p.images.find(s => s && s !== p.image) || '') : '';
       const imgContent = p.image
@@ -2442,21 +2636,21 @@
       const allSizes = variants.map(v => v.size).filter(Boolean);
       const metaParts = [];
       if(soldOut){
-        metaParts.push('<span class="out">Archiviert</span>');
+        metaParts.push('<span class="out">' + t('meta_archived') + '</span>');
       } else if(multi){
-        metaParts.push('Gr. ' + availSizes.map(escapeHtml).join(', '));
+        metaParts.push(t('meta_size') + ' ' + availSizes.map(escapeHtml).join(', '));
       } else {
-        if(p.size) metaParts.push('Gr. ' + escapeHtml(p.size));
-        if(typeof rep.stock === 'number') metaParts.push(rep.stock === 1 ? 'Unikat — 1/1' : rep.stock + ' verfügbar');
+        if(p.size) metaParts.push(t('meta_size') + ' ' + escapeHtml(p.size));
+        if(typeof rep.stock === 'number') metaParts.push(rep.stock === 1 ? t('meta_unikat') : rep.stock + ' ' + t('meta_avail'));
       }
       const metaHtml = metaParts.length ? `<div class="meta-line">${metaParts.join(' · ')}</div>` : '';
 
       // Mehrere Größen -> zur Detailseite (Größe wählen). Einzelgröße -> direkt in den Warenkorb.
       const btnHtml = soldOut
-        ? `<button class="add-btn" disabled>Verkauft</button>`
+        ? `<button class="add-btn" disabled>${t('btn_sold')}</button>`
         : multi
-          ? `<button class="add-btn" data-choose="1">Größe wählen</button>`
-          : `<button class="add-btn">In den Warenkorb</button>`;
+          ? `<button class="add-btn" data-choose="1">${t('btn_choose')}</button>`
+          : `<button class="add-btn">${t('btn_add')}</button>`;
 
       return `
         <article class="product${soldOut ? ' is-sold' : ''}${isLead ? ' is-lead' : ''}" data-id="${escapeHtml(rep.id)}" data-cat="${cats.map(escapeHtml).join(' ')}" data-name="${escapeHtml(p.name || '')}" data-price="${p.price}" data-size="${escapeHtml(allSizes.join(' '))}" data-available="${!soldOut}" data-featured="${p.featured === true}" data-alsoshop="${p.alsoInShop === true}" data-added="${p.addedAt || ''}">
@@ -2475,12 +2669,12 @@
 
     const comingSoon = groups.length === 0
       ? `<div class="shop-empty">
-           <span class="eyebrow">Archiv im Aufbau</span>
-           <h2>Die ersten Stücke<br>kommen bald</h2>
-           <p>Handverlesene Vintage-Adidas-Unikate sind auf dem Weg. Trag dich unten in den Newsletter ein — dann erfährst du es zuerst.</p>
+           <span class="eyebrow">${t('card_soon_eyebrow')}</span>
+           <h2>${t('card_soon_h2')}</h2>
+           <p>${t('card_soon_p')}</p>
          </div>`
       : '';
-    grid.innerHTML = comingSoon + cardsHtml + '<p class="empty-state" id="emptyState" hidden>Keine Treffer — versuch einen anderen Filter oder Suchbegriff.</p>';
+    grid.innerHTML = comingSoon + cardsHtml + '<p class="empty-state" id="emptyState" hidden>' + t('empty_state') + '</p>';
   }
 
   renderProductGrid();
@@ -2563,7 +2757,7 @@
       if(show) visibleCount++;
     });
     emptyState.hidden = visibleCount > 0 || products.length === 0;
-    if(resultCount) resultCount.textContent = products.length === 0 ? 'Bald im Archiv' : visibleCount + (visibleCount === 1 ? ' Stück' : ' Stücke');
+    if(resultCount) resultCount.textContent = products.length === 0 ? t('rc_soon') : visibleCount + ' ' + (visibleCount === 1 ? t('rc_one') : t('rc_many'));
     updateFilterCount();
     // Kategorie gewählt (≠ „Alle“) -> Hero ausblenden, nur Artikel zeigen
     document.body.classList.toggle('category-view', activeFilter !== 'all');
@@ -2815,7 +3009,7 @@
       const thumb = mainImg ? mainImg.outerHTML : '';
       addToCart(product.dataset.id, product.dataset.name, Number(product.dataset.price), size, thumb);
       const originalLabel = btn.textContent;
-      btn.textContent = 'Hinzugefügt';
+      btn.textContent = t('btn_added');
       btn.classList.add('added');
       setTimeout(() => {
         btn.textContent = originalLabel;
@@ -2879,7 +3073,7 @@
             <div class="t-avatar">${escapeHtml(initial)}</div>
             <div class="t-meta">
               <span class="t-name">${escapeHtml(r.name)}</span>
-              <span class="t-verified">Verifiziert · Vinted</span>
+              <span class="t-verified">${t('t_verified')}</span>
             </div>
           </div>
         </article>`;
@@ -2925,7 +3119,7 @@
       const email = input.value.trim();
       if(!isEmail(email)){
         note.className = 'newsletter-note error';
-        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        note.textContent = t('nl_err');
         return;
       }
       const btn = form.querySelector('button');
@@ -2940,10 +3134,9 @@
         .then(data => {
           note.className = 'newsletter-note success';
           if(data && data.doi){
-            note.innerHTML = 'Fast geschafft! Wir haben dir eine <b>Bestätigungs-E-Mail</b> geschickt — bitte klick auf den Link darin, dann bist du dabei.'
-              + '<span class="spam-hint">Keine Mail bekommen? Schau bitte auch im <b>Spam-</b> oder <b>Werbung-Ordner</b> nach.</span>';
+            note.innerHTML = t('nl_ok_doi');
           } else {
-            note.textContent = 'Danke, du bist eingetragen. Wir melden uns bei neuen Stücken.';
+            note.textContent = t('nl_ok');
           }
           form.reset();
         })
@@ -2955,7 +3148,7 @@
             localStorage.setItem('triadNewsletter', JSON.stringify(list));
           }catch(err){}
           note.className = 'newsletter-note success';
-          note.textContent = 'Danke, du bist eingetragen. Wir melden uns bei neuen Stücken.';
+          note.textContent = t('nl_ok');
           form.reset();
         })
         .finally(() => {
@@ -3085,7 +3278,7 @@
     if(copyBtn){
       copyBtn.addEventListener('click', () => {
         const code = codeEl.textContent.trim();
-        const done = () => { copyBtn.textContent = 'Kopiert'; setTimeout(() => { copyBtn.textContent = 'Kopieren'; }, 1600); };
+        const done = () => { copyBtn.textContent = t('dp_copied'); setTimeout(() => { copyBtn.textContent = t('dp_copy'); }, 1600); };
         if(navigator.clipboard && navigator.clipboard.writeText){
           navigator.clipboard.writeText(code).then(done).catch(done);
         } else { done(); }
@@ -3097,7 +3290,7 @@
       const email = input.value.trim();
       if(!isEmail(email)){
         note.className = 'drop-note error';
-        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        note.textContent = t('dp_err');
         return;
       }
       const btn = form.querySelector('button');
@@ -3110,8 +3303,8 @@
         modal.classList.add('is-done');
         if(doiHint){
           doiHint.textContent = doi
-            ? 'Wir haben dir eine Bestätigungs-Mail geschickt — bitte bestätige den Link darin (auch im Spam-Ordner nachsehen).'
-            : 'Gültig für deine erste Bestellung.';
+            ? t('dp_doi')
+            : t('dp_nodoi');
         }
       };
 
@@ -3164,8 +3357,8 @@
       if(cart.length === 0){
         body.innerHTML = `
           <div class="drawer-empty">
-            <span class="eyebrow">Warenkorb</span>
-            Noch nichts ausgewählt.<br>Jedes Teil im Archiv ist ein Unikat — ist es weg, ist es weg.
+            <span class="eyebrow">${t('drawer_title')}</span>
+            ${t('drawer_empty')}
           </div>`;
         foot.hidden = true;
         shipWrap.hidden = true;
@@ -3179,17 +3372,17 @@
           <div class="drawer-item-thumb">${it.thumb || ''}</div>
           <div class="drawer-item-main">
             <div class="drawer-item-name">${escapeHtml(it.name || '')}</div>
-            <div class="drawer-item-size">Größe: ${escapeHtml(it.size || 'Onesize')}</div>
+            <div class="drawer-item-size">${t('drawer_size')}: ${escapeHtml(it.size || 'Onesize')}</div>
             <div class="drawer-item-row">
               <div class="drawer-qty">
-                <button data-act="dec" data-i="${i}" aria-label="Menge verringern">–</button>
+                <button data-act="dec" data-i="${i}" aria-label="${t('dw_dec_aria')}">–</button>
                 <span>${it.qty}</span>
-                <button data-act="inc" data-i="${i}" aria-label="Menge erhöhen">+</button>
+                <button data-act="inc" data-i="${i}" aria-label="${t('dw_inc_aria')}">+</button>
               </div>
               <span class="drawer-item-price">${fmt(it.price * it.qty)}</span>
             </div>
           </div>
-          <button class="drawer-item-remove" data-act="remove" data-i="${i}" aria-label="Artikel entfernen">✕</button>
+          <button class="drawer-item-remove" data-act="remove" data-i="${i}" aria-label="${t('dw_remove_aria')}">✕</button>
         </div>`).join('');
 
       subtotalEl.textContent = fmt(subtotal);
@@ -3201,10 +3394,10 @@
       shipFill.style.width = pct + '%';
       if(subtotal >= FREE_FROM){
         shipFill.classList.add('full');
-        shipText.innerHTML = '<span class="done">✓ Kostenloser Versand freigeschaltet</span>';
+        shipText.innerHTML = '<span class="done">' + t('ship_done') + '</span>';
       } else {
         shipFill.classList.remove('full');
-        shipText.innerHTML = 'Noch <b>' + fmt(FREE_FROM - subtotal) + '</b> bis zum <b>kostenlosen Versand</b>';
+        shipText.innerHTML = t('ship_left', { x: fmt(FREE_FROM - subtotal) });
       }
     }
 
@@ -3288,7 +3481,7 @@
       <a class="ig-tile" href="${IG_URL}" target="_blank" rel="noopener" aria-label="TRIAD ARCHIV auf Instagram folgen">
         <span class="ig-tile-follow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
-          Folgen
+          ${t('ig_follow')}
         </span>
       </a>`;
     const imgs = [...new Set((typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [])
@@ -3322,7 +3515,7 @@
       const email = input.value.trim();
       if(!isEmail(email)){
         note.className = 'foot-nl-note error';
-        note.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
+        note.textContent = t('fnl_err');
         return;
       }
       const btn = form.querySelector('button');
@@ -3332,9 +3525,7 @@
 
       const done = (doi) => {
         note.className = 'foot-nl-note success';
-        note.innerHTML = doi
-          ? 'Fast geschafft — bitte bestätige den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner).'
-          : 'Danke, du bist dabei. Wir melden uns bei neuen Stücken.';
+        note.innerHTML = doi ? t('fnl_ok_doi') : t('fnl_ok');
         form.reset();
       };
 
