@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRIAD ARCHIV — Vintage Adidas</title>
-<meta name="description" content="Kuratiertes Vintage-Adidas-Archiv. Erster Drop Mitte September — danach wöchentlich neue Unikate. Handverlesen, geprüft, jedes Teil 1/1.">
+<meta name="description" content="Kuratiertes Vintage-Adidas-Archiv. Erster Drop Mitte November — danach wöchentlich neue Unikate. Handverlesen, geprüft, jedes Teil 1/1.">
 <meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
@@ -1851,7 +1851,7 @@ const I18N = {
     hero_eyebrow:'Kuratiertes Vintage-adidas-Archiv — Deutschland',
     hero_statement:'Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b>',
     drop_kicker:'Archiv im Aufbau', drop_kicker_normal:'Neuer Drop · Jede Woche',
-    drop_headline_prefix:'Erster Drop', drop_termin:'Mitte September', drop_headline_normal:'Jede Woche<br>neue Unikate',
+    drop_headline_prefix:'Erster Drop', drop_termin:'Mitte November', drop_headline_normal:'Jede Woche<br>neue Unikate',
     drop_sub:'Melde dich kostenlos für den Newsletter an und sieh jeden Drop zuerst — bevor die Unikate öffentlich online gehen.',
     drop_sub_normal:'Frisch kuratiert · streng limitiert · kein Restock.',
     cd_days:'Tage', cd_hours:'Std', cd_mins:'Min', cd_secs:'Sek', cd_done:'Der erste Drop ist da',
@@ -1914,7 +1914,7 @@ const I18N = {
     hero_eyebrow:'Curated vintage adidas archive — Germany',
     hero_statement:'Handpicked one-of-a-kind pieces from three decades of adidas. <b>Every piece is unique.</b>',
     drop_kicker:'Archive in the making', drop_kicker_normal:'New drop · every week',
-    drop_headline_prefix:'First drop', drop_termin:'mid-September', drop_headline_normal:'New pieces<br>every week',
+    drop_headline_prefix:'First drop', drop_termin:'mid-November', drop_headline_normal:'New pieces<br>every week',
     drop_sub:'Sign up for the free newsletter and see every drop first — before the pieces go public online.',
     drop_sub_normal:'Freshly curated · strictly limited · no restock.',
     cd_days:'Days', cd_hours:'Hrs', cd_mins:'Min', cd_secs:'Sec', cd_done:'The first drop is live',
@@ -2051,9 +2051,9 @@ document.addEventListener('DOMContentLoaded', function(){
       <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
       <p class="hero-statement" data-i18n="hero_statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
     </div>
-    <aside class="hero-drop" aria-label="Erster Drop Mitte September">
+    <aside class="hero-drop" aria-label="Erster Drop Mitte November">
       <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span><span data-i18n="drop_kicker">Archiv im Aufbau</span></span>
-      <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte September</p>
+      <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte November</p>
       <div class="hero-countdown" id="heroCountdown" role="timer" aria-label="Countdown bis zum ersten Drop" hidden>
         <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab" data-i18n="cd_days">Tage</span></div>
         <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab" data-i18n="cd_hours">Std</span></div>
@@ -2092,10 +2092,10 @@ document.addEventListener('DOMContentLoaded', function(){
      Sobald die wöchentlichen Drops regelmäßig laufen: einfach auf false setzen.
      Den Termin nur an EINER Stelle pflegen: AUFBAU_DROP_TERMIN + DROP_DATE_ISO. */
   const AUFBAU_MODUS = true;
-  const AUFBAU_DROP_TERMIN = 'Mitte September';
+  const AUFBAU_DROP_TERMIN = 'Mitte November';
   // Zieltermin des Countdowns. Format: Jahr-Monat-Tag'T'Stunde:Minute + Zeitzone.
-  // +02:00 = deutsche Sommerzeit (MESZ). Uhrzeit hier bei Bedarf anpassen.
-  const DROP_DATE_ISO = '2026-09-19T19:00:00+02:00';
+  // +01:00 = deutsche Winterzeit (MEZ, ab Ende Okt.). Im Sommer wäre es +02:00. Uhrzeit hier bei Bedarf anpassen.
+  const DROP_DATE_ISO = '2026-11-21T19:00:00+01:00';
 
   (function(){
     if(AUFBAU_MODUS){
