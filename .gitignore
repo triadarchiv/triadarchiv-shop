@@ -27,3 +27,9 @@ images/
 
 # Admin starten.bat ist nur ein lokaler Helfer
 Admin starten.bat
+
+# Automatische Sicherungskopien vor Aenderungen
+*.bak-*
+
+# Lokale Testprodukte - der Live-Shop holt seine Produkte aus Netlify, nicht aus dieser Datei
+products.json

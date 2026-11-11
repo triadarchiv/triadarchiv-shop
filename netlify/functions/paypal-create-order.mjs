@@ -5,6 +5,7 @@
 import { getStore } from '@netlify/blobs';
 import { getAccessToken, cartTotals, PAYPAL_API } from './_paypal.mjs';
 import { checkEligibility, normalizeEmail } from './_discount.mjs';
+import { resolveCart } from './_catalog.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -24,6 +25,12 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: 'Warenkorb ist leer.' }), { status: 400 });
   }
 
+  // Preise und Verfuegbarkeit serverseitig aus dem Produktspeicher holen.
+  const resolved = await resolveCart(cart);
+  if (!resolved.ok) {
+    return new Response(JSON.stringify({ error: resolved.error }), { status: resolved.status || 400 });
+  }
+
   // Rabattcode serverseitig prüfen (Frontend nie vertrauen).
   let discountPercent = 0;
   let discountEmail = '';
@@ -39,7 +46,7 @@ export default async (req) => {
     }
   }
 
-  const { items, ids, subtotal, discount, shipping, total } = cartTotals(cart, discountPercent);
+  const { items, ids, subtotal, discount, shipping, total } = cartTotals(resolved.items, discountPercent);
 
   const breakdown = {
     item_total: { currency_code: 'EUR', value: subtotal.toFixed(2) },

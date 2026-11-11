@@ -7,6 +7,7 @@
 
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
+import { clientIp, isBlocked, countFail } from "./_ratelimit.mjs";
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -24,6 +25,19 @@ export default async (req) => {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return new Response(JSON.stringify({ error: "Ungültige E-Mail" }), { status: 400 });
   }
+
+  // Missbrauchsbremse: pro IP hoechstens 3 Anmeldungen je Stunde. Ohne das koennte
+  // jemand ueber den Shop beliebig viele Bestaetigungsmails an Fremde schicken.
+  const ip = clientIp(req);
+  const WINDOW = 60 * 60 * 1000;
+  const rl = await isBlocked("newsletter", ip, 3, WINDOW);
+  if (rl.blocked) {
+    return new Response(JSON.stringify({ error: "Zu viele Anmeldungen. Bitte spaeter erneut versuchen." }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Retry-After": String(rl.retryAfter) },
+    });
+  }
+  await countFail("newsletter", ip, WINDOW);
 
   const store = getStore("shop");
 

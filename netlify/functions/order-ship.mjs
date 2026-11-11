@@ -4,17 +4,15 @@
 
 import { getStore } from "@netlify/blobs";
 import { sendShippingConfirmation } from "./_order-email.mjs";
+import { requireAdmin } from './_auth.mjs';
 
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Nur POST erlaubt" }), { status: 405 });
   }
 
-  const adminKey = process.env.ADMIN_PASSWORD;
-  const provided = req.headers.get("x-admin-key");
-  if (!adminKey || provided !== adminKey) {
-    return new Response(JSON.stringify({ error: "Nicht autorisiert" }), { status: 401 });
-  }
+  const gate = await requireAdmin(req);
+  if (!gate.ok) return gate.res;
 
   let body;
   try {

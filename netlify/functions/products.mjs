@@ -4,6 +4,7 @@
 // POST -> speichert die Produktliste (nur mit Admin-Passwort)
 
 import { getStore } from "@netlify/blobs";
+import { requireAdmin } from './_auth.mjs';
 
 export default async (req) => {
   const store = getStore("shop");
@@ -19,11 +20,8 @@ export default async (req) => {
 
   // --- Admin speichert Produkte (geschützt) ---
   if (req.method === "POST") {
-    const adminKey = process.env.ADMIN_PASSWORD;
-    const provided = req.headers.get("x-admin-key");
-    if (!adminKey || provided !== adminKey) {
-      return new Response(JSON.stringify({ error: "Nicht autorisiert" }), { status: 401 });
-    }
+    const gate = await requireAdmin(req);
+    if (!gate.ok) return gate.res;
 
     let products;
     try {

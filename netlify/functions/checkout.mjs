@@ -6,6 +6,7 @@
 // Zur Sicherheit wird ein reines Array weiterhin als Warenkorb ohne Rabatt akzeptiert.
 
 import { checkEligibility, DISCOUNT_CODE } from './_discount.mjs';
+import { resolveCart } from './_catalog.mjs';
 
 const STRIPE_COUPON_ID = 'ARCHIV10-FIRST'; // fester, wiederverwendbarer Coupon in Stripe
 
@@ -54,6 +55,12 @@ export default async (req) => {
     return json({ error: 'Warenkorb ist leer.' }, 400);
   }
 
+  // Preise, Namen und Verfuegbarkeit serverseitig aus dem Produktspeicher holen.
+  // Aus dem Browser wird nur uebernommen, WELCHER Artikel gekauft wird.
+  const resolved = await resolveCart(cart);
+  if (!resolved.ok) return json({ error: resolved.error }, resolved.status || 400);
+  const safeItems = resolved.items;
+
   const proto = req.headers.get('x-forwarded-proto') || 'https';
   const origin = `${proto}://${req.headers.get('host')}`;
 
@@ -73,18 +80,14 @@ export default async (req) => {
   params.append('billing_address_collection', 'auto');
 
   let subtotal = 0;
-  const ids = [];
-  cart.forEach((item, i) => {
-    const price = Number(item.price) || 0;
-    let qty = parseInt(item.qty, 10) || 1;
-    if (qty < 1) qty = 1;
-    subtotal += price * qty;
-    if (item.id) ids.push(String(item.id));
-    const amount = Math.round(price * 100); // Betrag in Cent
+  const ids = resolved.ids.slice();
+  safeItems.forEach((item, i) => {
+    subtotal += item.price * item.qty;
+    const amount = Math.round(item.price * 100); // Betrag in Cent
     params.append(`line_items[${i}][price_data][currency]`, 'eur');
-    params.append(`line_items[${i}][price_data][product_data][name]`, String(item.name || 'Artikel'));
+    params.append(`line_items[${i}][price_data][product_data][name]`, item.name);
     params.append(`line_items[${i}][price_data][unit_amount]`, String(amount));
-    params.append(`line_items[${i}][quantity]`, String(qty));
+    params.append(`line_items[${i}][quantity]`, String(item.qty));
   });
 
   // Versandkosten: 6,19 EUR (DE) / 12,90 EUR (EU-Ausland), beide gratis ab 90 EUR

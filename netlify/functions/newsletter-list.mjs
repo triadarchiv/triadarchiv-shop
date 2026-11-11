@@ -2,17 +2,15 @@
 // GET, nur mit Admin-Passwort (x-admin-key). Speicher: Netlify Blobs ("newsletter").
 
 import { getStore } from "@netlify/blobs";
+import { requireAdmin } from './_auth.mjs';
 
 export default async (req) => {
   if (req.method !== "GET") {
     return new Response(JSON.stringify({ error: "Nur GET erlaubt" }), { status: 405 });
   }
 
-  const adminKey = process.env.ADMIN_PASSWORD;
-  const provided = req.headers.get("x-admin-key");
-  if (!adminKey || provided !== adminKey) {
-    return new Response(JSON.stringify({ error: "Nicht autorisiert" }), { status: 401 });
-  }
+  const gate = await requireAdmin(req);
+  if (!gate.ok) return gate.res;
 
   const store = getStore("shop");
   const list = (await store.get("newsletter", { type: "json" })) || [];

@@ -1831,6 +1831,24 @@
     .foot-nl-form input{ font-size:16px; }   /* iOS-Zoom beim Fokus vermeiden */
     .foot-nl-form button{ width:100%; }
   }
+
+  /* ---------- Secondhand-Leiste unter dem Hero ---------- */
+  .sh-strip{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .sh-strip-inner{
+    max-width:1200px; margin:0 auto; padding:13px 20px;
+    display:flex; flex-wrap:wrap; justify-content:center; gap:9px 30px;
+  }
+  .sh-item{
+    font-size:.74rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); white-space:nowrap;
+  }
+  .sh-item::before{ content:"\00B7"; margin-right:10px; opacity:.55; }
+  .sh-item:first-child::before{ content:none; }
+  @media (max-width:640px){
+    .sh-strip-inner{ gap:7px 16px; padding:11px 14px; }
+    .sh-item{ font-size:.68rem; letter-spacing:.07em; }
+    .sh-item::before{ margin-right:6px; }
+  }
 </style>
 </head>
 <body>
@@ -1863,7 +1881,8 @@ const I18N = {
     vip_ok_doi:'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann erfährst du jeden Drop zuerst.',
     vip_ok:'Eingetragen — du erfährst jeden Drop jetzt <b>zuerst</b>. Kostenlos, jederzeit abbestellbar.',
     bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
-    cat_all:'Alle', cat_trainingsjacken:'Trainingsjacken', cat_trainingshosen:'Trainingshosen', cat_jeanshosen:'Jeanshosen', cat_oberteile:'Oberteile', cat_shorts:'Shorts', cat_tracksuits:'Tracksuits', cat_accessoires:'Accessoires', cat_designer:'Designer',
+    cat_all:'Alle', cat_jacken:'Jacken', cat_hosen:'Hosen', cat_oberteile:'Oberteile',
+    sh1:'100 % Secondhand', sh2:'Jedes Teil nur 1× verfügbar', sh3:'Mängel offen angegeben', sh4:'Maße zu jedem Teil',
     rc_products:'Produkte', sort_new:'Neueste zuerst', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
     fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
     cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
@@ -1926,7 +1945,8 @@ const I18N = {
     vip_ok_doi:'Almost done — just confirm the link in your <b>confirmation email</b> (check your spam folder too), then you’ll hear about every drop first.',
     vip_ok:'You’re in — you’ll now hear about every drop <b>first</b>. Free, unsubscribe anytime.',
     bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
-    cat_all:'All', cat_trainingsjacken:'Track jackets', cat_trainingshosen:'Track pants', cat_jeanshosen:'Jeans', cat_oberteile:'Tops', cat_shorts:'Shorts', cat_tracksuits:'Tracksuits', cat_accessoires:'Accessories', cat_designer:'Designer',
+    cat_all:'All', cat_jacken:'Jackets', cat_hosen:'Trousers', cat_oberteile:'Tops',
+    sh1:'100 % second hand', sh2:'Every piece only once', sh3:'Flaws stated openly', sh4:'Measurements on every piece',
     rc_products:'Products', sort_new:'Newest first', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
     fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
     cond_h2:'Condition & transparency', cond_p:'Every piece is described individually — from <b>new with tags</b> to <b>vintage/used</b> — and all visible wear is documented in the product photos. You see exactly what you’re buying.',
@@ -2084,6 +2104,16 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </section>
 
+<!-- Secondhand-Leiste: macht direkt unter dem Hero klar, was fuer ein Laden das ist -->
+<section class="sh-strip" aria-label="Secondhand-Versprechen">
+  <div class="sh-strip-inner">
+    <span class="sh-item" data-i18n="sh1">100 % Secondhand</span>
+    <span class="sh-item" data-i18n="sh2">Jedes Teil nur 1&times; verf&uuml;gbar</span>
+    <span class="sh-item" data-i18n="sh3">M&auml;ngel offen angegeben</span>
+    <span class="sh-item" data-i18n="sh4">Ma&szlig;e zu jedem Teil</span>
+  </div>
+</section>
+
 <script>
   /* ---------- Aufbau-Modus ----------
      true  = Hero-Panel zeigt "Erster Drop <Termin>"
@@ -2230,14 +2260,9 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="shop container">
   <nav class="filters" id="filters" aria-label="Kategorien">
     <button class="filter-btn active" data-filter="all" data-i18n="cat_all">Alle</button>
-    <button class="filter-btn" data-filter="trainingsjacken" data-i18n="cat_trainingsjacken">Trainingsjacken</button>
-    <button class="filter-btn" data-filter="trainingshosen" data-i18n="cat_trainingshosen">Trainingshosen</button>
-    <button class="filter-btn" data-filter="jeanshosen" data-i18n="cat_jeanshosen">Jeanshosen</button>
+    <button class="filter-btn" data-filter="jacken" data-i18n="cat_jacken">Jacken</button>
+    <button class="filter-btn" data-filter="hosen" data-i18n="cat_hosen">Hosen</button>
     <button class="filter-btn" data-filter="oberteile" data-i18n="cat_oberteile">Oberteile</button>
-    <button class="filter-btn" data-filter="shorts" data-i18n="cat_shorts">Shorts</button>
-    <button class="filter-btn" data-filter="tracksuits" data-i18n="cat_tracksuits">Tracksuits</button>
-    <button class="filter-btn" data-filter="accessoires" data-i18n="cat_accessoires">Accessoires</button>
-    <button class="filter-btn" data-filter="designer" data-i18n="cat_designer">Designer</button>
   </nav>
   <section class="collection-hero" id="collectionHero" hidden>
     <a class="collection-back" id="collectionBack" href="#">← Zurück zum Archiv</a>
@@ -2610,7 +2635,10 @@ document.addEventListener('DOMContentLoaded', function(){
       const rep = available[0] || p;   // Kachel verlinkt auf eine verfügbare Größe
       const multi = variants.length > 1;
 
-      const isLead = !leadAssigned && !soldOut;
+      // Grossformat fuer das erste Stueck ist aus - alle Kacheln gleich gross.
+      // Zum Reaktivieren: SHOW_LEAD_TILE auf true setzen (CSS dafuer steht weiter oben, .product.is-lead).
+      const SHOW_LEAD_TILE = false;
+      const isLead = SHOW_LEAD_TILE && !leadAssigned && !soldOut;
       if(isLead) leadAssigned = true;
 
       // Tags auf dem Bild: Sale (falls reduziert), echter Zustand, Unikat-Verknappung.
@@ -2905,7 +2933,8 @@ document.addEventListener('DOMContentLoaded', function(){
       else if(mode === 'price-desc') ordered.sort((a,b) => (Number(b.dataset.price)||0) - (Number(a.dataset.price)||0));
       else if(mode === 'name')  ordered.sort((a,b) => (a.dataset.name||'').localeCompare(b.dataset.name||'', 'de', { sensitivity:'base' }));
       // Die Lead-Bühne ergibt nur in der Standard-Reihenfolge Sinn; beim Sortieren einheitliches Raster.
-      if(leadNode) leadNode.classList.toggle('is-lead', mode === 'new');
+      // Grossformat aus: Sortierwechsel darf is-lead nicht wieder setzen.
+      if(leadNode) leadNode.classList.remove('is-lead');
       ordered.forEach(node => { if(anchor) gridEl.insertBefore(node, anchor); else gridEl.appendChild(node); });
     }
 
