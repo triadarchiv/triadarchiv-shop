@@ -1832,6 +1832,16 @@
     .foot-nl-form button{ width:100%; }
   }
 
+  /* Gleicher Fehler wie im Admin: Elemente mit display:flex ignorieren sonst
+     das hidden-Attribut. Betrifft hier u. a. den Countdown. */
+  [hidden]{ display:none !important; }
+
+  .condition-strip .cond-note{
+    margin-top:1em;
+    font-size:.94em;
+    color:var(--muted);
+  }
+
   /* ---------- Secondhand-Leiste unter dem Hero ---------- */
   .sh-strip{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .sh-strip-inner{
@@ -1886,6 +1896,7 @@ const I18N = {
     rc_products:'Produkte', sort_new:'Neueste zuerst', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
     fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
     cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
+    cond_p2:'Und ganz ehrlich: das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich, ich prüfe und fotografiere alles selbst — aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Wenn dir etwas auffällt, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung. Dein <b>14-tägiges Widerrufsrecht</b> und die gesetzliche Gewährleistung gelten selbstverständlich ganz normal.',
     warum_eyebrow:'Warum Triad Archiv', warum_h2:'Worauf du dich<br>verlassen kannst',
     assure1_val:'Geprüfte Originalware', assure1_sub:'Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.',
     assure2_val:'600+ Verkäufe auf Vinted', assure2_sub:'Über 600 abgeschlossene Verkäufe, durchweg mit 5-Sterne-Bewertungen.',
@@ -1950,6 +1961,7 @@ const I18N = {
     rc_products:'Products', sort_new:'Newest first', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
     fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
     cond_h2:'Condition & transparency', cond_p:'Every piece is described individually — from <b>new with tags</b> to <b>vintage/used</b> — and all visible wear is documented in the product photos. You see exactly what you’re buying.',
+    cond_p2:'And to be straight with you: this is second hand. Every piece has had a life before, I check and photograph everything myself — but I’m human and a small spot can slip past me. If you spot something that isn’t in the description, just write to me and we’ll sort it out. Your <b>14-day right of withdrawal</b> and the statutory warranty apply as normal, of course.',
     warum_eyebrow:'Why Triad Archiv', warum_h2:'What you<br>can rely on',
     assure1_val:'Verified authentic goods', assure1_sub:'Every piece is inspected by hand and checked for authenticity. No fakes, no mass production.',
     assure2_val:'600+ sales on Vinted', assure2_sub:'Over 600 completed sales, consistently with 5-star reviews.',
@@ -2322,6 +2334,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="condition-strip">
     <h2 data-i18n="cond_h2">Zustand &amp; Transparenz</h2>
     <p data-i18n="cond_p">Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.</p>
+    <p class="cond-note" data-i18n="cond_p2">Und ganz ehrlich: das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich, ich prüfe und fotografiere alles selbst — aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Wenn dir etwas auffällt, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung. Dein <b>14-tägiges Widerrufsrecht</b> und die gesetzliche Gewährleistung gelten selbstverständlich ganz normal.</p>
   </div>
 </div>
 

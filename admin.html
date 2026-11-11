@@ -569,6 +569,104 @@
     border-bottom:1px solid rgba(255,255,255,0.15);
   }
   .server-warning a{ color:#fff; text-decoration:underline; }
+
+  /* ===========================================================
+     Feinschliff: ruhigere Flaechen, eine Statusfarbe pro Zustand,
+     lesbarere Hinweise. Reine Optik - keine Funktion geaendert.
+     =========================================================== */
+  :root{ --amber:#f5a524; --red:#e5484d; }
+
+  /* Fehler behoben: die Statusleisten setzen display:flex und haben damit das
+     hidden-Attribut ausgehebelt - sie waren IMMER sichtbar, auch ohne Anlass.
+     Jetzt erscheinen sie nur noch, wenn es wirklich etwas zu melden gibt. */
+  [hidden]{ display:none !important; }
+
+  .sub-del{
+    margin-left:auto; padding:5px 9px; font-size:11px; line-height:1;
+    border-color:transparent; color:var(--grey); opacity:.5;
+  }
+  .order-card:hover .sub-del{ opacity:1; }
+  .sub-del:hover{ border-color:var(--red); color:#ff8b8e; }
+  .sub-del:disabled{ opacity:.25; cursor:default; }
+
+  .wrap{ max-width:1240px; }
+  @media(min-width:900px){ .wrap{ grid-template-columns:400px 1fr; gap:30px; } }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:26px 26px 28px;
+  }
+  .panel h2{
+    font-size:15px; letter-spacing:1.4px;
+    padding-bottom:14px; margin-bottom:22px;
+    border-bottom:1px solid var(--line);
+  }
+
+  /* --- Statusleisten: eine Formensprache statt drei Warnfarben --- */
+  .save-warning, .recovery-bar, .publish-bar{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    margin:0 0 10px; padding:13px 16px;
+    background:rgba(255,255,255,0.025);
+    border:1px solid var(--line);
+    border-left-width:3px;
+    border-radius:8px;
+  }
+  .save-warning{ border-left-color:var(--red); }
+  .recovery-bar{ border-left-color:var(--amber); }
+  .publish-bar{ border-left-color:var(--pink); }
+
+  .save-warning .sw-text, .recovery-bar .rb-text, .publish-bar .pb-text{
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    font-size:13px; line-height:1.55; letter-spacing:0;
+    color:var(--grey); min-width:200px;
+  }
+  .save-warning .sw-text b, .recovery-bar .rb-text b, .publish-bar .pb-text b{
+    color:var(--off-white); font-weight:600;
+  }
+  .recovery-bar .btn-recover{
+    background:transparent; border-color:var(--amber); color:var(--amber); font-weight:600;
+  }
+  .recovery-bar .btn-recover:hover{ background:var(--amber); color:#121110; }
+  .save-warning .btn-retry{ border-color:var(--red); color:#ff8b8e; }
+
+  /* --- Formular: mehr Luft, lesbare Hinweise --- */
+  .panel label{ letter-spacing:1px; }
+  .panel input[type=text], .panel input[type=number], .panel select, .panel textarea{
+    padding:11px 12px; border-radius:6px;
+  }
+  .panel input:focus, .panel select:focus, .panel textarea:focus{
+    outline:none; border-color:var(--pink);
+  }
+  .hint{
+    font-family:'Inter', -apple-system, Arial, sans-serif;
+    font-size:11.5px; line-height:1.55; color:#8a8781;
+    margin-top:6px; letter-spacing:0;
+  }
+
+  /* --- Nebenwerkzeuge treten zurueck --- */
+  .toolbar{ margin-bottom:20px; }
+  #exportBtn, #importBtn{ font-size:10px; opacity:.6; padding:7px 11px; }
+  #exportBtn:hover, #importBtn:hover{ opacity:1; }
+
+  /* --- Produktliste: Zeilen statt Kaesten --- */
+  .product-list{ border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .product-row{
+    background:transparent;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .product-list .product-row:last-child{ border-bottom:none; }
+  .product-row:hover{ background:rgba(255,255,255,0.022); }
+  .row-thumb{ width:62px; height:62px; border-radius:5px; }
+  .product-row .btn{
+    padding:7px 9px; font-size:11px; opacity:.45; border-color:transparent;
+  }
+  .product-row:hover .btn{ opacity:.8; }
+  .product-row .btn:hover{ opacity:1; border-color:var(--pink); }
+
 </style>
 </head>
 <body>
@@ -1830,6 +1928,7 @@
           <div class="order-head">
             <span class="order-amount">${escapeHtml(s.email || '')}</span>
             <span class="order-date">${escapeHtml(d)}</span>
+            <button class="btn sub-del" data-email="${escapeHtml(s.email || '')}" title="Diese Anmeldung l\u00f6schen">\u2715</button>
           </div>
         </div>`;
     }).join('');
@@ -1860,6 +1959,30 @@
       subsList.innerHTML = '<p class="empty-state">Newsletter-Anmeldungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.</p>';
     }
   }
+
+  // Einzelne Anmeldung loeschen (Blob-Listen + Brevo).
+  subsList.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('.sub-del');
+    if(!btn) return;
+    const email = btn.dataset.email || '';
+    if(!email) return;
+    if(!confirm('Anmeldung wirklich l\u00f6schen?\n\n' + email + '\n\nDie Adresse wird aus der Liste und aus dem Newsletter-Versand entfernt.')) return;
+    btn.disabled = true;
+    try{
+      const res = await fetch('/api/newsletter-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+        body: JSON.stringify({ emails: [email] })
+      });
+      if(res.status === 429){ showToast('Zu viele Fehlversuche \u2013 bitte sp\u00e4ter'); btn.disabled = false; return; }
+      if(res.status === 401){ sessionStorage.removeItem('triadAdminKey'); showToast('Falsches Admin-Passwort'); btn.disabled = false; return; }
+      if(!res.ok){ showToast('L\u00f6schen fehlgeschlagen'); btn.disabled = false; return; }
+      showToast('Gel\u00f6scht: ' + email);
+      loadSubs();
+    }catch(e){
+      showToast('L\u00f6schen fehlgeschlagen'); btn.disabled = false;
+    }
+  });
 
   document.getElementById('subsReload').addEventListener('click', loadSubs);
   document.getElementById('subsLink').addEventListener('click', () => {
