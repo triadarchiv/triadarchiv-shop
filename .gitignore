@@ -34,3 +34,6 @@ Admin starten.bat
 # Lokale Testprodukte - der Live-Shop holt seine Produkte aus Netlify, nicht aus dieser Datei
 products.json
 Hochladen.bat
+
+# Lokale Hilfsskripte, werden online nicht gebraucht
+werkzeuge/

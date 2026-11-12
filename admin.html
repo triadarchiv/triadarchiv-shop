@@ -680,6 +680,7 @@
   <div class="header-icons">
     <a href="#bestellungen" id="ordersLink">Bestellungen</a>
     <a href="#anmeldungen" id="subsLink">Anmeldungen</a>
+    <a href="#herkunft" id="visitsLink">Herkunft</a>
     <a href="shop.html">Zum Shop</a>
     <a href="cart.html">Warenkorb</a>
   </div>
@@ -847,6 +848,16 @@
   </div>
 </div>
 
+<div class="wrap" id="herkunft">
+  <div class="panel" style="grid-column:1 / -1;">
+    <h2>Woher kommen die Besucher</h2>
+    <div class="toolbar">
+      <button class="btn" id="visitsReload">⟳ Aktualisieren</button>
+    </div>
+    <div id="visitsList"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -886,6 +897,7 @@
   const CATEGORIES = [
     { id:'jacken', label:'Jacken' },
     { id:'hosen', label:'Hosen' },
+    { id:'shorts', label:'Shorts' },
     { id:'oberteile', label:'Oberteile' },
   ];
 
@@ -1983,6 +1995,45 @@
       showToast('L\u00f6schen fehlgeschlagen'); btn.disabled = false;
     }
   });
+
+  // --- Herkunft: Besuche je Quelle gegen Anmeldungen je Quelle ---
+  const visitsList = document.getElementById('visitsList');
+  async function loadVisits(){
+    visitsList.innerHTML = '<p class="empty-state">Lade \u2026</p>';
+    try{
+      const res = await fetch('/api/visits', { headers: { 'x-admin-key': getAdminKey() } });
+      if(res.status === 429){ visitsList.innerHTML = '<p class="empty-state">Zu viele Fehlversuche.</p>'; return; }
+      if(res.status === 401){ sessionStorage.removeItem('triadAdminKey'); visitsList.innerHTML = '<p class="empty-state">Falsches Admin-Passwort.</p>'; return; }
+      if(!res.ok) throw new Error('nicht verf\u00fcgbar');
+      const d = await res.json();
+      const quellen = {};
+      Object.entries(d.besuche || {}).forEach(([k, v]) => {
+        const q = k.split('|')[0];
+        quellen[q] = quellen[q] || { besuche: 0, anmeldungen: 0 };
+        quellen[q].besuche += v.gesamt || 0;
+      });
+      Object.entries(d.anmeldungen || {}).forEach(([q, n]) => {
+        quellen[q] = quellen[q] || { besuche: 0, anmeldungen: 0 };
+        quellen[q].anmeldungen += n;
+      });
+      const zeilen = Object.entries(quellen).sort((a,b) => b[1].besuche - a[1].besuche);
+      if(zeilen.length === 0){
+        visitsList.innerHTML = '<p class="empty-state">Noch keine Daten. Z\u00e4hlt ab dem ersten Scan eines Flyer-QR-Codes.</p>';
+        return;
+      }
+      visitsList.innerHTML = zeilen.map(([q, v]) => {
+        const quote = v.besuche > 0 ? (v.anmeldungen / v.besuche * 100).toFixed(1) + ' %' : '\u2013';
+        return `<div class="order-card"><div class="order-head">
+            <span class="order-amount">${escapeHtml(q)}</span>
+            <span class="order-date">${v.besuche} Besuche \u00b7 ${v.anmeldungen} Anmeldungen \u00b7 ${quote}</span>
+          </div></div>`;
+      }).join('');
+    }catch(e){
+      visitsList.innerHTML = '<p class="empty-state">Nur im echten Online-Shop verf\u00fcgbar (triadarchiv.de/admin.html).</p>';
+    }
+  }
+  document.getElementById('visitsReload').addEventListener('click', loadVisits);
+  document.getElementById('visitsLink').addEventListener('click', () => { setTimeout(loadVisits, 50); });
 
   document.getElementById('subsReload').addEventListener('click', loadSubs);
   document.getElementById('subsLink').addEventListener('click', () => {

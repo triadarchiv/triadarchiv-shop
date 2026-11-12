@@ -1891,7 +1891,7 @@ const I18N = {
     vip_ok_doi:'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann erfährst du jeden Drop zuerst.',
     vip_ok:'Eingetragen — du erfährst jeden Drop jetzt <b>zuerst</b>. Kostenlos, jederzeit abbestellbar.',
     bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
-    cat_all:'Alle', cat_jacken:'Jacken', cat_hosen:'Hosen', cat_oberteile:'Oberteile',
+    cat_all:'Alle', cat_jacken:'Jacken', cat_hosen:'Hosen', cat_shorts:'Shorts', cat_oberteile:'Oberteile',
     sh1:'100 % Secondhand', sh2:'Jedes Teil nur 1× verfügbar', sh3:'Mängel offen angegeben', sh4:'Maße zu jedem Teil',
     rc_products:'Produkte', sort_new:'Neueste zuerst', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
     fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
@@ -1956,7 +1956,7 @@ const I18N = {
     vip_ok_doi:'Almost done — just confirm the link in your <b>confirmation email</b> (check your spam folder too), then you’ll hear about every drop first.',
     vip_ok:'You’re in — you’ll now hear about every drop <b>first</b>. Free, unsubscribe anytime.',
     bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
-    cat_all:'All', cat_jacken:'Jackets', cat_hosen:'Trousers', cat_oberteile:'Tops',
+    cat_all:'All', cat_jacken:'Jackets', cat_hosen:'Trousers', cat_shorts:'Shorts', cat_oberteile:'Tops',
     sh1:'100 % second hand', sh2:'Every piece only once', sh3:'Flaws stated openly', sh4:'Measurements on every piece',
     rc_products:'Products', sort_new:'Newest first', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
     fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
@@ -2127,6 +2127,34 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 
 <script>
+  /* ---------- Herkunft erfassen (Flyer-QR & Co.) ----------
+     Liest utm_source/utm_campaign aus der Adresse, merkt sie fuer die Sitzung
+     und meldet EINEN Besuch an den Zaehler. Gespeichert wird serverseitig nur
+     eine Zahl je Quelle und Tag - keine IP, kein Cookie, keine Kennung.      */
+  function triadHerkunft(){
+    try{ return sessionStorage.getItem('triadHerkunft') || 'direkt'; }
+    catch(e){ return 'direkt'; }
+  }
+  (function erfasseHerkunft(){
+    try{
+      const p = new URLSearchParams(location.search);
+      const quelle = (p.get('utm_source') || '').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40);
+      if(!quelle) return;
+      const kampagne = (p.get('utm_campaign') || '').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40);
+      sessionStorage.setItem('triadHerkunft', quelle);
+      if(sessionStorage.getItem('triadBesuchGezaehlt')) return;   // nur einmal je Sitzung
+      sessionStorage.setItem('triadBesuchGezaehlt', '1');
+      fetch('/api/visits', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ source: quelle, campaign: kampagne }),
+        keepalive: true
+      }).catch(()=>{});
+    }catch(e){}
+  })();
+</script>
+
+<script>
   /* ---------- Aufbau-Modus ----------
      true  = Hero-Panel zeigt "Erster Drop <Termin>"
      false = normaler Betrieb: Hero-Panel zeigt "Jede Woche neue Unikate"
@@ -2245,7 +2273,7 @@ document.addEventListener('DOMContentLoaded', function(){
       fetch('/api/newsletter', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ email, source:'hero-vip' })
+        body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'hero-vip' })
       })
         .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
         .then(data => done(data && data.doi))
@@ -2274,6 +2302,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <button class="filter-btn active" data-filter="all" data-i18n="cat_all">Alle</button>
     <button class="filter-btn" data-filter="jacken" data-i18n="cat_jacken">Jacken</button>
     <button class="filter-btn" data-filter="hosen" data-i18n="cat_hosen">Hosen</button>
+    <button class="filter-btn" data-filter="shorts" data-i18n="cat_shorts">Shorts</button>
     <button class="filter-btn" data-filter="oberteile" data-i18n="cat_oberteile">Oberteile</button>
   </nav>
   <section class="collection-hero" id="collectionHero" hidden>
@@ -3353,7 +3382,7 @@ document.addEventListener('DOMContentLoaded', function(){
       fetch('/api/newsletter', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ email, source:'popup' })
+        body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'popup' })
       })
         .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
         .then(data => finishSuccess(data && data.doi))
@@ -3574,7 +3603,7 @@ document.addEventListener('DOMContentLoaded', function(){
       fetch('/api/newsletter', {
         method:'POST',
         headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify({ email, source:'footer' })
+        body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'footer' })
       })
         .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
         .then(data => done(data && data.doi))

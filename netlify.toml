@@ -78,6 +78,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/visits"
+  to = "/.netlify/functions/visits"
+  status = 200
+
+[[redirects]]
   from = "/api/newsletter-delete"
   to = "/.netlify/functions/newsletter-delete"
   status = 200
