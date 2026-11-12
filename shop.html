@@ -73,6 +73,7 @@
       gap:clamp(40px, 5vw, 88px);
       padding-top:var(--s6);
       padding-bottom:var(--s6);
+      align-items:start;
     }
   }
 
@@ -105,6 +106,44 @@
     color:var(--muted);
   }
   .hero-statement b{ color:var(--text); font-weight:500; }
+
+  /* ---------- Hero-Teaser: Vorgeschmack auf den Drop ----------
+     Fuellt die linke Hero-Spalte, damit neben der hohen Drop-Karte keine
+     leere Flaeche stehen bleibt. Erst ab 920px sichtbar - am Handy liegen
+     die Spalten ohnehin untereinander, da gibt es keine Luecke. */
+  .hero-teaser{ margin-top:var(--s5); }
+  .hero-teaser-label{
+    margin:0 0 var(--s3);
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  /* Laufband: zwei identische Saetze laufen endlos durch. Die Animation
+     schiebt um die halbe Spurbreite plus den halben Abstand - genau dann
+     sitzt Satz 2 exakt dort, wo Satz 1 startete, und der Sprung ist unsichtbar. */
+  /* min-width:0 ist Pflicht: ohne das zwingt das breite Laufband die
+     Grid-Spalte auf seine volle Breite und sprengt das Layout. */
+  .hero-copy{ min-width:0; }
+  .hero-teaser-track-wrap{
+    position:relative; width:100%; overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 90px), transparent 100%);
+            mask-image:linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 90px), transparent 100%);
+  }
+  .hero-teaser-track{ display:flex; gap:10px; width:max-content; animation:ht-scroll 55s linear infinite; }
+  .hero-teaser-set{ display:flex; gap:10px; }
+  .hero-teaser-track-wrap:hover .hero-teaser-track{ animation-play-state:paused; }
+  @keyframes ht-scroll{ from{ transform:translateX(0); } to{ transform:translateX(calc(-50% - 5px)); } }
+  @media(prefers-reduced-motion:reduce){ .hero-teaser-track{ animation:none; } }
+  .ht-tile{
+    position:relative; flex:0 0 158px; aspect-ratio:3/4; overflow:hidden;
+    background:#141414; border:1px solid rgba(255,255,255,.08);
+  }
+  .ht-tile img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    filter:grayscale(.2); transition:transform .5s ease, filter .5s ease;
+  }
+  .ht-tile:hover img{ transform:scale(1.05); filter:none; }
+  .hero-teaser-note{ margin:var(--s3) 0 0; font-size:12px; color:var(--muted); }
+  @media(max-width:919px){ .hero-teaser{ display:none; } }
 
   .hero-ctas{
     display:flex;
@@ -1878,6 +1917,7 @@ const I18N = {
     trust1:'100% Original-Vintage', trust2:'Handverlesen & geprüft', trust3:'Versand aus Deutschland', trust4:'Jedes Teil ein Unikat · 1/1',
     hero_eyebrow:'Kuratiertes Vintage-adidas-Archiv — Deutschland',
     hero_statement:'Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b>',
+    teaser_label:'Ein Vorgeschmack auf den ersten Drop', teaser_note:'Alle Stücke gehen am Drop-Tag gleichzeitig online.',
     drop_kicker:'Archiv im Aufbau', drop_kicker_normal:'Neuer Drop · Jede Woche',
     drop_headline_prefix:'Erster Drop', drop_termin:'Mitte November', drop_headline_normal:'Jede Woche<br>neue Unikate',
     drop_sub:'Melde dich kostenlos für den Newsletter an und sieh jeden Drop zuerst — bevor die Unikate öffentlich online gehen.',
@@ -1943,6 +1983,7 @@ const I18N = {
     trust1:'100% original vintage', trust2:'Handpicked & checked', trust3:'Ships from Germany', trust4:'Every piece unique · 1/1',
     hero_eyebrow:'Curated vintage adidas archive — Germany',
     hero_statement:'Handpicked one-of-a-kind pieces from three decades of adidas. <b>Every piece is unique.</b>',
+    teaser_label:'A first look at the opening drop', teaser_note:'Every piece goes live at the same moment on drop day.',
     drop_kicker:'Archive in the making', drop_kicker_normal:'New drop · every week',
     drop_headline_prefix:'First drop', drop_termin:'mid-November', drop_headline_normal:'New pieces<br>every week',
     drop_sub:'Sign up for the free newsletter and see every drop first — before the pieces go public online.',
@@ -2082,6 +2123,11 @@ document.addEventListener('DOMContentLoaded', function(){
       <p class="eyebrow" data-i18n="hero_eyebrow">Kuratiertes Vintage-adidas-Archiv — Deutschland</p>
       <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
       <p class="hero-statement" data-i18n="hero_statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
+      <div class="hero-teaser" id="heroTeaser" hidden>
+        <p class="hero-teaser-label" data-i18n="teaser_label">Ein Vorgeschmack auf den ersten Drop</p>
+        <div class="hero-teaser-track-wrap"><div class="hero-teaser-track" id="heroTeaserGrid"></div></div>
+        <p class="hero-teaser-note" data-i18n="teaser_note">Alle Stücke gehen am Drop-Tag gleichzeitig online.</p>
+      </div>
     </div>
     <aside class="hero-drop" aria-label="Erster Drop Mitte November">
       <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span><span data-i18n="drop_kicker">Archiv im Aufbau</span></span>
@@ -2705,15 +2751,17 @@ document.addEventListener('DOMContentLoaded', function(){
       const availSizes = available.map(v => v.size).filter(Boolean);
       const allSizes = variants.map(v => v.size).filter(Boolean);
       const metaParts = [];
+      // Groesse bekommt eine eigene, hervorgehobene Box (.ml-size): beim Durchscrollen
+      // soll sie sofort ins Auge fallen. Der Rest bleibt dezent (.ml-rest).
       if(soldOut){
-        metaParts.push('<span class="out">' + t('meta_archived') + '</span>');
+        metaParts.push('<span class="ml-rest out">' + t('meta_archived') + '</span>');
       } else if(multi){
-        metaParts.push(t('meta_size') + ' ' + availSizes.map(escapeHtml).join(', '));
+        metaParts.push('<span class="ml-size">' + t('meta_size') + ' ' + availSizes.map(escapeHtml).join(', ') + '</span>');
       } else {
-        if(p.size) metaParts.push(t('meta_size') + ' ' + escapeHtml(p.size));
-        if(typeof rep.stock === 'number') metaParts.push(rep.stock === 1 ? t('meta_unikat') : rep.stock + ' ' + t('meta_avail'));
+        if(p.size) metaParts.push('<span class="ml-size">' + t('meta_size') + ' ' + escapeHtml(p.size) + '</span>');
+        if(typeof rep.stock === 'number') metaParts.push('<span class="ml-rest">' + (rep.stock === 1 ? t('meta_unikat') : rep.stock + ' ' + t('meta_avail')) + '</span>');
       }
-      const metaHtml = metaParts.length ? `<div class="meta-line">${metaParts.join(' · ')}</div>` : '';
+      const metaHtml = metaParts.length ? `<div class="meta-line">${metaParts.join('')}</div>` : '';
 
       // Mehrere Größen -> zur Detailseite (Größe wählen). Einzelgröße -> direkt in den Warenkorb.
       const btnHtml = soldOut
@@ -2748,6 +2796,39 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   renderProductGrid();
+
+  /* ---------- Hero-Teaser fuellen ----------
+     Nimmt bis zu 4 verfuegbare Stuecke mit Bild und zeigt sie unter dem
+     Schriftzug. Sind weniger als 2 Bilder da, bleibt der Block aus. */
+  (function renderHeroTeaser(){
+    var box  = document.getElementById('heroTeaser');
+    var grid = document.getElementById('heroTeaserGrid');
+    if(!box || !grid) return;
+    // Feste Teaserbilder fuer die Zeit vor dem Drop: online stehen noch keine
+    // Artikel, das Band haette sonst nichts zu zeigen. Sobald Produkte
+    // veroeffentlicht sind, nimmt es automatisch deren echte Bilder.
+    var TEASER_FALLBACK = ['teaser/t1.jpg','teaser/t2.jpg','teaser/t3.jpg','teaser/t4.jpg',
+                           'teaser/t5.jpg','teaser/t6.jpg','teaser/t7.jpg','teaser/t8.jpg'];
+    var pics = groupProducts(PRODUCTS_DATA)
+      .map(function(v){ return v.find(function(x){ return !isSoldOut(x); }) || v[0]; })
+      .filter(function(p){ return p && p.image; })
+      .slice(0, 12)
+      .map(function(p){ return { src: p.image, alt: p.name || '' }; });
+    if(pics.length < 2){
+      pics = TEASER_FALLBACK.map(function(src){ return { src: src, alt: '' }; });
+    }
+    if(pics.length < 2){ box.hidden = true; return; }
+    // Bei wenigen Stuecken die Liste auffuellen, damit das Band die Breite fuellt.
+    while(pics.length < 6){ pics = pics.concat(pics); }
+    var tiles = pics.map(function(p){
+      return '<div class="ht-tile"><img src="' + escapeHtml(p.src) +
+             '" alt="' + escapeHtml(p.alt) + '" loading="lazy"></div>';
+    }).join('');
+    // Zwei identische Saetze = nahtlose Schleife. Der zweite ist reine Deko.
+    grid.innerHTML = '<div class="hero-teaser-set">' + tiles + '</div>' +
+                     '<div class="hero-teaser-set" aria-hidden="true">' + tiles + '</div>';
+    box.hidden = false;
+  })();
 
   /* ---------- Kollektions-Band: nur zeigen, wenn es Kollektions-Stücke gibt ---------- */
   (function initCollectionBand(){

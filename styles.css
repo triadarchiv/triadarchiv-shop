@@ -431,12 +431,28 @@ header{
   overflow:hidden;
 }
 .product-info .meta-line{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
   font-family:var(--font-mono);
   font-size:10px;
   letter-spacing:1.5px;
   text-transform:uppercase;
   color:var(--faint);
 }
+/* Groesse hervorgehoben - beim Durchscrollen soll sie sofort lesbar sein.
+   Bewusst unter dem Bild, nicht darauf. */
+.product-info .meta-line .ml-size{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:1.2px;
+  line-height:1;
+  padding:4px 9px;
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.28);
+}
+.product-info .meta-line .ml-rest{ color:var(--faint); }
 .product-info .meta-line .out{ color:var(--muted); }
 
 .info-buy{
