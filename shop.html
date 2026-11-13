@@ -145,6 +145,24 @@
   .hero-teaser-note{ margin:var(--s3) 0 0; font-size:12px; color:var(--muted); }
   @media(max-width:919px){ .hero-teaser{ display:none; } }
 
+  /* ---------- Startphase: Handy-Ansicht auf das Wesentliche ----------
+     Solange der Shop im Aufbau ist UND noch kein Artikel online steht, bringt
+     alles unterhalb des Countdowns nichts: der Bestand ist leer, die beiden
+     weiteren Newsletter-Bloecke sind Dubletten der Anmeldung oben, FAQ und
+     Instagram lenken nur ab. Die Klasse "aufbau" setzt das Skript weiter
+     unten. Fusszeile bleibt immer: Impressum, AGB und Datenschutz muessen
+     von jeder Seite aus erreichbar sein. */
+  @media(max-width:919px){
+    body.aufbau #bestand,
+    body.aufbau #newsletter,
+    body.aufbau #faq,
+    body.aufbau #ig,
+    body.aufbau .foot-nl{ display:none !important; }
+    /* Der Link "Bestand ansehen" im Countdown zeigt auf #bestand - ist der
+       ausgeblendet, fuehrt er ins Leere. Also mit ausblenden. */
+    body.aufbau a[href="#bestand"]{ display:none !important; }
+  }
+
   .hero-ctas{
     display:flex;
     flex-wrap:wrap;
@@ -1933,7 +1951,7 @@ const I18N = {
     bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
     cat_all:'Alle', cat_jacken:'Jacken', cat_hosen:'Hosen', cat_shorts:'Shorts', cat_oberteile:'Oberteile',
     sh1:'100 % Secondhand', sh2:'Jedes Teil nur 1× verfügbar', sh3:'Mängel offen angegeben', sh4:'Maße zu jedem Teil',
-    rc_products:'Produkte', sort_new:'Neueste zuerst', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
+    rc_products:'Produkte', sort_new:'Gemischt', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
     fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
     cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
     cond_p2:'Und ganz ehrlich: das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich, ich prüfe und fotografiere alles selbst — aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Wenn dir etwas auffällt, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung. Dein <b>14-tägiges Widerrufsrecht</b> und die gesetzliche Gewährleistung gelten selbstverständlich ganz normal.',
@@ -1999,7 +2017,7 @@ const I18N = {
     bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
     cat_all:'All', cat_jacken:'Jackets', cat_hosen:'Trousers', cat_shorts:'Shorts', cat_oberteile:'Tops',
     sh1:'100 % second hand', sh2:'Every piece only once', sh3:'Flaws stated openly', sh4:'Measurements on every piece',
-    rc_products:'Products', sort_new:'Newest first', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
+    rc_products:'Products', sort_new:'Mixed', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
     fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
     cond_h2:'Condition & transparency', cond_p:'Every piece is described individually — from <b>new with tags</b> to <b>vintage/used</b> — and all visible wear is documented in the product photos. You see exactly what you’re buying.',
     cond_p2:'And to be straight with you: this is second hand. Every piece has had a life before, I check and photograph everything myself — but I’m human and a small spot can slip past me. If you spot something that isn’t in the description, just write to me and we’ll sort it out. Your <b>14-day right of withdrawal</b> and the statutory warranty apply as normal, of course.',
@@ -2363,7 +2381,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="toolbar-tools">
       <div class="sort-control">
         <select class="sort-select" id="sortSelect" aria-label="Sortierung" data-i18n-aria="sort_aria">
-          <option value="new" data-i18n="sort_new">Neueste zuerst</option>
+          <option value="new" data-i18n="sort_new">Gemischt</option>
           <option value="price-asc" data-i18n="sort_pa">Preis · aufsteigend</option>
           <option value="price-desc" data-i18n="sort_pd">Preis · absteigend</option>
           <option value="name" data-i18n="sort_name">Name · A–Z</option>
@@ -2688,6 +2706,14 @@ document.addEventListener('DOMContentLoaded', function(){
      auf dem Server, sollen im Shop aber erst nach „Alle veröffentlichen“ erscheinen. */
   const PRODUCTS_DATA = loadProductData().filter(p => p.published !== false);
 
+  /* Startphase-Schalter fuer die Handy-Ansicht (CSS: body.aufbau weiter oben).
+     Bewusst an die Artikelzahl gekoppelt und nicht nur an AUFBAU_MODUS: sobald
+     echte Artikel online sind, zeigt die Seite wieder alles - auch wenn der
+     Aufbau-Modus mal versehentlich angelassen wird. */
+  if(AUFBAU_MODUS && PRODUCTS_DATA.length === 0){
+    document.body.classList.add('aufbau');
+  }
+
   function isSoldOut(p){
     return (p.sold === true || p.available === false) || (typeof p.stock === 'number' && p.stock <= 0);
   }
@@ -2705,9 +2731,29 @@ document.addEventListener('DOMContentLoaded', function(){
     return order.map(k => buckets[k]);
   }
 
+  // Standardansicht "Alle": Kategorien abwechselnd mischen (Jacke, Hose, Oberteil, Jacke ...),
+  // innerhalb jeder Kategorie bleibt die Reihenfolge neueste zuerst. Verkaufte Teile ans Ende.
+  function mixGroups(groups){
+    const avail = groups.filter(v => !v.every(isSoldOut));
+    const sold  = groups.filter(v =>  v.every(isSoldOut));
+    const byCat = {}; const catOrder = [];
+    avail.forEach(v => {
+      const c = (Array.isArray(v[0].cats) && v[0].cats[0]) || 'sonstige';
+      if(!byCat[c]){ byCat[c] = []; catOrder.push(c); }
+      byCat[c].push(v);
+    });
+    const mixed = [];
+    let added = true;
+    while(added){
+      added = false;
+      catOrder.forEach(c => { if(byCat[c].length){ mixed.push(byCat[c].shift()); added = true; } });
+    }
+    return mixed.concat(sold);
+  }
+
   function renderProductGrid(){
     const grid = document.getElementById('grid');
-    const groups = groupProducts(PRODUCTS_DATA);
+    const groups = mixGroups(groupProducts(PRODUCTS_DATA));
 
     // Bühne für das erste verfügbare Stück
     let leadAssigned = false;
@@ -2743,9 +2789,10 @@ document.addEventListener('DOMContentLoaded', function(){
       const imgContent = p.image
         ? `<img src="${p.image}" alt="${escapeHtml(p.name || 'Vintage-Adidas-Stück')}" loading="lazy">${hoverSrc ? `<img class="img-hover" src="${escapeHtml(hoverSrc)}" alt="" loading="lazy" aria-hidden="true">` : ''}`
         : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
+      function euro(v){ return Number(v).toFixed(2).replace('.', ',') + '€'; }
       const priceHtml = p.oldPrice
-        ? `<span class="old">${p.oldPrice}€</span><span class="now">${p.price}€</span>`
-        : `<span class="now">${p.price != null ? p.price + '€' : '—'}</span>`;
+        ? `<span class="old">${euro(p.oldPrice)}</span><span class="now">${euro(p.price)}</span>`
+        : `<span class="now">${p.price != null ? euro(p.price) : '—'}</span>`;
 
       // Meta-Zeile: verfügbare Größen + Status
       const availSizes = available.map(v => v.size).filter(Boolean);
@@ -3047,7 +3094,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!sortSelect) return;
     const gridEl = document.getElementById('grid');
     const anchor = document.getElementById('emptyState');
-    const originalOrder = products.slice();                          // Render-Reihenfolge = neueste zuerst
+    const originalOrder = products.slice();                          // Render-Reihenfolge = gemischt (siehe mixGroups)
     const leadNode = products.find(p => p.classList.contains('is-lead')) || null;
 
     function apply(mode){

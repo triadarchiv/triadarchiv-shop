@@ -1689,9 +1689,10 @@
       const thumb = p.image
         ? `<img src="${p.image}" alt="">`
         : escapeHtml(p.name);
+      const euro = v => Number(v).toFixed(2).replace('.', ',') + '€';
       const priceHtml = p.oldPrice
-        ? `<span class="old">${p.oldPrice}€</span> <span class="now">${p.price}€</span>`
-        : `<span class="now">${p.price}€</span>`;
+        ? `<span class="old">${euro(p.oldPrice)}</span> <span class="now">${euro(p.price)}</span>`
+        : `<span class="now">${euro(p.price)}</span>`;
       const subCount = (p.images || []).length;
       const subCountHtml = subCount > 0 ? `<span>+${subCount} Bild${subCount === 1 ? '' : 'er'}</span>` : '';
       // Größen der Gruppe mit Bestand/„verkauft“ auflisten

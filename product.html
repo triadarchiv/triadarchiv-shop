@@ -600,9 +600,10 @@
           <button type="button" class="gallery-thumb${i === 0 ? ' active' : ''}" data-src="${src}"><img src="${src}" alt=""></button>
         `).join('')}</div>`
       : '';
+    function euro(v){ return Number(v).toFixed(2).replace('.', ',') + '€'; }
     const priceHtml = rep.oldPrice
-      ? `<span class="old">${rep.oldPrice}€</span><span class="now">${rep.price}€</span>`
-      : `<span class="now">${rep.price != null ? rep.price + '€' : '—'}</span>`;
+      ? `<span class="old">${euro(rep.oldPrice)}</span><span class="now">${euro(rep.price)}</span>`
+      : `<span class="now">${rep.price != null ? euro(rep.price) : '—'}</span>`;
 
     // Größenauswahl (nur wenn es überhaupt Größen gibt). Ausverkaufte Größen sind deaktiviert.
     const sizeSelectorHtml = hasSizes
