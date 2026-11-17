@@ -109,6 +109,18 @@
     display:flex; flex-wrap:wrap; gap:8px; align-items:center;
     margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
   }
+  /* Stornierte Bestellung: bleibt stehen (Geschaeftsunterlage), tritt aber zurueck */
+  .order-card.is-cancelled{ opacity:.62; }
+  .order-card.is-cancelled .order-items{ text-decoration:line-through; }
+  .order-cancelled{
+    display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center;
+    margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--amber);
+  }
+  .order-cancelled .btn{ font-size:11px; padding:5px 10px; }
+  .order-cancel-row{ margin-top:8px; }
+  .order-cancel-row .btn{ font-size:11px; padding:5px 10px; color:var(--grey); }
+  .order-cancel-row .btn:hover{ border-color:var(--amber); color:var(--amber); }
   .order-ship select, .order-ship input[type=text]{ margin:0; }
   .order-ship select{ flex:0 0 auto; width:auto; }
   .order-ship input[type=text]{ flex:1 1 160px; min-width:120px; }
@@ -588,6 +600,9 @@
   .order-card:hover .sub-del{ opacity:1; }
   .sub-del:hover{ border-color:var(--red); color:#ff8b8e; }
   .sub-del:disabled{ opacity:.25; cursor:default; }
+  /* In der Bestellzeile den Betrag nach rechts schieben, damit das X danach sitzt */
+  .order-head .order-amount{ margin-left:auto; }
+  .order-head .sub-del{ margin-left:0; }
 
   .wrap{ max-width:1240px; }
   @media(min-width:900px){ .wrap{ grid-template-columns:400px 1fr; gap:30px; } }
@@ -1123,6 +1138,7 @@
         <div><label class="sub-label">Brustumfang (cm)</label><input type="number" class="m-chest" min="0" step="0.5" placeholder="z. B. 56"></div>
         <div><label class="sub-label">Länge Schulter–Bund (cm)</label><input type="number" class="m-shoulder" min="0" step="0.5" placeholder="z. B. 70"></div>
         <div><label class="sub-label">Länge Hose (cm)</label><input type="number" class="m-pants" min="0" step="0.5" placeholder="z. B. 104"></div>
+        <div><label class="sub-label">Innenbeinlänge (cm)</label><input type="number" class="m-inseam" min="0" step="0.5" placeholder="z. B. 78"></div>
         <div><label class="sub-label">Bundweite (cm)</label><input type="number" class="m-waist" min="0" step="0.5" placeholder="z. B. 40"></div>
       </div>`;
     row.querySelector('.size-row-size').value = size || '';
@@ -1130,6 +1146,7 @@
     row.querySelector('.m-chest').value = m.chest ?? '';
     row.querySelector('.m-shoulder').value = m.shoulderLength ?? '';
     row.querySelector('.m-pants').value = m.pantsLength ?? '';
+    row.querySelector('.m-inseam').value = m.inseam ?? '';
     row.querySelector('.m-waist').value = m.waist ?? '';
     row.querySelector('.size-row-remove').addEventListener('click', () => {
       row.remove();
@@ -1171,10 +1188,12 @@
       const chest = row.querySelector('.m-chest').value.trim();
       const shoulder = row.querySelector('.m-shoulder').value.trim();
       const pants = row.querySelector('.m-pants').value.trim();
+      const inseam = row.querySelector('.m-inseam').value.trim();
       const waist = row.querySelector('.m-waist').value.trim();
       if(chest !== '') measurements.chest = parseFloat(chest);
       if(shoulder !== '') measurements.shoulderLength = parseFloat(shoulder);
       if(pants !== '') measurements.pantsLength = parseFloat(pants);
+      if(inseam !== '') measurements.inseam = parseFloat(inseam);
       if(waist !== '') measurements.waist = parseFloat(waist);
       result.push({ size, stock, measurements });
     });
@@ -1839,11 +1858,28 @@
              <button type="button" class="btn ship-btn">Als versendet markieren</button>
            </div>`;
 
+      // Storno/Erstattung: die Bestellung bleibt in der Liste, wird aber als
+      // storniert gekennzeichnet. Geld erstattet Fabi in Stripe bzw. PayPal.
+      const cancelled = o.cancelled === true;
+      const cDate = o.cancelledDate ? new Date(o.cancelledDate).toLocaleDateString('de-DE') : '';
+      const sid = escapeHtml(o.sessionId || '');
+      const cancelSection = `
+        <div class="order-cancelled" data-session="${sid}">
+          <span>\u21BA Storniert${cDate ? ' am ' + escapeHtml(cDate) : ''}${o.restocked ? ' \u00b7 Artikel wieder eingestellt' : ''}</span>
+          ${o.restocked ? '' : `<button type="button" class="btn order-restock">Artikel wieder einstellen</button>`}
+          <button type="button" class="btn order-uncancel">Storno zur\u00fccknehmen</button>
+        </div>`;
+      const cancelRow = o.sessionId ? `
+        <div class="order-cancel-row" data-session="${sid}">
+          <button type="button" class="btn order-cancel">Storniert / Erstattet</button>
+        </div>` : '';
+
       return `
-        <div class="order-card">
+        <div class="order-card${cancelled ? ' is-cancelled' : ''}">
           <div class="order-head">
             <span class="order-date">${escapeHtml(d)}</span>
             <span class="order-amount">${escapeHtml(betrag)}</span>
+            ${o.sessionId ? `<button type="button" class="btn sub-del order-del" data-session="${escapeHtml(o.sessionId)}" title="Diese Bestellung aus der Liste l\u00f6schen">\u2715</button>` : ''}
           </div>
           <div class="order-items">${escapeHtml(names || '—')}</div>
           <div class="order-addr">
@@ -1851,7 +1887,7 @@
             ${adrLines || '<span class="order-muted">keine Adresse hinterlegt</span>'}
           </div>
           <div class="order-email">${escapeHtml(o.email || '')}</div>
-          ${shipSection}
+          ${cancelled ? cancelSection : shipSection + cancelRow}
         </div>`;
     }).join('');
 
@@ -1914,6 +1950,71 @@
       ordersList.innerHTML = '<p class="empty-state">Bestellungen gibt es nur im echten Online-Shop (triadarchiv.de/admin.html), nicht in der lokalen Testversion.</p>';
     }
   }
+
+  // Storno / Erstattung / Artikel wieder einstellen.
+  async function orderStatus(btn, action, frage){
+    const wrap = btn.closest('[data-session]');
+    const sid = wrap && wrap.dataset.session;
+    if(!sid) return;
+    if(frage && !confirm(frage)) return;
+    const alt = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Moment \u2026';
+    try{
+      const res = await fetch('/api/order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+        body: JSON.stringify({ sessionId: sid, action })
+      });
+      if(res.status === 429){ showToast('Zu viele Fehlversuche \u2013 bitte sp\u00e4ter'); btn.disabled = false; btn.textContent = alt; return; }
+      if(res.status === 401){ sessionStorage.removeItem('triadAdminKey'); showToast('Falsches Admin-Passwort'); btn.disabled = false; btn.textContent = alt; return; }
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok){ showToast(data.error || 'Hat nicht geklappt'); btn.disabled = false; btn.textContent = alt; return; }
+      if(action === 'restock'){
+        const n = (data.wieder || []).length;
+        showToast(n === 1 ? 'Artikel wieder im Shop' : n + ' Artikel wieder im Shop');
+      } else {
+        showToast(action === 'cancel' ? 'Als storniert vermerkt' : 'Storno zur\u00fcckgenommen');
+      }
+      loadOrders();
+    }catch(e){
+      showToast('Hat nicht geklappt'); btn.disabled = false; btn.textContent = alt;
+    }
+  }
+
+  ordersList.addEventListener('click', (ev) => {
+    const c = ev.target.closest('.order-cancel');
+    if(c) return orderStatus(c, 'cancel',
+      'Diese Bestellung als storniert/erstattet vermerken?\n\nDas Geld erstattest du selbst in Stripe bzw. PayPal \u2013 hier wird nur der Stand festgehalten.');
+    const u = ev.target.closest('.order-uncancel');
+    if(u) return orderStatus(u, 'uncancel', '');
+    const r = ev.target.closest('.order-restock');
+    if(r) return orderStatus(r, 'restock',
+      'Die Artikel dieser Bestellung wieder in den Shop stellen?\n\nSie sind danach sofort wieder bestellbar.');
+  });
+
+  // Bestellung aus der Liste loeschen (gedacht fuer Testbestellungen).
+  ordersList.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('.order-del');
+    if(!btn) return;
+    const sid = btn.dataset.session || '';
+    if(!sid) return;
+    if(!confirm('Diese Bestellung wirklich aus der Liste l\u00f6schen?\n\nDas ist f\u00fcr Testbestellungen gedacht. Echte Bestellungen sind Gesch\u00e4ftsunterlagen und m\u00fcssen aufbewahrt werden.\n\nDie Zahlung bei Stripe bzw. PayPal bleibt davon unber\u00fchrt.')) return;
+    btn.disabled = true;
+    try{
+      const res = await fetch('/api/order-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': getAdminKey() },
+        body: JSON.stringify({ sessionIds: [sid] })
+      });
+      if(res.status === 429){ showToast('Zu viele Fehlversuche \u2013 bitte sp\u00e4ter'); btn.disabled = false; return; }
+      if(res.status === 401){ sessionStorage.removeItem('triadAdminKey'); showToast('Falsches Admin-Passwort'); btn.disabled = false; return; }
+      if(!res.ok){ showToast('L\u00f6schen fehlgeschlagen'); btn.disabled = false; return; }
+      showToast('Bestellung gel\u00f6scht');
+      loadOrders();
+    }catch(e){
+      showToast('L\u00f6schen fehlgeschlagen'); btn.disabled = false;
+    }
+  });
 
   document.getElementById('ordersReload').addEventListener('click', loadOrders);
   document.getElementById('ordersLink').addEventListener('click', () => {

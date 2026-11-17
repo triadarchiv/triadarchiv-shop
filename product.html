@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Produkt — TRIAD ARCHIV</title>
-<meta name="description" content="Handverlesene Vintage-Adidas-Unikate im TRIAD ARCHIV — jedes Teil ein Einzelstück.">
+<meta name="description" content="Handverlesene adidas-Unikate im TRIAD ARCHIV — jedes Teil ein Einzelstück.">
 <meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TRIAD ARCHIV">
-<meta property="og:title" content="TRIAD ARCHIV — Vintage Adidas">
-<meta property="og:description" content="Handverlesene Vintage-Adidas-Unikate — jedes Teil ein Einzelstück.">
+<meta property="og:title" content="TRIAD ARCHIV — Vintage &amp; Secondhand adidas">
+<meta property="og:description" content="Handverlesene adidas-Unikate — jedes Teil ein Einzelstück.">
 <meta property="og:url" content="https://triadarchiv.de/">
 <meta property="og:image" content="https://triadarchiv.de/og-card.png">
 <meta property="og:image:width" content="1200">
@@ -142,6 +142,48 @@
     margin-top:14px;
     flex-wrap:wrap;
   }
+
+  /* ---------- Foto antippen, gross ansehen (Handy) ----------
+     Am Rechner gibt es die Zoom-Lupe beim Ueberfahren. Am Handy gab es bisher
+     nichts - dort oeffnet ein Tipp das Foto bildschirmfuellend, und man wischt
+     durch alle Bilder. */
+  .foto-voll{
+    position:fixed; inset:0; z-index:200;
+    background:#0a0908;   /* deckend - sonst schimmert die Seite durch */
+    display:flex; align-items:center;
+  }
+  .foto-voll[hidden]{ display:none; }
+  .foto-voll-spur{
+    display:flex; width:100%; height:100%;
+    overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none;
+  }
+  .foto-voll-spur::-webkit-scrollbar{ display:none; }
+  .foto-voll-feld{
+    flex:0 0 100%; scroll-snap-align:center;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+  }
+  .foto-voll-feld img{ max-width:100%; max-height:86vh; object-fit:contain; }
+  .foto-voll-zu{
+    position:absolute; z-index:2;
+    top:calc(env(safe-area-inset-top, 0px) + 12px); right:12px;
+    width:42px; height:42px; padding:0;
+    border:1px solid var(--line-strong); border-radius:0;
+    background:rgba(0,0,0,.45); color:var(--text);
+    font-size:15px; line-height:1; cursor:pointer;
+  }
+  .foto-voll-punkte{
+    position:absolute; left:0; right:0;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 18px);
+    display:flex; justify-content:center; gap:7px;
+  }
+  .foto-voll-punkte span{
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(244,241,234,.28); transition:background .2s ease;
+  }
+  .foto-voll-punkte span.an{ background:var(--accent); }
+  @media(hover:none){ .gallery-main{ cursor:zoom-in; } }
+
   .gallery-thumb{
     width:64px;
     height:80px;
@@ -222,6 +264,138 @@
     text-transform:uppercase;
   }
 
+  /* --- Vorschlaege unter dem Artikel --- */
+  /* Sitzt in der linken Spalte unter den Vorschaubildern und fuellt die
+     Flaeche, die sonst leer bleibt, weil die Beschreibung rechts laenger ist.
+     Bewusst als abgesetzter Kasten mit eigenem Hintergrund und viel Luft davor:
+     sonst sehen die Vorschlaege aus wie weitere Fotos dieses Artikels. */
+  .aehnliche{
+    margin-top:52px;
+    padding:20px 18px 18px;
+    border:1px solid var(--line-strong);
+    background:var(--surface-2);
+  }
+  .aehnliche-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    gap:16px; margin-bottom:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--line);
+  }
+  .aehnliche-head h2{
+    margin:0;
+    font-family:var(--font-display);
+    font-size:17px; font-weight:400; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--text);
+  }
+  .aehnliche-head a{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted); text-decoration:none;
+  }
+  .aehnliche-head a:hover{ color:var(--text); }
+  /* Laufband wie oben im Shop: zwei gleiche Saetze laufen endlos durch.
+     Verschoben wird um die halbe Spurbreite plus den halben Abstand - dann
+     sitzt Satz 2 genau dort, wo Satz 1 begann, der Sprung ist unsichtbar. */
+  /* Pflicht: ohne min-width:0 zwingt das breite Band die Rasterspalte auf
+     seine volle Breite und die ganze Seite scrollt quer. */
+  .product-detail > div{ min-width:0; }
+  /* ---------- Handy: Reihenfolge Fotos -> Kaufen -> Vorschlaege ----------
+     Am Rechner sitzt die Vorschlagsleiste in der Bildspalte und fuellt dort
+     die Luecke. Am Handy liegen die Spalten untereinander, dadurch stuende
+     sie zwischen Fotos und Kaufknopf. display:contents loest die Bildspalte
+     auf, dann lassen sich ihre Teile einzeln einsortieren. */
+  @media(max-width:899px){
+    .product-detail{ display:flex; flex-direction:column; }
+    /* Gleiche doppelte Polsterung wie im Shop: --container ist schon 93vw,
+       dazu kommt --pad-x. Am Handy zaehlt nur die Polsterung. */
+    @media(max-width:640px){ .product-detail{ max-width:100%; } }
+    .product-media{ display:contents; }
+    .gallery-main{ order:1; }
+    .gallery-thumbs{ order:2; margin-top:14px; }
+    .detail-info{ order:3; min-width:0; }
+    /* min-width:0 ist Pflicht: ohne die Bildspalte als Huelle ist .aehnliche
+       ein direktes Flex-Kind, und das breite Laufband darin wuerde die ganze
+       Seite seitlich aufziehen. */
+    .aehnliche{ order:4; min-width:0; width:100%; }
+  }
+
+  .aehnliche-track-wrap{
+    position:relative; width:100%; overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 52px), transparent 100%);
+            mask-image:linear-gradient(90deg, transparent 0, #000 20px, #000 calc(100% - 52px), transparent 100%);
+  }
+  .aehnliche-track{ display:flex; gap:12px; width:max-content; animation:ae-lauf 46s linear infinite; }
+  .aehnliche-set{ display:flex; gap:12px; }
+  /* Haelt an, sobald die Maus drauf ist - sonst rutscht das Teil beim Klicken weg. */
+  .aehnliche-track-wrap:hover .aehnliche-track{ animation-play-state:paused; }
+  @keyframes ae-lauf{ from{ transform:translateX(0); } to{ transform:translateX(calc(-50% - 6px)); } }
+  @media(prefers-reduced-motion:reduce){ .aehnliche-track{ animation:none; } }
+  /* Touchgeraete kennen kein Drueberfahren: dort laeuft nichts von allein,
+     stattdessen wischt man die Leiste selbst zur Seite. */
+  @media(hover:none){
+    .aehnliche-track{ animation:none; width:auto; }
+    .aehnliche-track-wrap{
+      overflow-x:auto; scroll-snap-type:x proximity;
+      -webkit-mask-image:none; mask-image:none;
+    }
+    .aehnliche-set + .aehnliche-set{ display:none; }
+    .aehnlich-tile{ scroll-snap-align:start; }
+  }
+  .aehnlich-tile{
+    flex:0 0 168px;
+    text-decoration:none; color:inherit; display:block; min-width:0;
+  }
+  .aehnlich-img{
+    position:relative; aspect-ratio:3/4; overflow:hidden;
+    background:var(--bg-deep); border:1px solid var(--line-strong);
+  }
+  .aehnlich-img img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform .5s ease;
+  }
+  .aehnlich-tile:hover .aehnlich-img img{ transform:scale(1.04); }
+  .aehnlich-tile.is-sold .aehnlich-img img{ filter:grayscale(.9) brightness(.7); }
+  .aehnlich-stamp{
+    position:absolute; left:8px; top:8px;
+    font-family:var(--font-mono); font-size:9px; letter-spacing:1.5px;
+    text-transform:uppercase; padding:3px 7px;
+    background:rgba(0,0,0,.72); color:#fff;
+  }
+  .aehnlich-name{
+    margin-top:9px; font-family:var(--font-sans); font-size:12.5px;
+    font-weight:500; line-height:1.45;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .aehnlich-meta{
+    margin-top:5px; display:flex; justify-content:space-between; gap:10px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; color:var(--faint);
+  }
+  .aehnlich-preis{ color:var(--text); font-variant-numeric:tabular-nums; }
+
+  .detail-masse{
+    margin-top:2px;
+    border:1px solid var(--line);
+    padding:16px 18px 14px;
+  }
+  .masse-title{
+    margin:0 0 10px;
+    font-family:var(--font-mono);
+    font-size:10px; font-weight:500; letter-spacing:2px;
+    text-transform:uppercase; color:var(--faint);
+  }
+  .mass-rows{ margin:0; }
+  .mass-row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:8px 0; border-bottom:1px solid var(--line);
+  }
+  .mass-row:last-child{ border-bottom:0; padding-bottom:0; }
+  .mass-row dt{ font-family:var(--font-sans); font-size:13.5px; color:var(--muted); }
+  .mass-row dd{
+    margin:0; font-family:var(--font-mono); font-size:15px; font-weight:500;
+    color:var(--text); font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .detail-story{ margin-top:28px; }
+  .detail-story p + p{ margin-top:14px; }
   .detail-story p{
     margin:0;
     font-family:var(--font-sans);
@@ -259,12 +433,16 @@
     font-weight:400;
   }
 
+  /* Kaufknopf in der Akzentfarbe: auf fast schwarzem Grund muss die
+     Hauptaktion das Kraeftigste sein, sonst fuehrt der gelbe PayPal-Balken
+     darunter die Seite. Pink ist die Farbe, die der Shop ohnehin schon
+     fuer Sale und Fokus benutzt. */
   .add-btn{
     width:100%;
-    background:var(--text);
-    border:1px solid var(--text);
+    background:var(--accent);
+    border:1px solid var(--accent);
     border-radius:0;
-    color:var(--bg);
+    color:#fff;
     font-family:var(--font-sans);
     font-size:13px;
     font-weight:600;
@@ -274,8 +452,9 @@
     cursor:pointer;
     transition:background .3s ease, color .3s ease, border-color .3s ease, transform .1s ease;
   }
-  .add-btn:hover{ background:transparent; color:var(--text); border-color:var(--text); }
+  .add-btn:hover{ background:transparent; color:var(--accent); border-color:var(--accent); }
   .add-btn:active{ transform:translateY(1px); }
+  /* Nach dem Klick kurz in Knochenweiss: sichtbare Rueckmeldung, dass es geklappt hat */
   .add-btn.added{ background:var(--text); color:var(--bg); border-color:var(--text); }
   .add-btn:disabled{ background:transparent; color:var(--faint); border-color:var(--line); cursor:not-allowed; }
   .add-btn:disabled:hover{ background:transparent; color:var(--faint); border-color:var(--line); }
@@ -332,7 +511,13 @@
     transition:border-color .2s ease, background .2s ease, color .2s ease;
   }
   .size-chip-detail:hover:not(:disabled){ border-color:var(--text); }
-  .size-chip-detail.active{ background:var(--text); border-color:var(--text); color:var(--bg); }
+  /* Gewaehlte Groesse: Rahmen und Schrift in der Akzentfarbe statt gefuellter
+     weisser Flaeche - gleiche Sprache wie der Kaufknopf, ohne mit ihm zu konkurrieren. */
+  .size-chip-detail.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+  }
   .size-chip-detail.out{
     color:var(--faint);
     border-color:var(--line);
@@ -421,12 +606,11 @@
     TRIAD <span class="archive">ARCHIV</span>
   </a>
   <div class="header-icons">
-    <a href="shop.html">Archiv</a>
-    <a href="cart.html" id="cartLink">Warenkorb (<span id="cartCount">0</span>)</a>
+    <a href="cart.html" id="cartLink"><span data-i18n="nav_cart">Warenkorb</span><span class="cart-paren"> (</span><span id="cartCount">0</span><span class="cart-paren">)</span></a>
   </div>
 </header>
 
-<div class="breadcrumb"><a href="shop.html">← Zurück zum Archiv</a></div>
+<div class="breadcrumb"><a href="shop.html" data-zurueck="1">← Zurück zum Archiv</a></div>
 
 <div id="detailWrap"></div>
 
@@ -552,6 +736,18 @@
     }).catch(err => { console.error(err); container.innerHTML = ''; });
   }
 
+  /* ---------- Welcher Weg fuehrt wohin ----------
+     "Zurueck zum Archiv" (die Brotkrume oben) und die Zurueck-Taste sollen
+     dort landen, wo man war. Logo, "Archiv" im Menue, "Alle Teile" und die
+     Fusszeile bedeuten dagegen "zum Anfang" - die werfen die gemerkte
+     Stelle weg, damit der Shop oben startet. */
+  document.addEventListener('click', function(ev){
+    var a = ev.target.closest('a[href^="shop.html"]');
+    if(!a) return;
+    if(a.dataset.zurueck === '1') return;
+    try{ sessionStorage.removeItem('triadStelle'); }catch(e){}
+  }, true);
+
   const detailWrap = document.getElementById('detailWrap');
   const productId = new URLSearchParams(window.location.search).get('id');
   // Entwürfe (published === false) ausblenden – ein direkter Link darf sie nicht zeigen
@@ -593,13 +789,14 @@
       ? `<div class="gallery-badge sold">Verkauft — Archiviert</div>`
       : rep.oldPrice ? `<div class="gallery-badge">Sale</div>` : '';
     const mainImgHtml = images.length
-      ? `<img id="mainImg" src="${images[0]}" alt="${escapeHtml(rep.name || 'Vintage-Adidas-Stück')}">`
+      ? `<img id="mainImg" src="${images[0]}" alt="${escapeHtml(rep.name || 'adidas-Stück')}">`
       : `<span class="img-placeholder"><span class="stripes"><span></span><span></span><span></span></span>Archiv No. ${no}<br>Bild folgt</span>`;
     const thumbsHtml = images.length > 1
       ? `<div class="gallery-thumbs" id="galleryThumbs">${images.map((src, i) => `
           <button type="button" class="gallery-thumb${i === 0 ? ' active' : ''}" data-src="${src}"><img src="${src}" alt=""></button>
         `).join('')}</div>`
       : '';
+
     function euro(v){ return Number(v).toFixed(2).replace('.', ',') + '€'; }
     const priceHtml = rep.oldPrice
       ? `<span class="old">${euro(rep.oldPrice)}</span><span class="now">${euro(rep.price)}</span>`
@@ -656,12 +853,13 @@
       if(cats.length) specs.push({ label:'Kollektion', text:cats.map(escapeHtml).join(', '), mono:true });
       if(!multiSize && rep.size) specs.push({ label:'Größe', text:escapeHtml(rep.size) });
       if(rep.condition) specs.push({ label:'Zustand', text:escapeHtml(rep.condition) });
-      const m = (v && v.measurements) || {};
-      if(m.chest) specs.push({ label:'Brustumfang', text:m.chest + ' cm', mono:true });
-      if(m.shoulderLength) specs.push({ label:'Länge (Schulter–Bund)', text:m.shoulderLength + ' cm', mono:true });
-      if(m.pantsLength) specs.push({ label:'Länge', text:m.pantsLength + ' cm', mono:true });
-      if(m.waist) specs.push({ label:'Bundweite', text:m.waist + ' cm', mono:true });
       specs.push({ label:'Status', text: soldOut ? 'Verkauft — archiviert' : (isUnikat ? 'Unikat — Einzelstück' : 'Verfügbar'), mono:true });
+
+      // Maße stehen bewusst in einem eigenen Kasten und nicht zwischen den
+      // Archiv-Zeilen: sie sind der Grund, warum jemand hier statt woanders
+      // kauft, und sollen beim Überfliegen sofort ins Auge fallen.
+      // Beschriftungen sagen, WIE gemessen wurde - "Brustumfang" waere falsch,
+      // gemessen wird flach von Achsel zu Achsel.
       return `<dl class="spec-rows">${specs.map(s => `
         <div class="spec-row">
           <dt>${s.label}</dt>
@@ -669,28 +867,112 @@
         </div>`).join('')}</dl>`;
     }
 
+    // Maße stehen direkt unter der Größenwahl, nicht weiter unten zwischen den
+    // Archiv-Zeilen: wer eine Größe anklickt, sieht sofort die passenden Zahlen.
+    function buildMasseHtml(v){
+      const m = (v && v.measurements) || {};
+      const cm = x => String(x).replace('.', ',') + ' cm';
+      const masse = [];
+      if(m.chest) masse.push({ label:'Brust · Achsel zu Achsel', text:cm(m.chest) });
+      if(m.shoulderLength) masse.push({ label:'Länge · Schulter bis Saum', text:cm(m.shoulderLength) });
+      if(m.waist) masse.push({ label:'Bund · flach, ungedehnt', text:cm(m.waist) });
+      if(m.inseam) masse.push({ label:'Innenbeinlänge', text:cm(m.inseam) });
+      if(m.pantsLength) masse.push({ label:'Gesamtlänge · Bund bis Saum', text:cm(m.pantsLength) });
+      if(!masse.length) return '';
+      return `
+        <div class="detail-masse">
+          <p class="masse-title">Maße · flach gemessen</p>
+          <dl class="mass-rows">${masse.map(x => `
+            <div class="mass-row"><dt>${x.label}</dt><dd>${x.text}</dd></div>`).join('')}</dl>
+        </div>`;
+    }
+
+    // Die Beschreibung ist mit Absaetzen und Zeilenumbruechen geschrieben.
+    // Vorher landete alles in EINEM <p>, dadurch verschmolz der Text zu einem
+    // Block und Zustand, Maße und Material gingen darin unter.
     const storyHtml = rep.desc
-      ? `<div class="detail-story"><p>${escapeHtml(rep.desc)}</p></div>`
+      ? `<div class="detail-story">${String(rep.desc)
+          .split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+          .map(b => `<p>${escapeHtml(b).replace(/\n/g, '<br>')}</p>`).join('')}</div>`
       : '';
+
+    // --- Vorschlaege: andere Teile aus derselben Kollektion ---
+    // Zuerst verfuegbare Stuecke, dann nach Preisnaehe - was aehnlich teuer ist,
+    // passt meist auch zum Geschmack. Verkaufte kommen nur dran, wenn sonst zu
+    // wenig da ist, und werden als "Verkauft" gekennzeichnet.
+    function buildAehnlicheHtml(){
+      const gidHier = groupKey(product);
+      const preisHier = Number(rep.price) || 0;
+      const kandidaten = groupProducts(products)
+        .map(vs => vs.find(v => !isSoldOut(v)) || vs[0])
+        .filter(p2 => p2 && groupKey(p2) !== gidHier && p2.image);
+
+      const gleicheKat = kandidaten.filter(p2 =>
+        (Array.isArray(p2.cats) ? p2.cats : []).some(c => cats.includes(c)));
+      const pool = gleicheKat.length >= 3 ? gleicheKat : kandidaten;
+
+      const sortiert = pool.slice().sort((a, b) => {
+        const va = isSoldOut(a) ? 1 : 0, vb = isSoldOut(b) ? 1 : 0;
+        if(va !== vb) return va - vb;
+        return Math.abs((Number(a.price)||0) - preisHier) - Math.abs((Number(b.price)||0) - preisHier);
+      }).slice(0, 10);
+
+      if(sortiert.length < 2) return '';
+
+      const euro = v => Number(v).toFixed(2).replace('.', ',') + '€';
+      // dup = zweiter Satz fuer die nahtlose Schleife. Reine Deko, deshalb aus
+      // der Tab-Reihenfolge genommen - sonst tabbt man zweimal durch dieselben Teile.
+      const kartenSatz = (dup) => sortiert.map(p2 => {
+        const weg = isSoldOut(p2);
+        return `
+        <a class="aehnlich-tile${weg ? ' is-sold' : ''}" href="product.html?id=${encodeURIComponent(p2.id)}"${dup ? ' tabindex="-1" aria-hidden="true"' : ''}>
+          <div class="aehnlich-img">
+            <img src="${escapeHtml(p2.image)}" alt="${escapeHtml(p2.name || '')}" loading="lazy">
+            ${weg ? '<span class="aehnlich-stamp">Verkauft</span>' : ''}
+          </div>
+          <div class="aehnlich-name">${escapeHtml(p2.name || '')}</div>
+          <div class="aehnlich-meta">
+            ${p2.size ? '<span>Gr. ' + escapeHtml(p2.size) + '</span>' : '<span></span>'}
+            <span class="aehnlich-preis">${p2.price != null ? euro(p2.price) : ''}</span>
+          </div>
+        </a>`;
+      }).join('');
+
+      return `
+        <section class="aehnliche">
+          <div class="aehnliche-head">
+            <h2>Andere Teile im Archiv</h2>
+            <a href="shop.html">Alle Teile →</a>
+          </div>
+          <div class="aehnliche-track-wrap">
+            <div class="aehnliche-track">
+              <div class="aehnliche-set">${kartenSatz(false)}</div>
+              <div class="aehnliche-set">${kartenSatz(true)}</div>
+            </div>
+          </div>
+        </section>`;
+    }
+
+    const aehnlicheHtml = buildAehnlicheHtml();
 
     detailWrap.innerHTML = `
       <div class="product-detail">
-        <div>
+        <div class="product-media">
           <div class="gallery-main">
             ${badge}
             ${mainImgHtml}
           </div>
           ${thumbsHtml}
+          ${aehnlicheHtml}
         </div>
         <div class="detail-info">
           <div class="detail-no"><span>Archiv No. ${no}</span><span class="unikat">${soldOut ? 'Archiviert' : (isUnikat ? 'Unikat' : 'Verfügbar')}</span></div>
           <h1 class="detail-name">${escapeHtml(rep.name || '')}</h1>
-          <div id="specSlot">${buildSpecsHtml(active)}</div>
-          ${storyHtml}
           <div class="purchase-area">
-            ${sizeSelectorHtml}
             <div class="detail-price">${priceHtml}</div>
+            ${sizeSelectorHtml}
             <div id="stockLineSlot">${stockLineHtml}</div>
+            <div id="masseSlot">${buildMasseHtml(active)}</div>
             <div id="qtySlot">${qtySelectorHtml}</div>
             <button class="add-btn" id="addBtn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Verkauft' : 'In den Warenkorb'}</button>
             ${soldOut ? '' : `<div class="paypal-quickbuy">
@@ -698,6 +980,8 @@
               <div id="paypalButtonContainerProduct"></div>
             </div>`}
           </div>
+          <div id="specSlot">${buildSpecsHtml(active)}</div>
+          ${storyHtml}
         </div>
       </div>`;
 
@@ -711,6 +995,64 @@
         btn.classList.add('active');
       });
     }
+
+    /* ---------- Handy: Foto antippen, bildschirmfuellend ansehen ---------- */
+    (function initFotoVoll(){
+      if(!images.length) return;
+      // Am Rechner uebernimmt die Zoom-Lupe weiter unten.
+      if(window.matchMedia('(hover:hover)').matches) return;
+
+      var box = document.createElement('div');
+      box.className = 'foto-voll';
+      box.hidden = true;
+      box.innerHTML =
+        '<button type="button" class="foto-voll-zu" aria-label="Schlie\u00dfen">\u2715</button>' +
+        '<div class="foto-voll-spur">' + images.map(function(src){
+          return '<div class="foto-voll-feld"><img src="' + src + '" alt=""></div>';
+        }).join('') + '</div>' +
+        '<div class="foto-voll-punkte">' + images.map(function(_, i){
+          return '<span' + (i === 0 ? ' class="an"' : '') + '></span>';
+        }).join('') + '</div>';
+      document.body.appendChild(box);
+
+      var spur = box.querySelector('.foto-voll-spur');
+      var punkte = [].slice.call(box.querySelectorAll('.foto-voll-punkte span'));
+      function setzePunkt(i){ punkte.forEach(function(pk, k){ pk.classList.toggle('an', k === i); }); }
+
+      function auf(i){
+        box.hidden = false;
+        document.body.style.overflow = 'hidden';
+        spur.scrollLeft = spur.clientWidth * i;
+        setzePunkt(i);
+      }
+      function zu(){ box.hidden = true; document.body.style.overflow = ''; }
+
+      spur.addEventListener('scroll', function(){
+        if(!spur.clientWidth) return;
+        setzePunkt(Math.round(spur.scrollLeft / spur.clientWidth));
+      }, { passive:true });
+
+      box.querySelector('.foto-voll-zu').addEventListener('click', zu);
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !box.hidden) zu(); });
+
+      var haupt = document.getElementById('mainImg');
+      if(haupt){
+        haupt.addEventListener('click', function(){
+          var i = images.indexOf(haupt.getAttribute('src'));
+          auf(i < 0 ? 0 : i);
+        });
+      }
+      // Vorschaubild antippen oeffnet gleich das passende Foto gross.
+      var leiste = document.getElementById('galleryThumbs');
+      if(leiste){
+        leiste.addEventListener('click', function(e){
+          var b = e.target.closest('.gallery-thumb');
+          if(!b) return;
+          var i = images.indexOf(b.dataset.src);
+          if(i >= 0) auf(i);
+        });
+      }
+    })();
 
     /* ---------- hover-zoom loupe (desktop only) ---------- */
     (function initZoomLens(){
@@ -819,6 +1161,8 @@
         // Maße/Spezifikationen der gewählten Größe anzeigen
         const specSlot = document.getElementById('specSlot');
         if(specSlot) specSlot.innerHTML = buildSpecsHtml(active);
+        const masseSlot = document.getElementById('masseSlot');
+        if(masseSlot) masseSlot.innerHTML = buildMasseHtml(active);
         stockSlot.innerHTML = stockLineFor(active);
         renderQty();
         renderPaypalButtons(paypalGetter, document.getElementById('paypalButtonContainerProduct'));
@@ -858,7 +1202,7 @@
     (function seo(){
       const title = `${rep.name} — TRIAD ARCHIV`;
       document.title = title;
-      const desc = (rep.desc || `${rep.name} — handverlesenes Vintage-Adidas-Unikat im TRIAD ARCHIV.`).slice(0, 300);
+      const desc = (rep.desc || `${rep.name} — handverlesenes adidas-Unikat im TRIAD ARCHIV.`).slice(0, 300);
       const absImages = images.map(src => { try { return new URL(src, location.href).href; } catch(e){ return src; } });
       const setMeta = (sel, val) => { const el = document.querySelector(sel); if(el && val) el.setAttribute('content', val); };
       setMeta('meta[name="description"]', desc);
@@ -904,7 +1248,11 @@
   }
   function updateCartCount(){
     const cart = loadCart();
-    cartCount.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+    const anzahl = cart.reduce((sum, item) => sum + item.qty, 0);
+    cartCount.textContent = anzahl;
+    // Ist etwas drin, faellt die Zahl farblich auf - leer bleibt sie ruhig.
+    const korbLink = document.getElementById('cartLink');
+    if(korbLink) korbLink.classList.toggle('voll', anzahl > 0);
   }
   function addToCart(id, name, price, size, thumb, qty){
     qty = Math.max(1, parseInt(qty, 10) || 1);

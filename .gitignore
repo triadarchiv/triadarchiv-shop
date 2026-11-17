@@ -37,3 +37,6 @@ Hochladen.bat
 
 # Lokale Hilfsskripte, werden online nicht gebraucht
 werkzeuge/
+
+# Lokaler Helfer fuer den Handy-Zugang
+Handy-Zugang einrichten.bat
