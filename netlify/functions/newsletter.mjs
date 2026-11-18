@@ -29,11 +29,14 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: "Ungültige E-Mail" }), { status: 400 });
   }
 
-  // Missbrauchsbremse: pro IP hoechstens 3 Anmeldungen je Stunde. Ohne das koennte
+  // Missbrauchsbremse: pro IP hoechstens 10 Anmeldungen je Stunde. Ohne das koennte
   // jemand ueber den Shop beliebig viele Bestaetigungsmails an Fremde schicken.
+  // 10 statt 3: Mobilfunkanbieter stecken sehr viele Kunden hinter dieselbe
+  // IP-Adresse, und in einem Haushalt teilen sich alle Geraete eine. Bei 3 pro
+  // Stunde waeren echte Anmeldungen abgewiesen worden.
   const ip = clientIp(req);
   const WINDOW = 60 * 60 * 1000;
-  const rl = await isBlocked("newsletter", ip, 3, WINDOW);
+  const rl = await isBlocked("newsletter", ip, 10, WINDOW);
   if (rl.blocked) {
     return new Response(JSON.stringify({ error: "Zu viele Anmeldungen. Bitte spaeter erneut versuchen." }), {
       status: 429,

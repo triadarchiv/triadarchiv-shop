@@ -151,6 +151,14 @@
      Unikat-Hinweis. Am Handy bleibt deshalb nur ein Sale-Hinweis auf dem Foto;
      der Zustand wandert in die Zeile unter das Bild, wo Platz ist. */
   .nur-handy{ display:none; }
+
+  /* ---------- Instagram-Vorschau ausgeblendet ----------
+     Der Bereich zog seine Bilder aus dem eigenen Shop - man sah dieselben
+     Teile ein zweites Mal, am Handy auf ueber 1100px Hoehe. Der Link zum
+     Profil steht weiterhin in der Fusszeile.
+     Wieder einblenden: diese eine Regel loeschen. */
+  #ig{ display:none; }
+
   @media(max-width:719px){
     .tile-tag:not(.tile-tag--sale){ display:none; }
     .nur-handy{ display:inline; }
@@ -2004,6 +2012,8 @@ const I18N = {
     vip_btn:'Kostenlos eintragen →', vip_live:'Kostenlos & jederzeit abbestellbar — trag dich vor dem ersten Drop ein.',
     vip_count:'<b>{n}</b> Sammler:innen im Newsletter · jedes Teil 1/1', vip_link_shop:'Bestand ansehen',
     vip_err:'Bitte gib eine gültige E-Mail-Adresse ein.',
+    nl_fehler_limit:'Von dieser Verbindung kamen gerade mehrere Anmeldungen. Bitte in einer Stunde nochmal versuchen.',
+    nl_fehler_server:'Das hat leider nicht geklappt. Bitte später nochmal versuchen — oder schreib mir an Triadarchiv@web.de.',
     vip_ok_doi:'Fast geschafft — bestätige noch den Link in deiner <b>Bestätigungs-Mail</b> (auch im Spam-Ordner nachsehen), dann erfährst du jeden Drop zuerst.',
     vip_ok:'Eingetragen — du erfährst jeden Drop jetzt <b>zuerst</b>. Kostenlos, jederzeit abbestellbar.',
     bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
@@ -2070,6 +2080,8 @@ const I18N = {
     vip_btn:'Sign up free →', vip_live:'Free & unsubscribe anytime — sign up before the first drop.',
     vip_count:'<b>{n}</b> collectors on the newsletter · every piece 1/1', vip_link_shop:'View the collection',
     vip_err:'Please enter a valid email address.',
+    nl_fehler_limit:'Several sign-ups just came from this connection. Please try again in an hour.',
+    nl_fehler_server:'That didn\u2019t work. Please try again later — or email me at Triadarchiv@web.de.',
     vip_ok_doi:'Almost done — just confirm the link in your <b>confirmation email</b> (check your spam folder too), then you’ll hear about every drop first.',
     vip_ok:'You’re in — you’ll now hear about every drop <b>first</b>. Free, unsubscribe anytime.',
     bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
@@ -2398,16 +2410,14 @@ document.addEventListener('DOMContentLoaded', function(){
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'hero-vip' })
       })
-        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(r => { if(!r.ok) throw new Error(r.status === 429 ? 'limit' : 'server'); return r.json(); })
         .then(data => done(data && data.doi))
-        .catch(() => {
-          // Fallback ohne Server: lokal merken, nichts geht verloren
-          try{
-            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
-            list.push({ email, date:new Date().toISOString(), source:'hero-vip' });
-            localStorage.setItem('triadNewsletter', JSON.stringify(list));
-          }catch(err){}
-          done(false);
+        .catch((e) => {
+          // WICHTIG: hier KEINEN Erfolg vortaeuschen. Frueher wurde die Adresse
+          // nur lokal im Browser gespeichert und "hat geklappt" angezeigt -
+          // die Anmeldung kam nie an, und niemand hat es gemerkt.
+          note.className = 'hero-vip-note';
+          note.textContent = t(e && e.message === 'limit' ? 'nl_fehler_limit' : 'nl_fehler_server');
         })
         .finally(() => { btn.disabled = false; });
     });
@@ -3452,7 +3462,7 @@ document.addEventListener('DOMContentLoaded', function(){
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ email })
       })
-        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(r => { if(!r.ok) throw new Error(r.status === 429 ? 'limit' : 'server'); return r.json(); })
         .then(data => {
           note.className = 'newsletter-note success';
           if(data && data.doi){
@@ -3462,16 +3472,12 @@ document.addEventListener('DOMContentLoaded', function(){
           }
           form.reset();
         })
-        .catch(() => {
-          // Fallback ohne Server: lokal merken, damit nichts verloren geht
-          try{
-            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
-            list.push({ email, date:new Date().toISOString() });
-            localStorage.setItem('triadNewsletter', JSON.stringify(list));
-          }catch(err){}
-          note.className = 'newsletter-note success';
-          note.textContent = t('nl_ok');
-          form.reset();
+        .catch((e) => {
+          // WICHTIG: hier KEINEN Erfolg vortaeuschen. Frueher wurde die Adresse
+          // nur lokal im Browser gespeichert und "hat geklappt" angezeigt -
+          // die Anmeldung kam nie an, und niemand hat es gemerkt.
+          note.className = 'newsletter-note';
+          note.textContent = t(e && e.message === 'limit' ? 'nl_fehler_limit' : 'nl_fehler_server');
         })
         .finally(() => {
           btn.disabled = false;
@@ -3635,15 +3641,13 @@ document.addEventListener('DOMContentLoaded', function(){
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'popup' })
       })
-        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(r => { if(!r.ok) throw new Error(r.status === 429 ? 'limit' : 'server'); return r.json(); })
         .then(data => finishSuccess(data && data.doi))
-        .catch(() => {
-          try{
-            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
-            list.push({ email, date:new Date().toISOString(), source:'popup' });
-            localStorage.setItem('triadNewsletter', JSON.stringify(list));
-          }catch(err){}
-          finishSuccess(false);
+        .catch((e) => {
+          // WICHTIG: hier KEINEN Erfolg vortaeuschen. Frueher wurde die Adresse
+          // nur lokal im Browser gespeichert und "hat geklappt" angezeigt -
+          // die Anmeldung kam nie an, und niemand hat es gemerkt.
+          if(doiHint) doiHint.textContent = t(e && e.message === 'limit' ? 'nl_fehler_limit' : 'nl_fehler_server');
         })
         .finally(() => { btn.disabled = false; });
     });
@@ -3856,15 +3860,14 @@ document.addEventListener('DOMContentLoaded', function(){
         headers:{ 'Content-Type':'application/json' },
         body: JSON.stringify({ email, herkunft: triadHerkunft(), source:'footer' })
       })
-        .then(r => { if(!r.ok) throw new Error('server'); return r.json(); })
+        .then(r => { if(!r.ok) throw new Error(r.status === 429 ? 'limit' : 'server'); return r.json(); })
         .then(data => done(data && data.doi))
-        .catch(() => {
-          try{
-            const list = JSON.parse(localStorage.getItem('triadNewsletter') || '[]');
-            list.push({ email, date:new Date().toISOString(), source:'footer' });
-            localStorage.setItem('triadNewsletter', JSON.stringify(list));
-          }catch(err){}
-          done(false);
+        .catch((e) => {
+          // WICHTIG: hier KEINEN Erfolg vortaeuschen. Frueher wurde die Adresse
+          // nur lokal im Browser gespeichert und "hat geklappt" angezeigt -
+          // die Anmeldung kam nie an, und niemand hat es gemerkt.
+          note.className = 'foot-nl-note';
+          note.textContent = t(e && e.message === 'limit' ? 'nl_fehler_limit' : 'nl_fehler_server');
         })
         .finally(() => { btn.disabled = false; });
     });
