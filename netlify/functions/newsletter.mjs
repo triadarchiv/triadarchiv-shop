@@ -16,11 +16,15 @@ export default async (req) => {
 
   let email = "";
   let quelle = "";
+  let formular = "";
   try {
     const body = await req.json();
     email = (body.email || "").trim().toLowerCase();
     // Woher kam die Anmeldung (z. B. "flyer")? Nur ein Stichwort, keine Kennung.
     quelle = String(body.herkunft || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40);
+    // Welches Formular auf der Seite (Popup, Fusszeile ...). Muss HIER ausgelesen
+    // werden: "body" lebt nur innerhalb dieses try-Blocks.
+    formular = String(body.source || "").slice(0, 30);
   } catch (e) {
     return new Response(JSON.stringify({ error: "Ungültige Daten" }), { status: 400 });
   }
@@ -50,7 +54,7 @@ export default async (req) => {
   // (1) Roh-Log in Blobs (Admin-Ansicht) – idempotent
   const list = (await store.get("newsletter", { type: "json" })) || [];
   if (!list.some((e) => e.email === email)) {
-    list.push({ email, date: new Date().toISOString(), source: quelle || "direkt", formular: String(body.source || "").slice(0, 30) });
+    list.push({ email, date: new Date().toISOString(), source: quelle || "direkt", formular });
     await store.setJSON("newsletter", list);
   }
 
