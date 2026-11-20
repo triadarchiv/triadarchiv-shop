@@ -1790,11 +1790,49 @@
       try{
         const parsed = JSON.parse(reader.result);
         if(!Array.isArray(parsed)) throw new Error('invalid');
-        if(!confirm(`${parsed.length} Produkte importieren und aktuelle Liste ersetzen?`)) return;
-        products = parsed;
+
+        /* Verkaufsstand vom Server retten.
+           Die Datei vom Rechner weiss nichts von Verkaeufen - dort steht bei
+           jedem Teil weiter "Bestand 1". Wuerde sie die Serverliste einfach
+           ersetzen, stuenden verkaufte Unikate wieder als verfuegbar im Shop
+           und koennten ein zweites Mal gekauft werden.
+           Deshalb: fuer Artikel, die der Server schon kennt, Bestand und
+           Verkauft-Kennzeichen vom Server uebernehmen. Alles andere (Name,
+           Preis, Beschreibung, Bilder) kommt aus der Datei, damit
+           Korrekturen weiterhin ankommen. */
+        const serverListe = fetchServerProducts() || [];
+        const vomServer = new Map();
+        serverListe.forEach(p => { if(p && p.id != null) vomServer.set(String(p.id), p); });
+
+        let verkauftBehalten = 0, neueArtikel = 0;
+        const zusammengefuehrt = parsed.map(p => {
+          const alt = (p && p.id != null) ? vomServer.get(String(p.id)) : null;
+          if(!alt){ neueArtikel++; return p; }
+          const istVerkauft = alt.sold === true || (typeof alt.stock === 'number' && alt.stock <= 0);
+          if(istVerkauft) verkauftBehalten++;
+          return Object.assign({}, p, {
+            stock: (typeof alt.stock === 'number') ? alt.stock : p.stock,
+            sold:  (alt.sold === true) ? true : p.sold
+          });
+        });
+
+        // Artikel, die nur auf dem Server stehen (z. B. direkt dort angelegt),
+        // nicht stillschweigend loeschen.
+        const inDatei = new Set(parsed.map(p => String(p && p.id)));
+        const nurServer = serverListe.filter(p => p && p.id != null && !inDatei.has(String(p.id)));
+
+        let text = `${parsed.length} Produkte aus der Datei übernehmen?`;
+        if(neueArtikel)      text += `\n\n• ${neueArtikel} neu`;
+        if(verkauftBehalten) text += `\n• ${verkauftBehalten} bereits verkauft — bleiben verkauft`;
+        if(nurServer.length) text += `\n• ${nurServer.length} nur auf dem Server — bleiben erhalten`;
+        if(!confirm(text)) return;
+
+        products = zusammengefuehrt.concat(nurServer);
         saveProducts(products);
         renderList();
-        showToast('Import erfolgreich');
+        showToast(verkauftBehalten
+          ? `Import erfolgreich — ${verkauftBehalten} verkaufte Teile geschützt`
+          : 'Import erfolgreich');
       }catch(err){
         showToast('Ungültige JSON-Datei');
       }
