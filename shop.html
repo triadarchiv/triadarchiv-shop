@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRIAD ARCHIV — Vintage &amp; Secondhand adidas</title>
-<meta name="description" content="Kuratiertes adidas-Archiv — Vintage &amp; Secondhand. Erster Drop Mitte November — danach wöchentlich neue Unikate. Handverlesen, geprüft, jedes Teil 1/1.">
+<meta name="description" content="Kuratiertes adidas-Archiv — 100 % Secondhand. Erster Drop am Samstag, 21. November — danach wöchentlich neue Unikate. Handverlesen, geprüft, jedes Teil 1/1.">
 <meta name="theme-color" content="#121110">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
@@ -79,22 +79,30 @@
 
   .hero-copy .eyebrow{ display:block; margin-bottom:var(--s3); }
 
-  .hero-title{
+  /* Die Behauptung ganz oben. Bewusst gross gesetzt: sie ist nach dem
+     Logo das Erste, was jemand liest, und soll sofort klarmachen, worum
+     es hier geht. Der Beweis steht direkt darunter in .hero-beleg. */
+  .hero-claim{
+    max-width:13ch;
+    margin:0;
     font-family:var(--font-display);
-    font-weight:400;
-    font-size:clamp(64px, 15vw, 200px);
-    line-height:0.84;
-    letter-spacing:0.005em;
-    text-transform:uppercase;
+    font-size:clamp(40px, 7vw, 92px);
+    font-weight:700;
+    line-height:1.02;
+    letter-spacing:-.02em;
     color:var(--text);
-    margin-left:-0.045em;           /* Typo bewusst an die Kante gesetzt */
+    text-wrap:balance;
   }
-  @supports (-webkit-text-stroke: 1px #fff){
-    .hero-title .outline{
-      color:transparent;
-      -webkit-text-stroke:1.5px var(--text);
-    }
+  .hero-beleg{
+    max-width:40ch;
+    margin:var(--s3) 0 0;
+    font-family:var(--font-sans);
+    font-size:clamp(14px, 1.5vw, 17px);
+    font-weight:300;
+    line-height:1.7;
+    color:var(--muted);
   }
+  .hero-beleg b{ color:var(--text); font-weight:500; }
 
   .hero-statement{
     max-width:44ch;
@@ -143,10 +151,72 @@
   }
   .ht-tile:hover img{ transform:scale(1.05); filter:none; }
   .hero-teaser-note{ margin:var(--s3) 0 0; font-size:12px; color:var(--muted); }
-  @media(max-width:919px){ .hero-teaser{ display:none; } }
+  /* ---------- Kategorie-Kreise unter der Behauptung ----------
+     Loesen das Laufband ab, sobald Artikel online sind: vier runde Bilder
+     mit Namen darunter, jedes ein Sprung in den gefilterten Bestand.
+     Vor dem Drop laeuft weiter das alte Band mit den Teaserbildern. */
+  .hero-teaser-track.kats{
+    gap:clamp(22px, 2.6vw, 40px);
+    flex-wrap:nowrap;
+    animation-duration:40s;
+  }
+  .hero-teaser-track.kats .hero-teaser-set{ gap:clamp(22px, 2.6vw, 40px); }
+  @keyframes ht-scroll-kats{ from{ transform:translateX(0); } to{ transform:translateX(calc(-50% - clamp(11px, 1.3vw, 20px))); } }
+  .hero-teaser-track.kats{ animation-name:ht-scroll-kats; }
+  .hero-kat{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    background:none;
+    border:0;
+    padding:0;
+    cursor:pointer;
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .hero-kat-bild{
+    position:relative;
+    width:clamp(110px, 10vw, 150px);
+    aspect-ratio:1;
+    border-radius:50%;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:var(--surface);
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .hero-kat-bild img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform .45s ease;
+  }
+  .hero-kat:hover .hero-kat-bild{ border-color:var(--accent); transform:translateY(-2px); }
+  .hero-kat:hover .hero-kat-bild img{ transform:scale(1.07); }
+  .hero-kat:focus-visible .hero-kat-bild{ border-color:var(--accent); }
+  .hero-kat-name{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--text);
+  }
+  /* Vor dem Drop bleibt das Laufband am Handy aus (zu viel Hoehe ueber dem
+     Countdown). Die Kategorie-Kreise dagegen sind kompakt und duerfen bleiben. */
+  @media(max-width:919px){
+    .hero-teaser{ display:none; }
+    .hero-teaser.hat-kats{ display:block; margin-top:var(--s4); }
+    .hero-teaser.hat-kats .hero-teaser-note{ display:none; }
+    .hero-kat-bild{ width:88px; }
+    .hero-kat{ flex:0 0 auto; }
+    .hero-kat-name{ font-size:10px; letter-spacing:.8px; }
+    /* Nach dem Drop: das Drop-/Newsletter-Panel am Handy ausblenden.
+       Die Newsletter-Anmeldung gibt es weiter unten auf der Seite. */
+    body.normalbetrieb .hero-drop{ display:none; }
+  }
 
   /* ---------- Handy: Foto freihalten ----------
-     Auf einer 154px breiten Kachel deckt "Sehr guter Zustand" fast die ganze
+     Auf einer 154px breiten Kachel deckt ein langer Zustand wie "Sehr gut" fast die ganze
      Bildbreite ab und bricht auf zwei Zeilen, darunter liegt noch der
      Unikat-Hinweis. Am Handy bleibt deshalb nur ein Sale-Hinweis auf dem Foto;
      der Zustand wandert in die Zeile unter das Bild, wo Platz ist. */
@@ -616,7 +686,7 @@
   }
   .collection-back:hover{ color:var(--text); }
   .collection-hero .eyebrow{ display:block; margin-bottom:var(--s2); }
-  .collection-hero h1{
+  .collection-hero h2{
     font-family:var(--font-display);
     font-weight:400;
     font-size:clamp(40px, 8vw, 96px);
@@ -1236,16 +1306,39 @@
     border-left:1px solid var(--line);
   }
   .trust-item:first-child{ border-left:none; }
+  .trust-item .t-kurz{ display:none; }   /* Kurzfassung nur am Handy */
   .trust-item svg{ width:13px; height:13px; flex:0 0 auto; color:var(--faint); }
   @media(max-width:720px){
-    /* Auf dem Handy als ruhig durchlaufendes Band — kein Umbruch-Chaos */
+    /* Am Handy alles auf einen Blick, ohne viel Hoehe zu fressen:
+       eine fortlaufende Zeile, die umbricht, mit Mittelpunkt als Trenner.
+       Die Zeichen fallen weg - sie kosten pro Punkt rund 20 Pixel Breite
+       und tragen hier nichts bei. */
     .trustbar-inner{
-      flex-wrap:nowrap;
-      overflow-x:auto;
-      scrollbar-width:none;
+      flex-wrap:wrap;
+      justify-content:center;
+      align-items:baseline;
+      overflow:visible;
+      padding-block:8px;
+      column-gap:0;
+      row-gap:2px;
     }
-    .trustbar-inner::-webkit-scrollbar{ display:none; }
-    .trust-item{ flex:0 0 auto; padding:10px 16px; font-size:9px; letter-spacing:1.5px; }
+    .trust-item{
+      flex:0 0 auto;
+      padding:2px 0;
+      font-size:8.5px;
+      letter-spacing:.9px;
+      white-space:nowrap;
+      border-left:none;
+    }
+    .trust-item svg{ display:none; }
+    .trust-item .t-lang{ display:none; }
+    .trust-item .t-kurz{ display:inline; }
+    .trust-item::after{
+      content:'·';
+      margin:0 8px;
+      color:var(--faint);
+    }
+    .trust-item:last-child::after{ content:none; }
   }
 
   /* ---------- Hero: VIP-Zugang (E-Mail-Capture direkt im Panel) ---------- */
@@ -1998,12 +2091,16 @@ window.LANG = (function(){ try{ return localStorage.getItem('triadLang') === 'en
 const I18N = {
   de: {
     nav_cart:'Warenkorb', search_ph:'Archiv durchsuchen', search_aria:'Produkte durchsuchen',
-    trust1:'100% Original-adidas', trust2:'Handverlesen & geprüft', trust3:'Versand aus Deutschland', trust4:'Jedes Teil ein Unikat · 1/1',
+    trust0:'100&nbsp;% Secondhand', trust1:'100&nbsp;% Original-adidas',
+    trust0_kurz:'100&nbsp;% Secondhand', trust1_kurz:'Original adidas', trust2_kurz:'Geprüft', trust3_kurz:'Versand aus DE', trust4_kurz:'Unikat 1/1', trust2:'Handverlesen & geprüft', trust3:'Versand aus Deutschland', trust4:'Jedes Teil ein Unikat · 1/1',
     hero_eyebrow:'Kuratiertes adidas-Archiv — Deutschland',
     hero_statement:'Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b>',
+    hero_claim:'Gebraucht. Geprüft. Deins.',
+    hero_beleg:'Von mir geprüft, in cm gemessen und einzeln fotografiert. <b>Jedes Teil 1 von 1.</b>',
     teaser_label:'Ein Vorgeschmack auf den ersten Drop', teaser_note:'Alle Stücke gehen am Drop-Tag gleichzeitig online.',
+    teaser_label_live:'Gerade im Archiv', teaser_note_live:'Jedes Teil gibt es nur einmal &ndash; weg ist weg.',
     drop_kicker:'Archiv im Aufbau', drop_kicker_normal:'Neuer Drop · Jede Woche',
-    drop_headline_prefix:'Erster Drop', drop_termin:'Mitte November', drop_headline_normal:'Jede Woche<br>neue Unikate',
+    drop_headline_prefix:'Erster Drop', drop_termin:'Samstag, 21. November', drop_headline_normal:'Jede Woche<br>neue Unikate',
     drop_sub:'Melde dich kostenlos für den Newsletter an und sieh jeden Drop zuerst — bevor die Unikate öffentlich online gehen.',
     drop_sub_normal:'Frisch kuratiert · streng limitiert · kein Restock.',
     cd_days:'Tage', cd_hours:'Std', cd_mins:'Min', cd_secs:'Sek', cd_done:'Der erste Drop ist da',
@@ -2018,10 +2115,10 @@ const I18N = {
     vip_ok:'Eingetragen — du erfährst jeden Drop jetzt <b>zuerst</b>. Kostenlos, jederzeit abbestellbar.',
     bestand_h2:'Aktueller Bestand', bestand_eyebrow:'Bereits verfügbar · Sofort bestellbar',
     cat_all:'Alle', cat_jacken:'Jacken', cat_hosen:'Hosen', cat_shorts:'Shorts', cat_oberteile:'Oberteile',
-    sh1:'100 % Secondhand', sh2:'Jedes Teil nur 1× verfügbar', sh3:'Mängel offen angegeben', sh4:'Maße zu jedem Teil',
+    sh3:'Mängel offen angegeben', sh4:'Maße zu jedem Teil', sh5:'14 Tage Rückgaberecht',
     rc_products:'Produkte', sort_new:'Gemischt', sort_pa:'Preis · aufsteigend', sort_pd:'Preis · absteigend', sort_name:'Name · A–Z', sort_aria:'Sortierung', filter_btn:'Filter',
     fp_status:'Status', fp_size:'Größe', fp_price:'Preis', avail_all:'Alle', avail_in:'Verfügbar', avail_out:'Archiviert', price_aria:'Maximalpreis', reset:'Zurücksetzen',
-    cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben — von <b>Neu mit Etikett</b> bis <b>Vintage/Gebraucht</b> — und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
+    cond_h2:'Zustand & Transparenz', cond_p:'Jedes Stück ist einzeln beschrieben &ndash; von <b>Neu mit Etikett</b> bis <b>Gut</b> &ndash; und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert. Du siehst genau, was du kaufst.',
     cond_p2:'Und ganz ehrlich: das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich, ich prüfe und fotografiere alles selbst — aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Wenn dir etwas auffällt, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung. Dein <b>14-tägiges Widerrufsrecht</b> und die gesetzliche Gewährleistung gelten selbstverständlich ganz normal.',
     warum_eyebrow:'Warum Triad Archiv', warum_h2:'Worauf du dich<br>verlassen kannst',
     assure1_val:'Geprüfte Originalware', assure1_sub:'Jedes Teil wird einzeln in die Hand genommen und auf Echtheit geprüft. Keine Fälschungen, keine Massenware.',
@@ -2037,7 +2134,7 @@ const I18N = {
     faq_q1:'Sind die Teile wirklich original?',
     faq_a1:'Ja. Jedes Stück ist <b>originale adidas-Ware</b> — handverlesen und einzeln auf Echtheit geprüft, bevor es ins Archiv kommt. Manche Teile sind ältere Modelle, andere neuere — was du genau bekommst, steht bei jedem Artikel in der Beschreibung. Keine Fälschungen, keine Massenware, keine Reproduktionen. Woran wir Echtheit erkennen: Verarbeitung, Nähte, Labels und Trefoil-Details.',
     faq_q2:'Was bedeuten die Zustandsangaben?',
-    faq_a2:'Wir geben den Zustand ehrlich pro Teil an: <b>Neu mit Etikett</b> (ungetragenes Deadstock), <b>Neu ohne Etikett</b>, <b>Sehr guter Zustand</b> und so weiter. Jedes Stück ist einzeln beschrieben, und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert — du siehst genau, was du bekommst. Und ganz ehrlich: Das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich — ich prüfe und fotografiere alles selbst, aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Fällt dir etwas auf, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung.',
+    faq_a2:'Vier Stufen, mehr gibt es nicht. <b>Neu mit Etikett</b> &ndash; ungetragen, das Originaletikett hängt noch dran. <b>Neu</b> &ndash; ungetragen, aber ohne Etikett. <b>Sehr gut</b> &ndash; von mir geprüft und in Top-Zustand. Auch hier kann ein Teil leichte Gebrauchsspuren haben: es ist und bleibt Secondhand, jedes Stück hat schon ein Leben hinter sich. <b>Gut</b> &ndash; hat sichtbare Gebrauchsspuren. Was man sieht, steht in der Beschreibung und ist auf den Produktfotos zu sehen. Ich prüfe und fotografiere alles selbst, aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Fällt dir etwas auf, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung.',
     faq_q3:'Wie finde ich meine Größe?',
     faq_a3:'Vintage-Größen fallen oft anders aus als heutige. Deshalb findest du bei jedem Teil die <b>flach gemessenen Maße in cm</b> (z. B. Brust, Schulter, Länge, Bund). Miss am besten ein gut sitzendes Teil von dir aus und vergleiche — das ist zuverlässiger als das eingenähte Etikett.',
     faq_q4:'Wie läuft der Versand?',
@@ -2066,12 +2163,16 @@ const I18N = {
   },
   en: {
     nav_cart:'Cart', search_ph:'Search the archive', search_aria:'Search products',
-    trust1:'100% original adidas', trust2:'Handpicked & checked', trust3:'Ships from Germany', trust4:'Every piece unique · 1/1',
+    trust0:'100&nbsp;% second hand', trust1:'100&nbsp;% original adidas',
+    trust0_kurz:'100&nbsp;% second hand', trust1_kurz:'Original adidas', trust2_kurz:'Checked', trust3_kurz:'Ships from DE', trust4_kurz:'Unique 1/1', trust2:'Handpicked & checked', trust3:'Ships from Germany', trust4:'Every piece unique · 1/1',
     hero_eyebrow:'Curated adidas archive — Germany',
     hero_statement:'Handpicked one-of-a-kind pieces from three decades of adidas. <b>Every piece is unique.</b>',
+    hero_claim:'Used. Checked. Yours.',
+    hero_beleg:'Checked by me, measured in cm and photographed individually. <b>Every piece 1 of 1.</b>',
     teaser_label:'A first look at the opening drop', teaser_note:'Every piece goes live at the same moment on drop day.',
+    teaser_label_live:'Currently in the archive', teaser_note_live:'Every piece exists once &ndash; once it is gone, it is gone.',
     drop_kicker:'Archive in the making', drop_kicker_normal:'New drop · every week',
-    drop_headline_prefix:'First drop', drop_termin:'mid-November', drop_headline_normal:'New pieces<br>every week',
+    drop_headline_prefix:'First drop', drop_termin:'Saturday, 21 November', drop_headline_normal:'New pieces<br>every week',
     drop_sub:'Sign up for the free newsletter and see every drop first — before the pieces go public online.',
     drop_sub_normal:'Freshly curated · strictly limited · no restock.',
     cd_days:'Days', cd_hours:'Hrs', cd_mins:'Min', cd_secs:'Sec', cd_done:'The first drop is live',
@@ -2086,10 +2187,10 @@ const I18N = {
     vip_ok:'You’re in — you’ll now hear about every drop <b>first</b>. Free, unsubscribe anytime.',
     bestand_h2:'In stock now', bestand_eyebrow:'Available now · ready to order',
     cat_all:'All', cat_jacken:'Jackets', cat_hosen:'Trousers', cat_shorts:'Shorts', cat_oberteile:'Tops',
-    sh1:'100 % second hand', sh2:'Every piece only once', sh3:'Flaws stated openly', sh4:'Measurements on every piece',
+    sh3:'Flaws stated openly', sh4:'Measurements on every piece', sh5:'14-day right of return',
     rc_products:'Products', sort_new:'Mixed', sort_pa:'Price · low to high', sort_pd:'Price · high to low', sort_name:'Name · A–Z', sort_aria:'Sort', filter_btn:'Filters',
     fp_status:'Status', fp_size:'Size', fp_price:'Price', avail_all:'All', avail_in:'Available', avail_out:'Archived', price_aria:'Max price', reset:'Reset',
-    cond_h2:'Condition & transparency', cond_p:'Every piece is described individually — from <b>new with tags</b> to <b>vintage/used</b> — and all visible wear is documented in the product photos. You see exactly what you’re buying.',
+    cond_h2:'Condition & transparency', cond_p:'Every piece is described individually &ndash; from <b>new with tags</b> to <b>good</b> &ndash; and all visible wear is documented in the product photos. You see exactly what you are buying.',
     cond_p2:'And to be straight with you: this is second hand. Every piece has had a life before, I check and photograph everything myself — but I’m human and a small spot can slip past me. If you spot something that isn’t in the description, just write to me and we’ll sort it out. Your <b>14-day right of withdrawal</b> and the statutory warranty apply as normal, of course.',
     warum_eyebrow:'Why Triad Archiv', warum_h2:'What you<br>can rely on',
     assure1_val:'Verified authentic goods', assure1_sub:'Every piece is inspected by hand and checked for authenticity. No fakes, no mass production.',
@@ -2105,7 +2206,7 @@ const I18N = {
     faq_q1:'Are the pieces really authentic?',
     faq_a1:'Yes. Every piece is <b>original adidas</b> — handpicked and individually checked for authenticity before it enters the archive. Some pieces are older models, others more recent — each listing says exactly what it is. No fakes, no mass production, no reproductions. What we check: construction, stitching, labels and Trefoil details.',
     faq_q2:'What do the condition labels mean?',
-    faq_a2:'We state the condition honestly per item: <b>New with tags</b> (unworn deadstock), <b>New without tags</b>, <b>Very good condition</b> and so on. Every piece is described individually, and all visible wear is documented in the product photos — you see exactly what you get. And to be straight with you: this is second hand. Every piece has had a life before — I check and photograph everything myself, but I’m human and a small spot can slip past me. If you spot something that isn’t in the description, just write to me and we’ll sort it out.',
+    faq_a2:'Four levels, that is all. <b>New with tags</b> &ndash; unworn, original tag still attached. <b>New</b> &ndash; unworn, but without the tag. <b>Very good</b> &ndash; checked by me and in top condition. Even here a piece can show light wear: this is second hand, every piece has had a life before. <b>Good</b> &ndash; has visible wear. Whatever is there is written in the description and visible in the product photos. I check and photograph everything myself, but I am human and a small spot can slip past me. If you spot something that is not in the description, just write to me and we will sort it out.',
     faq_q3:'How do I find my size?',
     faq_a3:'Vintage sizing often differs from today’s. That’s why each item lists the <b>flat measurements in cm</b> (e.g. chest, shoulder, length, waist). It’s best to measure a garment that fits you well and compare — that’s more reliable than the sewn-in label.',
     faq_q4:'How does shipping work?',
@@ -2187,20 +2288,24 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="trustbar" aria-label="Warum TRIAD ARCHIV">
   <div class="trustbar-inner container">
     <span class="trust-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a8 8 0 0 1 13.7-5.7L20 8"/><path d="M20 4v4h-4"/><path d="M21 13a8 8 0 0 1-13.7 5.7L4 16"/><path d="M4 20v-4h4"/></svg>
+      <span class="t-lang" data-i18n="trust0">100&nbsp;% Secondhand</span><span class="t-kurz" data-i18n="trust0_kurz">100&nbsp;% Secondhand</span>
+    </span>
+    <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
-      <span data-i18n="trust1">100% Original-adidas</span>
+      <span class="t-lang" data-i18n="trust1">100&nbsp;% Original-adidas</span><span class="t-kurz" data-i18n="trust1_kurz">Original adidas</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/></svg>
-      <span data-i18n="trust2">Handverlesen &amp; geprüft</span>
+      <span class="t-lang" data-i18n="trust2">Handverlesen &amp; geprüft</span><span class="t-kurz" data-i18n="trust2_kurz">Geprüft</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>
-      <span data-i18n="trust3">Versand aus Deutschland</span>
+      <span class="t-lang" data-i18n="trust3">Versand aus Deutschland</span><span class="t-kurz" data-i18n="trust3_kurz">Versand aus DE</span>
     </span>
     <span class="trust-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M6 7l12 10M18 7L6 17"/></svg>
-      <span data-i18n="trust4">Jedes Teil ein Unikat · 1/1</span>
+      <span class="t-lang" data-i18n="trust4">Jedes Teil ein Unikat · 1/1</span><span class="t-kurz" data-i18n="trust4_kurz">Unikat 1/1</span>
     </span>
   </div>
 </div>
@@ -2209,17 +2314,17 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="hero-inner container">
     <div class="hero-copy">
       <p class="eyebrow" data-i18n="hero_eyebrow">Kuratiertes adidas-Archiv — Deutschland</p>
-      <h1 class="hero-title">Triad<br><span class="outline">Archiv</span></h1>
-      <p class="hero-statement" data-i18n="hero_statement">Handverlesene Unikate aus drei Jahrzehnten adidas. <b>Jedes Teil ein Einzelstück.</b></p>
+      <h1 class="hero-claim" data-i18n="hero_claim">Gebraucht. Geprüft. Deins.</h1>
+      <p class="hero-beleg" data-i18n="hero_beleg">Von mir geprüft, in cm gemessen und einzeln fotografiert. <b>Jedes Teil 1 von 1.</b></p>
       <div class="hero-teaser" id="heroTeaser" hidden>
         <p class="hero-teaser-label" data-i18n="teaser_label">Ein Vorgeschmack auf den ersten Drop</p>
         <div class="hero-teaser-track-wrap"><div class="hero-teaser-track" id="heroTeaserGrid"></div></div>
         <p class="hero-teaser-note" data-i18n="teaser_note">Alle Stücke gehen am Drop-Tag gleichzeitig online.</p>
       </div>
     </div>
-    <aside class="hero-drop" aria-label="Erster Drop Mitte November">
+    <aside class="hero-drop" aria-label="Erster Drop am Samstag, 21. November">
       <span class="hero-drop-kicker" id="heroDropKicker"><span class="pulse" aria-hidden="true"></span><span data-i18n="drop_kicker">Archiv im Aufbau</span></span>
-      <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Mitte November</p>
+      <p class="hero-drop-headline" id="heroDropHeadline">Erster Drop<br>Samstag, 21. November</p>
       <div class="hero-countdown" id="heroCountdown" role="timer" aria-label="Countdown bis zum ersten Drop" hidden>
         <div class="cd-unit"><span class="cd-num" id="cdDays">00</span><span class="cd-lab" data-i18n="cd_days">Tage</span></div>
         <div class="cd-unit"><span class="cd-num" id="cdHours">00</span><span class="cd-lab" data-i18n="cd_hours">Std</span></div>
@@ -2253,10 +2358,9 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- Secondhand-Leiste: macht direkt unter dem Hero klar, was fuer ein Laden das ist -->
 <section class="sh-strip" aria-label="Secondhand-Versprechen">
   <div class="sh-strip-inner">
-    <span class="sh-item" data-i18n="sh1">100 % Secondhand</span>
-    <span class="sh-item" data-i18n="sh2">Jedes Teil nur 1&times; verf&uuml;gbar</span>
     <span class="sh-item" data-i18n="sh3">M&auml;ngel offen angegeben</span>
     <span class="sh-item" data-i18n="sh4">Ma&szlig;e zu jedem Teil</span>
+    <span class="sh-item" data-i18n="sh5">14 Tage R&uuml;ckgaberecht</span>
   </div>
 </section>
 
@@ -2296,11 +2400,19 @@ document.addEventListener('DOMContentLoaded', function(){
 
      Sobald die wöchentlichen Drops regelmäßig laufen: einfach auf false setzen.
      Den Termin nur an EINER Stelle pflegen: AUFBAU_DROP_TERMIN + DROP_DATE_ISO. */
-  const AUFBAU_MODUS = true;
-  const AUFBAU_DROP_TERMIN = 'Mitte November';
-  // Zieltermin des Countdowns. Format: Jahr-Monat-Tag'T'Stunde:Minute + Zeitzone.
-  // +01:00 = deutsche Winterzeit (MEZ, ab Ende Okt.). Im Sommer wäre es +02:00. Uhrzeit hier bei Bedarf anpassen.
+  // Zieltermin des Drops. Format: Jahr-Monat-Tag'T'Stunde:Minute + Zeitzone.
+  // +01:00 = deutsche Winterzeit (MEZ, ab Ende Okt.). Im Sommer waere es +02:00.
   const DROP_DATE_ISO = '2026-11-21T19:00:00+01:00';
+
+  /* ---------- Zeitschalter ----------
+     Vor dem Termin zeigt die Seite Countdown und Anmeldung, die Artikel
+     bleiben aus. Ab dem Termin erscheinen sie von selbst - es muss niemand
+     am Rechner sitzen und etwas umstellen.
+     Nach dem ersten Drop kann DROP_OFFEN einfach fest auf true gesetzt
+     werden, dann ist der Shop dauerhaft im Normalbetrieb. */
+  const DROP_OFFEN = Date.now() >= new Date(DROP_DATE_ISO).getTime();
+  const AUFBAU_MODUS = !DROP_OFFEN;
+  const AUFBAU_DROP_TERMIN = 'Samstag, 21. November';
 
   (function(){
     if(AUFBAU_MODUS){
@@ -2310,12 +2422,14 @@ document.addEventListener('DOMContentLoaded', function(){
       return;
     }
     // Normalbetrieb: Hero auf den Wochen-Rhythmus umstellen.
+    document.body.classList.add('normalbetrieb');
     var kicker   = document.getElementById('heroDropKicker');
     var headline = document.getElementById('heroDropHeadline');
     var sub      = document.getElementById('heroDropSub');
     if(kicker)   kicker.innerHTML = '<span class="pulse" aria-hidden="true"></span>' + t('drop_kicker_normal');
     if(headline) headline.innerHTML = t('drop_headline_normal');
     if(sub)      sub.textContent = t('drop_sub_normal');
+
   })();
 
   /* ---------- Countdown bis zum ersten Drop ----------
@@ -2340,6 +2454,10 @@ document.addEventListener('DOMContentLoaded', function(){
       if(diff <= 0){
         cd.innerHTML = '<span class="cd-done"><span class="pulse" aria-hidden="true"></span>' + t('cd_done') + '</span>';
         if(timer) clearInterval(timer);
+        /* Wer zur Drop-Zeit auf der Seite wartet, soll die Artikel sehen,
+           ohne selbst neu zu laden. Kurze Verzoegerung, damit nicht alle
+           Besucher in derselben Sekunde neu laden. */
+        setTimeout(function(){ location.reload(); }, 1500 + Math.random() * 3000);
         return;
       }
       var s = Math.floor(diff / 1000);
@@ -2441,7 +2559,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <section class="collection-hero" id="collectionHero" hidden>
     <a class="collection-back" id="collectionBack" href="#">← Zurück zum Archiv</a>
     <span class="eyebrow">Ausgewählte Kollektion</span>
-    <h1>Designer<br>stücke</h1>
+    <h2>Designer<br>stücke</h2>
     <p class="collection-sub"><span id="collectionCount">0</span> · handverlesen</p>
   </section>
 
@@ -2581,7 +2699,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="faq-icon" aria-hidden="true"></span>
       </button>
       <div class="faq-a"><div class="faq-a-inner" data-i18n="faq_a2">
-        Wir geben den Zustand ehrlich pro Teil an: <b>Neu mit Etikett</b> (ungetragenes Deadstock), <b>Neu ohne Etikett</b>, <b>Sehr guter Zustand</b> und so weiter. Jedes Stück ist einzeln beschrieben, und alle sichtbaren Gebrauchsspuren sind in den Produktfotos dokumentiert — du siehst genau, was du bekommst. Und ganz ehrlich: Das hier ist Secondhand. Jedes Teil hat schon ein Leben hinter sich — ich prüfe und fotografiere alles selbst, aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Fällt dir etwas auf, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung.
+        Vier Stufen, mehr gibt es nicht. <b>Neu mit Etikett</b> &ndash; ungetragen, das Originaletikett hängt noch dran. <b>Neu</b> &ndash; ungetragen, aber ohne Etikett. <b>Sehr gut</b> &ndash; von mir geprüft und in Top-Zustand. Auch hier kann ein Teil leichte Gebrauchsspuren haben: es ist und bleibt Secondhand, jedes Stück hat schon ein Leben hinter sich. <b>Gut</b> &ndash; hat sichtbare Gebrauchsspuren. Was man sieht, steht in der Beschreibung und ist auf den Produktfotos zu sehen. Ich prüfe und fotografiere alles selbst, aber ich bin ein Mensch und kann eine kleine Stelle übersehen. Fällt dir etwas auf, das nicht in der Beschreibung steht, schreib mir einfach. Dann finden wir eine Lösung.
       </div></div>
     </div>
     <div class="faq-item">
@@ -2768,7 +2886,9 @@ document.addEventListener('DOMContentLoaded', function(){
   /* Einmal laden, überall nutzen (Grid, Hero-Stück, Kollektions-Band).
      Entwürfe (published === false) werden hier ausgeblendet – sie liegen zwar
      auf dem Server, sollen im Shop aber erst nach „Alle veröffentlichen“ erscheinen. */
-  const PRODUCTS_DATA = loadProductData().filter(p => p.published !== false);
+  const PRODUCTS_DATA = DROP_OFFEN
+    ? loadProductData().filter(p => p.published !== false)
+    : [];   // vor dem Drop bleibt der Bestand leer
 
   /* Startphase-Schalter fuer die Handy-Ansicht (CSS: body.aufbau weiter oben).
      Bewusst an die Artikelzahl gekoppelt und nicht nur an AUFBAU_MODUS: sobald
@@ -2924,6 +3044,68 @@ document.addEventListener('DOMContentLoaded', function(){
     // veroeffentlicht sind, nimmt es automatisch deren echte Bilder.
     var TEASER_FALLBACK = ['teaser/t1.jpg','teaser/t2.jpg','teaser/t3.jpg','teaser/t4.jpg',
                            'teaser/t5.jpg','teaser/t6.jpg','teaser/t7.jpg','teaser/t8.jpg'];
+    /* Sobald echte Artikel da sind: vier runde Kategorien statt des Laufbands.
+       Ein Klick springt in den Bestand und setzt dort den passenden Filter -
+       dieselben Knoepfe, die auch ueber dem Raster stehen. */
+    var KAT_REIHE = ['jacken','hosen','shorts','oberteile'];
+    var proKat = {};
+    groupProducts(PRODUCTS_DATA).forEach(function(v){
+      var q = v.find(function(x){ return !isSoldOut(x); }) || v[0];
+      if(!q) return;
+      var k = (Array.isArray(q.cats) && q.cats[0]) || '';
+      if(!k) return;
+      if(!proKat[k]) proKat[k] = { anzahl:0, bild:null };
+      proKat[k].anzahl++;
+      if(!proKat[k].bild && q.image) proKat[k].bild = q.image;
+    });
+    var kats = KAT_REIHE.filter(function(k){ return proKat[k] && proKat[k].bild; });
+
+    if(kats.length >= 2){
+      grid.classList.add('kats');
+      box.classList.add('hat-kats');
+      // Ueberschrift folgt dem Inhalt: stehen hier Kategorien, ist es kein
+      // "Vorgeschmack auf den ersten Drop" mehr, sondern der Bestand.
+      // Umgestellt wird data-i18n, damit der Sprachwechsel weiter greift.
+      var tLabel = box.querySelector('.hero-teaser-label');
+      var tNote  = box.querySelector('.hero-teaser-note');
+      if(tLabel){ tLabel.setAttribute('data-i18n','teaser_label_live'); tLabel.innerHTML = t('teaser_label_live'); }
+      if(tNote){  tNote.setAttribute('data-i18n','teaser_note_live');   tNote.innerHTML  = t('teaser_note_live'); }
+      /* Laufband aus Kategorie-Kreisen: je Kategorie bis zu 4 echte Artikelbilder,
+         abwechselnd (Jacke, Hose, Oberteil, Jacke ...). Zwei identische Saetze
+         hintereinander, damit die Schleife nahtlos laeuft. */
+      var bilderProKat = {};
+      groupProducts(PRODUCTS_DATA).forEach(function(v){
+        var q = v.find(function(x){ return !isSoldOut(x); });
+        if(!q || !q.image) return;
+        var k = (Array.isArray(q.cats) && q.cats[0]) || '';
+        if(kats.indexOf(k) < 0) return;
+        (bilderProKat[k] = bilderProKat[k] || []);
+        if(bilderProKat[k].length < 4) bilderProKat[k].push(q.image);
+      });
+      var folge = [];
+      for(var r = 0; r < 4; r++){
+        kats.forEach(function(k){ var b = bilderProKat[k] || []; if(b[r]) folge.push({ k:k, bild:b[r] }); });
+      }
+      var satz = folge.map(function(e){
+        return '<button type="button" class="hero-kat" data-kat="' + e.k + '">' +
+                 '<span class="hero-kat-bild"><img src="' + escapeHtml(e.bild) + '" alt="" loading="lazy"></span>' +
+                 '<span class="hero-kat-name">' + escapeHtml(t('cat_' + e.k)) + '</span>' +
+               '</button>';
+      }).join('');
+      grid.innerHTML = '<div class="hero-teaser-set">' + satz + '</div>' +
+                       '<div class="hero-teaser-set" aria-hidden="true">' + satz + '</div>';
+      grid.querySelectorAll('.hero-kat').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var ziel = document.querySelector('.filter-btn[data-filter="' + btn.dataset.kat + '"]');
+          if(ziel) ziel.click();
+          var bestand = document.getElementById('bestand');
+          if(bestand) window.scrollTo({ top: bestand.getBoundingClientRect().top + window.scrollY, behavior:'smooth' });
+        });
+      });
+      box.hidden = false;
+      return;
+    }
+
     var pics = groupProducts(PRODUCTS_DATA)
       .map(function(v){ return v.find(function(x){ return !isSoldOut(x); }) || v[0]; })
       .filter(function(p){ return p && p.image; })

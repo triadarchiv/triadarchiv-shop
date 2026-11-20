@@ -384,6 +384,14 @@
     text-transform:uppercase; color:var(--faint);
   }
   .mass-rows{ margin:0; }
+  /* Bei Sets stehen Jacke und Hose getrennt untereinander. */
+  .mass-gruppe + .mass-gruppe{ margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+  .mass-gruppe-titel{
+    margin:0 0 4px;
+    font-family:var(--font-mono);
+    font-size:10px; font-weight:500; letter-spacing:1.6px;
+    text-transform:uppercase; color:var(--text);
+  }
   .mass-row{
     display:flex; justify-content:space-between; align-items:baseline; gap:16px;
     padding:8px 0; border-bottom:1px solid var(--line);
@@ -869,29 +877,79 @@
 
     // Maße stehen direkt unter der Größenwahl, nicht weiter unten zwischen den
     // Archiv-Zeilen: wer eine Größe anklickt, sieht sofort die passenden Zahlen.
-    function buildMasseHtml(v){
-      const m = (v && v.measurements) || {};
-      const cm = x => String(x).replace('.', ',') + ' cm';
-      const masse = [];
-      if(m.chest) masse.push({ label:'Brust · Achsel zu Achsel', text:cm(m.chest) });
-      if(m.shoulderLength) masse.push({ label:'Länge · Schulter bis Saum', text:cm(m.shoulderLength) });
-      if(m.waist) masse.push({ label:'Bund · flach, ungedehnt', text:cm(m.waist) });
-      if(m.inseam) masse.push({ label:'Innenbeinlänge', text:cm(m.inseam) });
-      if(m.pantsLength) masse.push({ label:'Gesamtlänge · Bund bis Saum', text:cm(m.pantsLength) });
-      if(!masse.length) return '';
+    /* Die vollstaendigen Masse stehen im Beschreibungstext unter
+       "Masse, flach gemessen:". Der Kasten ueber dem Kaufen-Knopf zeigte
+       bisher nur die zwei bis drei Werte aus den Datenfeldern - bei einem
+       Set also nur die Jacke, ohne Aermel und ohne Hose. Deshalb wird der
+       Kasten jetzt aus genau dem Textblock gebaut, den du schreibst.
+       Faellt das Lesen aus, greifen die alten Datenfelder als Rueckfall. */
+    function masseAusText(desc){
+      if(!desc) return null;
+      const t = String(desc).match(/Ma(?:ß|ss)e,\s*flach gemessen:?\s*\n([\s\S]*?)(?:\n\s*\n|$)/i);
+      if(!t) return null;
+      const gruppen = [];
+      t[1].split('\n').map(z => z.trim()).filter(Boolean).forEach(zeile => {
+        let titel = '', rest = zeile;
+        const g = zeile.match(/^([A-Za-zÄÖÜäöüß]+)\s+[–-]\s+(.*)$/);
+        if(g){ titel = g[1]; rest = g[2]; }
+        const paare = [];
+        rest.split('·').map(x => x.trim()).filter(Boolean).forEach(stueck => {
+          const i = stueck.lastIndexOf(':');
+          if(i < 0) return;
+          const label = stueck.slice(0, i).trim();
+          const wert  = stueck.slice(i + 1).trim();
+          if(label && wert) paare.push({ label, wert });
+        });
+        if(!paare.length) return;
+        let ziel = gruppen.find(x => x.titel === titel);
+        if(!ziel){ ziel = { titel, zeilen: [] }; gruppen.push(ziel); }
+        ziel.zeilen.push.apply(ziel.zeilen, paare);
+      });
+      return gruppen.length ? gruppen : null;
+    }
+
+    function buildMasseHtml(v, beschreibung){
+      let gruppen = masseAusText(beschreibung);
+
+      if(!gruppen){
+        // Rueckfall: die alten Datenfelder
+        const m = (v && v.measurements) || {};
+        const cm = x => String(x).replace('.', ',') + ' cm';
+        const zeilen = [];
+        if(m.chest) zeilen.push({ label:'Brust (Achsel zu Achsel)', wert:cm(m.chest) });
+        if(m.shoulderLength) zeilen.push({ label:'Länge (Schulter bis Saum)', wert:cm(m.shoulderLength) });
+        if(m.waist) zeilen.push({ label:'Bund (flach, ungedehnt)', wert:cm(m.waist) });
+        if(m.inseam) zeilen.push({ label:'Innenbeinlänge', wert:cm(m.inseam) });
+        if(m.pantsLength) zeilen.push({ label:'Gesamtlänge (Bund bis Saum)', wert:cm(m.pantsLength) });
+        if(!zeilen.length) return '';
+        gruppen = [{ titel:'', zeilen }];
+      }
+
+      const inhalt = gruppen.map(gr => `
+            <div class="mass-gruppe">
+              ${gr.titel ? `<p class="mass-gruppe-titel">${escapeHtml(gr.titel)}</p>` : ''}
+              ${gr.zeilen.map(x => `
+              <div class="mass-row"><dt>${escapeHtml(x.label)}</dt><dd>${escapeHtml(x.wert)}</dd></div>`).join('')}
+            </div>`).join('');
+
       return `
         <div class="detail-masse">
           <p class="masse-title">Maße · flach gemessen</p>
-          <dl class="mass-rows">${masse.map(x => `
-            <div class="mass-row"><dt>${x.label}</dt><dd>${x.text}</dd></div>`).join('')}</dl>
+          <dl class="mass-rows">${inhalt}</dl>
         </div>`;
     }
 
     // Die Beschreibung ist mit Absaetzen und Zeilenumbruechen geschrieben.
     // Vorher landete alles in EINEM <p>, dadurch verschmolz der Text zu einem
     // Block und Zustand, Maße und Material gingen darin unter.
-    const storyHtml = rep.desc
-      ? `<div class="detail-story">${String(rep.desc)
+    // Der Masse-Block steht jetzt oben im Kasten - hier wuerde er ein
+    // zweites Mal erscheinen.
+    const descOhneMasse = String(rep.desc || '')
+      .replace(/\n?Ma(?:ß|ss)e,\s*flach gemessen:?\s*\n[\s\S]*?(?=\n\s*\n|$)/i, '')
+      .trim();
+
+    const storyHtml = descOhneMasse
+      ? `<div class="detail-story">${String(descOhneMasse)
           .split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
           .map(b => `<p>${escapeHtml(b).replace(/\n/g, '<br>')}</p>`).join('')}</div>`
       : '';
@@ -972,7 +1030,7 @@
             <div class="detail-price">${priceHtml}</div>
             ${sizeSelectorHtml}
             <div id="stockLineSlot">${stockLineHtml}</div>
-            <div id="masseSlot">${buildMasseHtml(active)}</div>
+            <div id="masseSlot">${buildMasseHtml(active, rep.desc)}</div>
             <div id="qtySlot">${qtySelectorHtml}</div>
             <button class="add-btn" id="addBtn"${soldOut ? ' disabled' : ''}>${soldOut ? 'Verkauft' : 'In den Warenkorb'}</button>
             ${soldOut ? '' : `<div class="paypal-quickbuy">
@@ -1162,7 +1220,7 @@
         const specSlot = document.getElementById('specSlot');
         if(specSlot) specSlot.innerHTML = buildSpecsHtml(active);
         const masseSlot = document.getElementById('masseSlot');
-        if(masseSlot) masseSlot.innerHTML = buildMasseHtml(active);
+        if(masseSlot) masseSlot.innerHTML = buildMasseHtml(active, rep.desc);
         stockSlot.innerHTML = stockLineFor(active);
         renderQty();
         renderPaypalButtons(paypalGetter, document.getElementById('paypalButtonContainerProduct'));

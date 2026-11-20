@@ -23,9 +23,16 @@ export default async (req) => {
   const apiKey = process.env.BREVO_API_KEY;
   const listId = entry.listId || parseInt(process.env.BREVO_LIST_ID, 10);
 
+  // Ergebnis des Brevo-Eintrags. WICHTIG: vorher wurde die Antwort gar nicht
+  // geprueft - schlug der Eintrag fehl, war der Kontakt bestaetigt, bekam die
+  // Willkommensmail, stand aber in keiner Brevo-Liste und tauchte in keiner
+  // Kampagne auf. Das ist genau einmal passiert und ist niemandem aufgefallen.
+  let inBrevo = false;
+  let fehlerText = "";
+
   if (apiKey && listId) {
     try {
-      await fetch("https://api.brevo.com/v3/contacts", {
+      const resp = await fetch("https://api.brevo.com/v3/contacts", {
         method: "POST",
         headers: {
           "api-key": apiKey,
@@ -35,9 +42,18 @@ export default async (req) => {
         body: JSON.stringify({ email: entry.email, listIds: [listId], updateEnabled: true }),
       });
       // 201 = neu angelegt, 204 = aktualisiert, 400 = existiert schon -> updateEnabled deckt das ab
+      inBrevo = resp.ok || resp.status === 204 || resp.status === 400;
+      if (!inBrevo) {
+        fehlerText = `${resp.status} ${(await resp.text()).slice(0, 200)}`;
+        console.error("Brevo contacts Fehler:", fehlerText);
+      }
     } catch (err) {
-      console.error("Brevo contacts Ausnahme:", err && err.message);
+      fehlerText = String(err && err.message);
+      console.error("Brevo contacts Ausnahme:", fehlerText);
     }
+  } else {
+    fehlerText = "BREVO_API_KEY oder BREVO_LIST_ID fehlt";
+    console.error(fehlerText);
   }
 
   // Token verbrauchen + als bestätigt vermerken
@@ -45,8 +61,19 @@ export default async (req) => {
   const confirmed = (await store.get("newsletter_confirmed", { type: "json" })) || [];
   const isNew = !confirmed.some((c) => c.email === entry.email);
   if (isNew) {
-    confirmed.push({ email: entry.email, date: new Date().toISOString() });
+    confirmed.push({ email: entry.email, date: new Date().toISOString(), inBrevo });
     await store.setJSON("newsletter_confirmed", confirmed);
+  }
+
+  // Hat Brevo den Kontakt nicht angenommen, kommt er auf eine Nachtragsliste.
+  // Die Einwilligung selbst ist durch newsletter_confirmed dokumentiert - es
+  // fehlt nur der Eintrag in der Versandliste.
+  if (!inBrevo) {
+    const offen = (await store.get("newsletter_nachtragen", { type: "json" })) || [];
+    if (!offen.some((o) => o.email === entry.email)) {
+      offen.push({ email: entry.email, date: new Date().toISOString(), grund: fehlerText });
+      await store.setJSON("newsletter_nachtragen", offen);
+    }
   }
 
   // Willkommens-Mail: liefert den ARCHIV10-Code + Drop-Termin und wärmt die

@@ -40,3 +40,7 @@ werkzeuge/
 
 # Lokaler Helfer fuer den Handy-Zugang
 Handy-Zugang einrichten.bat
+
+# Sicherungskopien beim Bearbeiten - gehoeren nicht auf die Website
+*.verworfen-*
+*.bak-*
