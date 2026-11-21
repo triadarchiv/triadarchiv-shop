@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /live.html
 
 Sitemap: https://triadarchiv.de/sitemap.xml

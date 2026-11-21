@@ -116,3 +116,9 @@
   from = "/api/paypal-capture-order"
   to = "/.netlify/functions/paypal-capture-order"
   status = 200
+
+# Live-Zaehler: wie viele gerade im Shop sind (POST oeffentlich, GET nur Admin).
+[[redirects]]
+  from = "/api/live"
+  to = "/.netlify/functions/live"
+  status = 200

@@ -2410,7 +2410,10 @@ document.addEventListener('DOMContentLoaded', function(){
      am Rechner sitzen und etwas umstellen.
      Nach dem ersten Drop kann DROP_OFFEN einfach fest auf true gesetzt
      werden, dann ist der Shop dauerhaft im Normalbetrieb. */
-  const DROP_OFFEN = Date.now() >= new Date(DROP_DATE_ISO).getTime();
+  // Lokal (localhost) immer offen, damit die angelegten Artikel vor dem Drop
+  // zu sehen sind. Online greift weiter nur der Termin.
+  const LOKALE_VORSCHAU = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const DROP_OFFEN = LOKALE_VORSCHAU || Date.now() >= new Date(DROP_DATE_ISO).getTime();
   const AUFBAU_MODUS = !DROP_OFFEN;
   const AUFBAU_DROP_TERMIN = 'Samstag, 21. November';
 
@@ -2744,22 +2747,6 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="ig-grid" id="igGrid" aria-label="Aktuelle Stücke"></div>
 </section>
 
-<!-- ================= Sekundärer Newsletter (über dem Footer) ================= -->
-<div class="foot-nl" aria-label="Newsletter">
-  <div class="foot-nl-inner">
-    <div class="foot-nl-copy">
-      <span class="eyebrow" data-i18n="fnl_eyebrow">Newsletter</span>
-      <h3 data-i18n="fnl_h3">Jeden Drop zuerst</h3>
-      <p data-i18n="fnl_p">Neue Unikate zuerst sehen — plus 10&nbsp;% Willkommensrabatt auf deine erste Bestellung. Kein Spam, jederzeit abbestellbar.</p>
-    </div>
-    <form class="foot-nl-form" id="footNlForm" novalidate>
-      <input type="email" id="footNlEmail" name="email" placeholder="Deine E-Mail-Adresse" required autocomplete="email" aria-label="E-Mail-Adresse" data-i18n-ph="fnl_email_ph" data-i18n-aria="fnl_email_aria">
-      <button type="submit" data-i18n="fnl_btn">Eintragen</button>
-    </form>
-    <p class="foot-nl-note" id="footNlNote" role="status" aria-live="polite"></p>
-  </div>
-</div>
-
 <footer>
   <div class="foot-inner">
     <div class="foot-logo">
@@ -2945,7 +2932,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const cardsHtml = groups.map((variants, idx) => {
       const p = variants[0];   // Repräsentant (gemeinsame Felder)
       const cats = Array.isArray(p.cats) ? p.cats : [];
-      const no = archiveNo(idx, groups.length);
+      const no = (typeof p.nr === 'number') ? String(p.nr).padStart(3, '0') : archiveNo(idx, groups.length);   // feste Nummer aus products.json, sonst alte Rechnung
       const catLabel = cats.length ? cats[0] : 'Archiv';
 
       const available = variants.filter(v => !isSoldOut(v));
@@ -4054,6 +4041,51 @@ document.addEventListener('DOMContentLoaded', function(){
         .finally(() => { btn.disabled = false; });
     });
   })();
+</script>
+
+
+<!-- ================= Live-Zaehler =================
+     Meldet alle 15 s "dieser Tab ist offen" - mit einer Zufallskennung, die der
+     Browser selbst wuerfelt und die mit dem Tab verschwindet. Keine IP, kein
+     Cookie, kein Name. Nur damit auf live.html sichtbar ist, wie viele gerade
+     da sind. Faellt der Server aus, passiert hier gar nichts: alles steckt in
+     try/catch, und die Seite merkt davon nichts. -->
+<script>
+(function(){
+  'use strict';
+  try{
+    var SEITE = 'shop';
+    var TAKT  = 15000;
+
+    function wuerfeln(){
+      return (Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))
+             .replace(/[^a-z0-9]/g, '').slice(0, 16);
+    }
+
+    var id;
+    try{
+      id = sessionStorage.getItem('triadLiveId');
+      if(!id){ id = wuerfeln(); sessionStorage.setItem('triadLiveId', id); }
+    }catch(e){ id = wuerfeln(); }   // privater Modus o.ae. - dann eben pro Aufruf neu
+    if(!id || id.length < 8) return;
+
+    function schlag(){
+      if(document.hidden) return;   // im Hintergrund zaehlt niemand als "da"
+      try{
+        fetch('/api/live', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, seite: SEITE }),
+          keepalive: true
+        }).catch(function(){});
+      }catch(e){}
+    }
+
+    schlag();
+    setInterval(schlag, TAKT);
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) schlag(); });
+  }catch(e){}
+})();
 </script>
 
 </body>

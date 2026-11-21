@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live — TRIAD ARCHIV</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#121110">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;min-height:100vh;background:#121110;color:#f4f1ea;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px 18px;text-align:center;
+  }
+  .marke{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#8b877e;font-weight:700}
+  .zahl{
+    font-size:clamp(90px,34vw,220px);line-height:.92;font-weight:700;
+    letter-spacing:-4px;margin:14px 0 0;font-variant-numeric:tabular-nums;
+  }
+  .zahl.puls{animation:puls .5s ease}
+  @keyframes puls{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .unter{font-size:15px;color:#d7d3cb;margin-top:6px}
+  .punkt{
+    display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff3d78;
+    margin-right:7px;vertical-align:middle;animation:blink 2s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  .aufteilung{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-top:26px}
+  .pill{border:1px solid #2b2927;padding:8px 14px;font-size:13px;color:#d7d3cb}
+  .pill b{color:#f4f1ea;font-weight:700}
+  .fuss{margin-top:30px;font-size:12px;color:#6f6b64;line-height:1.9}
+  .fehler{color:#ff3d78;font-size:14px;margin-top:18px;max-width:30ch;line-height:1.5}
+  .still{opacity:.35}
+  a{color:#8b877e}
+</style>
+</head>
+<body>
+
+<div class="marke">/// TRIAD ARCHIV</div>
+
+<div class="zahl" id="zahl">–</div>
+<div class="unter"><span class="punkt" id="punkt"></span><span id="label">wird geladen …</span></div>
+
+<div class="aufteilung" id="aufteilung"></div>
+
+<div class="fehler" id="fehler" hidden></div>
+
+<div class="fuss">
+  Höchstwert bisher: <b id="max">–</b><br>
+  <span id="stand">—</span>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var ABSTAND = 8000;           // alle 8 s nachfragen
+  var hoechst = 0;
+  var fehlversuche = 0;
+
+  var elZahl  = document.getElementById('zahl');
+  var elLabel = document.getElementById('label');
+  var elAuf   = document.getElementById('aufteilung');
+  var elMax   = document.getElementById('max');
+  var elStand = document.getElementById('stand');
+  var elFehler= document.getElementById('fehler');
+  var elPunkt = document.getElementById('punkt');
+
+  var NAMEN = { shop: 'Shop', artikel: 'Artikelseite', warenkorb: 'Warenkorb',
+                kasse: 'Kasse', sonst: 'Sonstige' };
+
+  // Gleicher Schluessel wie im Admin: wer dort schon drin ist, muss hier
+  // nichts nochmal eintippen (sofern derselbe Tab-Verlauf).
+  function adminSchluessel(){
+    var k = sessionStorage.getItem('triadAdminKey');
+    if(!k){
+      k = prompt('Admin-Passwort eingeben:') || '';
+      if(k) sessionStorage.setItem('triadAdminKey', k);
+    }
+    return k;
+  }
+
+  function zeigeFehler(text){
+    elFehler.hidden = false;
+    elFehler.textContent = text;
+    elPunkt.classList.add('still');
+  }
+  function fehlerWeg(){
+    elFehler.hidden = true;
+    elPunkt.classList.remove('still');
+  }
+
+  function malen(d){
+    var n = d.live || 0;
+    if(elZahl.textContent !== String(n)){
+      elZahl.textContent = n;
+      elZahl.classList.remove('puls');
+      void elZahl.offsetWidth;          // Animation neu starten
+      elZahl.classList.add('puls');
+    }
+    elLabel.textContent = n === 1 ? 'Person gerade im Shop' : 'Personen gerade im Shop';
+
+    if(n > hoechst){ hoechst = n; elMax.textContent = hoechst; }
+    else if(elMax.textContent === '–'){ elMax.textContent = hoechst; }
+
+    var teile = [];
+    var proSeite = d.proSeite || {};
+    Object.keys(proSeite).sort(function(a,b){ return proSeite[b] - proSeite[a]; }).forEach(function(k){
+      teile.push('<span class="pill"><b>' + proSeite[k] + '</b> ' + (NAMEN[k] || k) + '</span>');
+    });
+    elAuf.innerHTML = teile.join('');
+
+    var jetzt = new Date();
+    elStand.textContent = 'Stand ' + jetzt.toLocaleTimeString('de-DE');
+  }
+
+  function holen(){
+    var key = adminSchluessel();
+    if(!key){ zeigeFehler('Ohne Admin-Passwort geht es nicht. Seite neu laden zum Nochmal-Eingeben.'); return; }
+
+    fetch('/api/live', { headers: { 'x-admin-key': key }, cache: 'no-store' })
+      .then(function(r){
+        if(r.status === 401){
+          sessionStorage.removeItem('triadAdminKey');
+          throw new Error('Passwort stimmt nicht. Seite neu laden und nochmal eingeben.');
+        }
+        if(r.status === 429) throw new Error('Zu viele Fehlversuche — ein paar Minuten warten.');
+        if(!r.ok) throw new Error('Server antwortet nicht (' + r.status + ').');
+        return r.json();
+      })
+      .then(function(d){ fehlversuche = 0; fehlerWeg(); malen(d); })
+      .catch(function(e){
+        fehlversuche++;
+        // Erst nach dem zweiten Fehlschlag meckern - eine einzelne
+        // hakelige Antwort soll den Bildschirm nicht rot machen.
+        if(fehlversuche >= 2) zeigeFehler(e && e.message ? e.message : 'Keine Verbindung.');
+      });
+  }
+
+  holen();
+  setInterval(holen, ABSTAND);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) holen(); });
+})();
+</script>
+</body>
+</html>
