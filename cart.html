@@ -785,10 +785,11 @@
 
 
 <!-- ================= Live-Zaehler =================
-     Meldet alle 15 s "dieser Tab ist offen" - mit einer Zufallskennung, die der
-     Browser selbst wuerfelt und die mit dem Tab verschwindet. Keine IP, kein
-     Cookie, kein Name. Nur damit auf live.html sichtbar ist, wie viele gerade
-     da sind. Faellt der Server aus, passiert hier gar nichts: alles steckt in
+     Meldet alle 15 s "diese Seite ist offen". Es wird NICHTS auf dem Geraet
+     gespeichert oder ausgelesen - kein Cookie, kein sessionStorage. Wer der
+     Besucher ist, interessiert niemanden; der Server bildet nur eine taeglich
+     wechselnde Pruefsumme, damit derselbe Mensch nicht doppelt zaehlt.
+     Faellt der Server aus, passiert hier gar nichts: alles steckt in
      try/catch, und die Seite merkt davon nichts. -->
 <script>
 (function(){
@@ -797,24 +798,12 @@
     var SEITE = 'warenkorb';
     var TAKT  = 15000;
 
-    function wuerfeln(){
-      return (Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))
-             .replace(/[^a-z0-9]/g, '').slice(0, 16);
-    }
-
-    var id;
-    try{
-      id = sessionStorage.getItem('triadLiveId');
-      if(!id){ id = wuerfeln(); sessionStorage.setItem('triadLiveId', id); }
-    }catch(e){ id = wuerfeln(); }   // privater Modus o.ae. - dann eben pro Aufruf neu
-    if(!id || id.length < 8) return;
-
     function schlag(){
       try{
         fetch('/api/live', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id, seite: SEITE }),
+          body: JSON.stringify({ seite: SEITE }),
           keepalive: true
         }).catch(function(){});
       }catch(e){}
@@ -822,8 +811,8 @@
 
     schlag();
     setInterval(schlag, TAKT);
-    // Beim Weg-Wechseln nochmal schlagen: dann ist der letzte Zeitstempel frisch
-    // und der Besucher faellt waehrend eines kurzen App-Wechsels nicht raus.
+    // Beim Weg- und Zurueckwechseln nochmal schlagen: dann ist der letzte
+    // Zeitstempel frisch und ein kurzer App-Wechsel wirft niemanden raus.
     document.addEventListener('visibilitychange', function(){ schlag(); });
     window.addEventListener('pageshow', function(){ schlag(); });
   }catch(e){}

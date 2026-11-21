@@ -1,20 +1,26 @@
 // Netlify-Funktion (v2): zaehlt, wie viele Leute GERADE im Shop sind.
 //
-// Datensparsam wie visits.mjs: gespeichert wird nur eine zufaellige Kennung,
-// die der Browser selbst wuerfelt, plus ein Zeitstempel. Keine IP, kein Cookie,
-// kein Name - die Kennung lebt nur solange der Tab offen ist und laesst sich
-// keiner Person zuordnen. Nach zwei Minuten ist jeder Eintrag weg.
+// Es wird NICHTS auf dem Geraet des Besuchers gespeichert oder ausgelesen -
+// kein Cookie, kein sessionStorage. Damit greift § 25 TDDDG nicht und es
+// braucht kein Einwilligungsbanner.
 //
-// POST { id, seite }  -> Herzschlag einer offenen Seite (oeffentlich)
-// GET                 -> aktuelle Zahl (nur Admin, x-admin-key)
+// Stattdessen bildet der Server eine Pruefsumme aus IP + Browserkennung +
+// Tagesdatum. Sie dient einzig dazu, denselben Besucher nicht mehrfach zu
+// zaehlen, laesst sich nicht zurueckrechnen, wechselt taeglich und ist
+// spaetestens nach fuenf Minuten geloescht. Die IP selbst wird nie abgelegt.
+//
+// POST { seite }  -> Herzschlag einer offenen Seite (oeffentlich)
+// GET             -> aktuelle Zahl (nur Admin, x-admin-key)
 //
 // Trick gegen Gleichzeitigkeit: es gibt KEINE gemeinsame Zaehler-Datei, die
-// mehrere Besucher gleichzeitig ueberschreiben koennten. Stattdessen legt jeder
-// Herzschlag einen eigenen winzigen Eintrag an, dessen SCHLUESSEL schon alles
-// enthaelt: Zeitfenster, Seite, Kennung. Gezaehlt wird dann nur die Schluesselliste.
+// mehrere Besucher gleichzeitig ueberschreiben koennten. Jeder Herzschlag legt
+// einen eigenen winzigen Eintrag an, dessen SCHLUESSEL schon alles enthaelt:
+// Zeitfenster, Seite, Pruefsumme. Gezaehlt wird nur die Schluesselliste.
 
+import crypto from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 import { requireAdmin } from './_auth.mjs';
+import { clientIp } from './_ratelimit.mjs';
 
 const json = (o, s = 200) =>
   new Response(JSON.stringify(o), {
@@ -23,11 +29,13 @@ const json = (o, s = 200) =>
   });
 
 // Der Browser schlaegt alle 15 s an. Aktiv heisst: Herzschlag in einem der
-// letzten drei Fenster, also vor hoechstens 30-45 s. Damit faellt jemand, der
-// den Tab zumacht, nach spaetestens ~45 s wieder raus - und wer nur einen
-// einzelnen Herzschlag verpasst (Funkloch, Tab kurz traege), bleibt drin.
+// letzten fuenf Fenster, also vor hoechstens 60-75 s.
+//
+// Warum so grosszuegig: wer am Handy kurz in eine andere App wechselt, dessen
+// Browser friert ein und schickt nichts mehr. Mit einem engen Fenster waere er
+// nach 45 s "weg", obwohl der Shop noch offen ist und er gleich zurueckkommt.
 const FENSTER_MS = 15000;        // Laenge eines Zeitfensters
-const AKTIV_FENSTER = 3;         // aktiv = Herzschlag in den letzten 30-45 s
+const AKTIV_FENSTER = 5;         // aktiv = Herzschlag in den letzten 60-75 s
 const ALT_FENSTER = 20;          // aelter als ~5 min -> aufraeumen
 const MAX_LOESCHEN = 300;        // pro Aufruf hoechstens so viele Altlasten
 
@@ -35,25 +43,35 @@ const SEITEN = new Set(['shop', 'artikel', 'warenkorb', 'kasse', 'sonst']);
 
 const fensterJetzt = () => Math.floor(Date.now() / FENSTER_MS);
 
+// Fester Zusatz, damit die Pruefsumme nicht allein aus oeffentlich bekannten
+// Angaben besteht. Zusammen mit dem Tagesdatum wechselt sie jede Nacht.
+const PFEFFER = 'triad-archiv-live-zaehler';
+
+function pruefsumme(req) {
+  const ip = clientIp(req) || 'unbekannt';
+  const ua = (req.headers.get('user-agent') || '').slice(0, 200);
+  const tag = new Date().toISOString().slice(0, 10);
+  return crypto.createHash('sha256')
+    .update(`${PFEFFER}|${tag}|${ip}|${ua}`)
+    .digest('hex')
+    .slice(0, 20);
+}
+
 export default async (req) => {
   const store = getStore('live');
 
   // ---------- Herzschlag ----------
   if (req.method === 'POST') {
-    let b;
-    try { b = await req.json(); } catch (e) { return json({ ok: false }, 400); }
-
-    // Kennung: genau das, was der Browser erzeugt - 8-32 Zeichen a-z0-9.
-    const id = String((b && b.id) || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 32);
-    if (id.length < 8) return json({ ok: false }, 400);
+    let b = null;
+    try { b = await req.json(); } catch (e) { b = null; }   // Seite ist optional
 
     const roh = String((b && b.seite) || '').toLowerCase();
     const seite = SEITEN.has(roh) ? roh : 'sonst';
 
     try {
-      await store.set(`${fensterJetzt()}_${seite}_${id}`, '1');
+      await store.set(`${fensterJetzt()}_${seite}_${pruefsumme(req)}`, '1');
     } catch (e) {
-      // Ein verlorener Herzschlag ist egal - naechster kommt in 20 s.
+      // Ein verlorener Herzschlag ist egal - der naechste kommt in 15 s.
       return json({ ok: false }, 200);
     }
     return json({ ok: true });
@@ -73,7 +91,7 @@ export default async (req) => {
     }
 
     const jetzt = fensterJetzt();
-    const aktiv = new Map();      // Kennung -> Seite (letzte gewinnt)
+    const aktiv = new Map();      // Pruefsumme -> Seite (letzte gewinnt)
     const altlasten = [];
 
     for (const eintrag of eintraege) {

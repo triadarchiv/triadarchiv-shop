@@ -122,3 +122,13 @@
   from = "/api/live"
   to = "/.netlify/functions/live"
   status = 200
+
+# Sicherheits-Kopfzeilen. Bewusst nur die drei, die nichts kaputtmachen koennen:
+# kein CSP (der Shop arbeitet mit eingebettetem Skript, das waere kurz vor dem
+# Drop zu riskant) - das kann nach dem Launch in Ruhe nachgezogen werden.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
