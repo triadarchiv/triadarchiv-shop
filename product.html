@@ -1409,7 +1409,6 @@
     if(!id || id.length < 8) return;
 
     function schlag(){
-      if(document.hidden) return;   // im Hintergrund zaehlt niemand als "da"
       try{
         fetch('/api/live', {
           method: 'POST',
@@ -1422,7 +1421,10 @@
 
     schlag();
     setInterval(schlag, TAKT);
-    document.addEventListener('visibilitychange', function(){ if(!document.hidden) schlag(); });
+    // Beim Weg-Wechseln nochmal schlagen: dann ist der letzte Zeitstempel frisch
+    // und der Besucher faellt waehrend eines kurzen App-Wechsels nicht raus.
+    document.addEventListener('visibilitychange', function(){ schlag(); });
+    window.addEventListener('pageshow', function(){ schlag(); });
   }catch(e){}
 })();
 </script>
